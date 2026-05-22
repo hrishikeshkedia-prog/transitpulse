@@ -1001,5 +1001,6 @@ function renderCliList(){var el=document.getElementById('cliList');if(!el)return
 // Set tally default date range
 (function(){var d=new Date(),y=d.getFullYear(),mo=String(d.getMonth()+1).padStart(2,'0'),fr=document.getElementById('tally_f'),to2=document.getElementById('tally_t');if(fr)fr.value=y+'-'+mo+'-01';if(to2)to2.value=y+'-'+mo+'-'+String(new Date(y,d.getMonth()+1,0).getDate()).padStart(2,'0');})();
 </script>
+<script src="sync.js"></script>
 </body>
 </html>

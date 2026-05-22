@@ -5,6 +5,7 @@
   "main": "main.js",
   "scripts": {
     "start": "electron .",
+    "server": "node server/index.js",
     "build:win": "electron-builder --win",
     "build:mac": "electron-builder --mac",
     "build:linux": "electron-builder --linux",
@@ -18,6 +19,7 @@
       "index.html",
       "main.js",
       "preload.js",
+      "sync.js",
       "assets/**/*"
     ],
     "directories": {
