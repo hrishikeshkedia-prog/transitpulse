@@ -5,7 +5,7 @@
 
   var SURL_KEY  = 'fdp_server_url';
   var JWT_KEY   = 'fdp_jwt';
-  var SESS_KEY  = 'fdp_persist_session'; // localStorage-backed session for Electron
+  var SESS_KEY  = 'fdp_persist_session'; // localStorage-backed session for Electron/Android
   var BASE      = (localStorage.getItem(SURL_KEY) || '').trim().replace(/\/$/, '');
   var TOKEN     = localStorage.getItem(JWT_KEY) || '';
 
@@ -71,12 +71,12 @@
     window.loadAll = function () { _origLoadAll.apply(this, arguments); pullAll(); };
   }
 
-  // ── Patch loginUser: persist session for Electron + trigger server pull ────────
+  // ── Patch loginUser: persist session for Electron/Android + update sidebar ─────
   var _origLoginUser = window.loginUser;
   if (typeof _origLoginUser === 'function') {
     window.loginUser = function (u, obj) {
       _origLoginUser.apply(this, arguments);
-      localStorage.setItem(SESS_KEY, u); // persist across Electron restarts
+      localStorage.setItem(SESS_KEY, u); // persist across restarts
       updateSidebarSync();
     };
   }
@@ -91,34 +91,39 @@
     };
   }
 
-  // ── Patch obFinish: register on server then run local flow ───────────────────
+  // ── Patch obFinish: LOCAL ALWAYS WORKS — server sync is background-only ────────
+  // This is critical: never block the user from registering due to server issues.
   var _origObFinish = window.obFinish;
   if (typeof _origObFinish === 'function') {
     window.obFinish = function () {
-      var name = (document.getElementById('ob_name').value || '').trim();
-      var user = (document.getElementById('ob_user').value || '').trim().toLowerCase().replace(/\s/g, '');
-      var pass = document.getElementById('ob_pass').value || '';
+      // Read form values NOW before _origObFinish() might clear them
+      var name = '', user = '', pass = '';
+      var elName = document.getElementById('ob_name');
+      var elUser = document.getElementById('ob_user');
+      var elPass = document.getElementById('ob_pass');
+      if (elName) name = (elName.value || '').trim();
+      if (elUser) user = (elUser.value || '').trim().toLowerCase().replace(/\s/g, '');
+      if (elPass) pass = elPass.value || '';
 
-      if (!BASE) { _origObFinish(); return; }
+      // Always run local registration immediately — user gets into the app right away
+      _origObFinish();
 
-      var e3 = document.getElementById('ob_e3'); e3.textContent = '';
-
+      // Background server registration (non-blocking — never prevents app use)
+      if (!BASE || !user || !pass) return;
       api('POST', '/api/auth/register', { username: user, name: name, password: pass })
         .then(function (data) {
           setToken(data.token);
-          _origObFinish();
-          pushAll(); // push initial company settings immediately
+          pushAll();
         })
         .catch(function (err) {
           if (err.message === 'Username already taken') {
-            return api('POST', '/api/auth/login', { username: user, password: pass })
-              .then(function (data) { setToken(data.token); _origObFinish(); pushAll(); })
-              .catch(function () {
-                e3.textContent = 'Server: username taken. Choose a different username or disconnect the server in Settings.';
-              });
+            // Account already on server — log in instead
+            api('POST', '/api/auth/login', { username: user, password: pass })
+              .then(function (data) { setToken(data.token); pullAll(); })
+              .catch(function () { console.warn('[FDP Sync] server login-after-register failed'); });
+          } else {
+            console.warn('[FDP Sync] server registration skipped:', err.message);
           }
-          console.warn('[FDP Sync] server registration failed:', err.message);
-          _origObFinish(); // fall back to local-only
         });
     };
   }
@@ -172,8 +177,6 @@
           'style="width:100%;padding:12px;background:#2563EB;color:#fff;border:none;border-radius:6px;' +
           'font-size:14px;font-weight:600;cursor:pointer;font-family:Inter,sans-serif;margin-top:4px">' +
           'Sign In →</button>' +
-        (BASE ?
-          '<div style="margin-top:10px;font-size:11px;color:#888;text-align:center">Signing in to server: ' + BASE + '</div>' : '') +
       '</div>';
     obCard.appendChild(loginDiv);
   }
@@ -188,26 +191,26 @@
   }
 
   window.showTab = function (tab) {
-    var obBody   = document.querySelector('#onboard .ob-body');
+    var obBody    = document.querySelector('#onboard .ob-body');
     var loginPane = document.getElementById('ob-login-pane');
-    var tReg     = document.getElementById('tab-reg');
-    var tLog     = document.getElementById('tab-log');
+    var tReg      = document.getElementById('tab-reg');
+    var tLog      = document.getElementById('tab-log');
     if (!obBody || !loginPane) return;
 
     if (tab === 'login') {
-      obBody.style.display   = 'none';
+      obBody.style.display    = 'none';
       loginPane.style.display = '';
       _tabStyle(tReg, false); _tabStyle(tLog, true);
       var u = document.getElementById('li_user');
       if (u) setTimeout(function () { u.focus(); }, 50);
     } else {
-      obBody.style.display   = '';
+      obBody.style.display    = '';
       loginPane.style.display = 'none';
       _tabStyle(tReg, true); _tabStyle(tLog, false);
     }
   };
 
-  // ── Login handler ─────────────────────────────────────────────────────────────
+  // ── Login handler: local-first with server fallback ───────────────────────────
   window.fdpLogin = function () {
     var u   = (document.getElementById('li_user').value || '').trim().toLowerCase().replace(/\s/g,'');
     var p   = document.getElementById('li_pass').value || '';
@@ -216,37 +219,50 @@
 
     if (!u || !p) { err.textContent = 'Enter username and password.'; return; }
 
-    if (BASE) {
-      // Server mode: authenticate via API
-      err.textContent = 'Signing in…';
-      api('POST', '/api/auth/login', { username: u, password: p })
-        .then(function (data) {
-          setToken(data.token);
-          // Ensure local user entry exists (needed by session restore)
-          var users = window.gU();
-          if (!users[u]) {
-            users[u] = { pass: btoa(unescape(encodeURIComponent(p))), name: data.name };
-            window.sU(users);
-          }
-          _finishLogin(u, users[u] || { name: data.name });
-        })
-        .catch(function (e) { err.textContent = '✗ ' + e.message; });
+    // Always check local credentials first
+    var localUsers = typeof window.gU === 'function' ? window.gU() : {};
+    var localUser  = localUsers[u];
+    var localOk    = localUser && (localUser.pass === btoa(unescape(encodeURIComponent(p))));
+
+    if (!BASE) {
+      // Local-only mode
+      if (!localUser) { err.textContent = 'Username not found on this device.'; return; }
+      if (!localOk)   { err.textContent = 'Incorrect password.'; return; }
+      _finishLogin(u, localUser);
       return;
     }
 
-    // Local mode: verify against localStorage
-    var users = window.gU();
-    var user  = users[u];
-    if (!user) { err.textContent = 'Username not found on this device.'; return; }
-    if (user.pass !== btoa(unescape(encodeURIComponent(p)))) {
-      err.textContent = 'Incorrect password.'; return;
-    }
-    _finishLogin(u, user);
+    // Server mode: try server, fall back to local if server unreachable
+    err.textContent = 'Signing in…';
+    api('POST', '/api/auth/login', { username: u, password: p })
+      .then(function (data) {
+        setToken(data.token);
+        // Cache user locally so session restore works offline
+        if (!localUsers[u]) {
+          localUsers[u] = { pass: btoa(unescape(encodeURIComponent(p))), name: data.name };
+          if (typeof window.sU === 'function') window.sU(localUsers);
+        }
+        _finishLogin(u, localUsers[u] || { name: data.name });
+      })
+      .catch(function (e) {
+        // Server unreachable but local credentials match → log in offline
+        if (localOk) {
+          err.textContent = '';
+          _finishLogin(u, localUser);
+          return;
+        }
+        if (!localUser) {
+          err.textContent = '✗ Username not found.';
+        } else {
+          err.textContent = '✗ ' + e.message;
+        }
+      });
   };
 
   function _finishLogin(u, userObj) {
-    document.getElementById('onboard').style.display = 'none';
-    window.COMPANY = typeof window.defCo === 'function' ? window.defCo() : {};
+    var ob = document.getElementById('onboard');
+    if (ob) ob.style.display = 'none';
+    if (typeof window.defCo === 'function') window.COMPANY = window.defCo();
     window.loginUser(u, userObj);
     if (BASE && TOKEN) pullAll();
   }
@@ -453,43 +469,60 @@
     injectSidebarSyncBadge();
     updateSidebarSync();
 
-    // ── Electron session persistence ─────────────────────────────────────────────
-    // sessionStorage is cleared when Electron restarts. If no active session but we
-    // have a persisted username in localStorage, auto-login from there.
-    if (!window.CU) {
-      var persisted = localStorage.getItem(SESS_KEY);
-      if (persisted) {
-        var users = typeof window.gU === 'function' ? window.gU() : {};
-        if (users[persisted]) {
-          document.getElementById('onboard').style.display = 'none';
-          window.COMPANY = typeof window.defCo === 'function' ? window.defCo() : {};
-          window.loginUser(persisted, users[persisted]);
-          // loginUser patch above will run pullAll if server is configured
-          if (BASE && TOKEN) {
-            api('GET', '/api/auth/me')
-              .then(function () { pullAll(); })
-              .catch(function (err) {
-                console.warn('[FDP Sync] startup JWT check failed:', err.message);
-                setToken(''); updateSidebarSync();
-                showServerReloginOverlay(persisted);
-              });
-          }
-          return; // done — user is logged in
-        } else {
-          localStorage.removeItem(SESS_KEY); // stale entry
+    // ── Case 1: session already restored by the main app's boot IIFE ─────────────
+    // The boot IIFE runs before sync.js and calls loginUser() via sessionStorage,
+    // but never hides #onboard. Fix that here.
+    if (window.CU) {
+      var ob = document.getElementById('onboard');
+      if (ob) ob.style.display = 'none';
+      // Persist this session so the next cold start restores from localStorage
+      localStorage.setItem(SESS_KEY, window.CU);
+      updateSidebarSync();
+      if (BASE && TOKEN) {
+        api('GET', '/api/auth/me')
+          .then(function () { pullAll(); })
+          .catch(function (err) {
+            console.warn('[FDP Sync] JWT check failed:', err.message);
+            setToken(''); updateSidebarSync();
+            showServerReloginOverlay(window.CU);
+          });
+      }
+      return;
+    }
+
+    // ── Case 2: cold start — try localStorage session persistence ─────────────────
+    // sessionStorage is cleared on Electron restart and Android app close.
+    var persisted = localStorage.getItem(SESS_KEY);
+    if (persisted) {
+      var users = typeof window.gU === 'function' ? window.gU() : {};
+      if (users[persisted]) {
+        var ob2 = document.getElementById('onboard');
+        if (ob2) ob2.style.display = 'none';
+        if (typeof window.defCo === 'function') window.COMPANY = window.defCo();
+        window.loginUser(persisted, users[persisted]);
+        if (BASE && TOKEN) {
+          api('GET', '/api/auth/me')
+            .then(function () { pullAll(); })
+            .catch(function (err) {
+              console.warn('[FDP Sync] startup JWT check failed:', err.message);
+              setToken(''); updateSidebarSync();
+              showServerReloginOverlay(persisted);
+            });
         }
+        return;
+      } else {
+        localStorage.removeItem(SESS_KEY); // stale — user was deleted
       }
     }
 
-    // ── Server-mode startup pull (session already restored by the main script) ───
-    if (window.CU && BASE && TOKEN) {
-      api('GET', '/api/auth/me')
-        .then(function () { pullAll(); })
-        .catch(function (err) {
-          console.warn('[FDP Sync] JWT check failed:', err.message);
-          setToken(''); updateSidebarSync();
-          showServerReloginOverlay(window.CU);
-        });
+    // ── Case 3: no session — show onboard ────────────────────────────────────────
+    // If this device has existing accounts, default to Sign In tab.
+    // New users see the New Account tab (default).
+    if (typeof window.gU === 'function') {
+      var existing = window.gU();
+      if (Object.keys(existing).length > 0) {
+        showTab('login');
+      }
     }
   }
 
