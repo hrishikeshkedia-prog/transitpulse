@@ -1,14 +1,16 @@
 name: Build Android APK
 
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
 on:
   push:
-    branches: ["main"]
-    env:
-  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+    branches: [ "main" ]
     paths:
       - "android-app/**"
       - ".github/workflows/build-android.yml"
-  workflow_dispatch:   # lets you trigger it manually from the GitHub website
+
+  workflow_dispatch:
 
 jobs:
   build:
@@ -35,6 +37,24 @@ jobs:
         working-directory: android-app
         run: npm install
 
+      - name: Sync web assets into Android project
+        working-directory: android-app
+        run: npx cap sync android
+
+      - name: Make gradlew executable
+        working-directory: android-app/android
+        run: chmod +x gradlew
+
+      - name: Build debug APK
+        working-directory: android-app/android
+        run: ./gradlew assembleDebug --no-daemon
+
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: FreightDesk-Pro-debug
+          path: android-app/android/app/build/outputs/apk/debug/app-debug.apk
+          retention-days: 30
       - name: Sync web assets into Android project
         working-directory: android-app
         run: npx cap sync android
