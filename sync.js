@@ -107,7 +107,9 @@
       api('POST', '/api/auth/register', { username: user, name: name, password: pass })
         .then(function (data) {
           setToken(data.token);
-          _origObFinish(); // let the original flow run (saves locally, nav to dashboard)
+          _origObFinish(); // saves locally, sets CU, calls loginUser, nav to dashboard
+          // Push the initial company settings the original flow just set up
+          pushAll();
         })
         .catch(function (err) {
           if (err.message === 'Username already taken') {
@@ -339,16 +341,28 @@
   };
 
   // ── Bootstrap ─────────────────────────────────────────────────────────────────
-  // Wait for the page to fully render before injecting UI
   function init() {
     injectServerSettings();
     setSyncStatus(BASE ? (TOKEN ? 'synced' : 'error') : 'none');
+
+    // The session-restore IIFE in index.html runs before sync.js loads, so the
+    // loginUser patch never fires for startup sessions. Handle it here instead:
+    // if CU is already set (session restored) and we have a valid JWT, pull now.
+    if (window.CU && BASE && TOKEN) {
+      api('GET', '/api/auth/me')
+        .then(function () { pullAll(); })
+        .catch(function (err) {
+          console.warn('[FDP Sync] startup JWT check failed:', err.message);
+          setToken('');
+          setSyncStatus('error');
+          showServerLogin(window.CU);
+        });
+    }
   }
 
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', init);
   } else {
-    // DOMContentLoaded already fired — run on next tick so the app scripts finish first
     setTimeout(init, 0);
   }
 
