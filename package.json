@@ -6,6 +6,7 @@
   "scripts": {
     "start": "electron .",
     "server": "node server/index.js",
+    "icons": "node scripts/gen-icons.js",
     "build:win": "electron-builder --win",
     "build:mac": "electron-builder --mac",
     "build:linux": "electron-builder --linux",
@@ -84,6 +85,7 @@
   "devDependencies": {
     "canvas": "^3.2.3",
     "electron": "^31.0.0",
-    "electron-builder": "^24.13.3"
+    "electron-builder": "^24.13.3",
+    "png-to-ico": "^3.0.1"
   }
 }
