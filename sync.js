@@ -42,11 +42,34 @@
         if (d[type] != null) { window[map[type]] = d[type]; localStorage.setItem(k + type, JSON.stringify(d[type])); }
       });
       if (typeof window.render === 'function') window.render();
+      if (typeof window.loadSetForm === 'function') window.loadSetForm();
       var sbCo = document.getElementById('sbCo');
       if (sbCo) sbCo.textContent = (window.COMPANY && window.COMPANY.name) || '—';
       setSyncStatus('synced');
+      var ts = document.getElementById('srvLastSync');
+      if (ts) ts.textContent = 'Last pulled: ' + new Date().toLocaleTimeString();
     }).catch(function (e) { console.warn('[FDP] pull failed:', e.message); setSyncStatus('error'); });
   }
+
+  window.srvPull = function () {
+    if (!BASE || !TOKEN) return;
+    var msg = document.getElementById('srvMsg');
+    if (msg) { msg.style.color = 'var(--tx2)'; msg.textContent = 'Pulling latest data from server…'; }
+    pullAll();
+    setTimeout(function () {
+      if (msg && BASE && TOKEN) { msg.style.color = '#059669'; msg.textContent = '✓ Signed in and syncing.'; }
+    }, 3000);
+  };
+
+  window.srvPush = function () {
+    if (!BASE || !TOKEN) return;
+    var msg = document.getElementById('srvMsg');
+    if (msg) { msg.style.color = 'var(--tx2)'; msg.textContent = 'Pushing your data to server…'; }
+    pushAll();
+    setTimeout(function () {
+      if (msg && BASE && TOKEN) { msg.style.color = '#059669'; msg.textContent = '✓ Data pushed to server.'; }
+    }, 2000);
+  };
 
   var _origSaveAll = window.saveAll;
   if (typeof _origSaveAll === 'function') {
@@ -215,6 +238,11 @@
           '<div class="fg"><label>&nbsp;</label><button class="btn btn-r btn-sm" onclick="srvDisconnect()" id="srvDisconnBtn" style="display:none">Disconnect</button></div>' +
         '</div>' +
         '<div id="srvMsg" style="font-size:12px;margin-top:6px;color:var(--tx2)"></div>' +
+      '<div id="srvSyncButtons" style="display:none;margin-top:10px;display:flex;gap:8px;flex-wrap:wrap">' +
+        '<button class="btn btn-p btn-sm" onclick="srvPull()">⬇ Pull from server</button>' +
+        '<button class="btn btn-sm" onclick="srvPush()">⬆ Push to server</button>' +
+        '<span id="srvLastSync" style="font-size:11px;color:var(--tx3);align-self:center"></span>' +
+      '</div>' +
         '<div id="srvLoginSection" style="display:none;margin-top:14px;padding-top:14px;border-top:1px solid var(--bd)">' +
           '<div style="font-size:13px;font-weight:600;margin-bottom:10px">Sign in to server</div>' +
           '<div class="fgr"><div class="fg"><label>Username</label><input type="text" id="srv_loginU" class="w160"></div><div class="fg"><label>Password</label><input type="password" id="srv_loginP" class="w160"></div><div class="fg"><label>&nbsp;</label><button class="btn btn-p" onclick="srvLogin()">Sign in</button></div></div>' +
@@ -231,6 +259,8 @@
     urlInput.value = BASE || '';
     if (discBtn) discBtn.style.display = BASE ? '' : 'none';
     if (loginSec) loginSec.style.display = (BASE && !TOKEN) ? '' : 'none';
+    var syncBtns = document.getElementById('srvSyncButtons');
+    if (syncBtns) syncBtns.style.display = (BASE && TOKEN) ? 'flex' : 'none';
     setSyncStatus(BASE ? (TOKEN ? 'synced' : 'error') : 'none');
     var msg = document.getElementById('srvMsg');
     if (msg && BASE && TOKEN) { msg.style.color = '#059669'; msg.textContent = '✓ Signed in and syncing.'; }
