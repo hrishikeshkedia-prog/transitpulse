@@ -11,7 +11,7 @@
 <link rel="manifest" id="pwaManifest">
 <title>FreightDesk Pro</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
-<script src="assets/chart.umd.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{
@@ -1001,6 +1001,5 @@ function renderCliList(){var el=document.getElementById('cliList');if(!el)return
 // Set tally default date range
 (function(){var d=new Date(),y=d.getFullYear(),mo=String(d.getMonth()+1).padStart(2,'0'),fr=document.getElementById('tally_f'),to2=document.getElementById('tally_t');if(fr)fr.value=y+'-'+mo+'-01';if(to2)to2.value=y+'-'+mo+'-'+String(new Date(y,d.getMonth()+1,0).getDate()).padStart(2,'0');})();
 </script>
-<script src="sync.js"></script>
 </body>
 </html>
