@@ -7,11 +7,12 @@
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="FreightDesk">
-<link rel="manifest" id="pwaManifest">
+<meta name="apple-mobile-web-app-title" content="FreightDesk Pro">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icons/icon.svg">
 <title>FreightDesk Pro</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
-<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script src="assets/chart.umd.js"></script>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{
@@ -629,21 +630,11 @@ tr:hover td{background:#fafafa}
   </div>
 </div>
 <script>
-// ══════════ PWA MANIFEST ══════════
-(function(){
-  var manifest={name:"FreightDesk Pro",short_name:"FreightDesk",description:"Transport & CFA billing, finance and Tally export for Indian logistics businesses",start_url:"./",display:"standalone",background_color:"#0f172a",theme_color:"#1e3a5f",orientation:"portrait-primary",icons:[{src:"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 192 192'%3E%3Crect width='192' height='192' rx='32' fill='%231e3a5f'/%3E%3Ctext x='96' y='130' text-anchor='middle' font-size='100'%3E🚛%3C/text%3E%3C/svg%3E",sizes:"192x192",type:"image/svg+xml",purpose:"any maskable"}]};
-  var blob=new Blob([JSON.stringify(manifest)],{type:'application/json'});
-  var url=URL.createObjectURL(blob);
-  var el=document.createElement('link');el.rel='manifest';el.href=url;
-  document.head.appendChild(el);
-})();
-
 // ══════════ SERVICE WORKER (offline) ══════════
-if('serviceWorker' in navigator){
-  var swCode="const CACHE='fdp-v1';const ASSETS=['./']; self.addEventListener('install',e=>e.waitUntil(caches.open(CACHE).then(c=>c.addAll(ASSETS)))); self.addEventListener('fetch',e=>e.respondWith(caches.match(e.request).then(r=>r||fetch(e.request).catch(()=>caches.match('./')))));";
-  var swBlob=new Blob([swCode],{type:'text/javascript'});
-  var swURL=URL.createObjectURL(swBlob);
-  navigator.serviceWorker.register(swURL).catch(function(){});
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', function () {
+    navigator.serviceWorker.register('./sw.js').catch(function (e) { console.warn('SW:', e); });
+  });
 }
 
 // ══════════ INSTALL PROMPT ══════════
@@ -1001,5 +992,6 @@ function renderCliList(){var el=document.getElementById('cliList');if(!el)return
 // Set tally default date range
 (function(){var d=new Date(),y=d.getFullYear(),mo=String(d.getMonth()+1).padStart(2,'0'),fr=document.getElementById('tally_f'),to2=document.getElementById('tally_t');if(fr)fr.value=y+'-'+mo+'-01';if(to2)to2.value=y+'-'+mo+'-'+String(new Date(y,d.getMonth()+1,0).getDate()).padStart(2,'0');})();
 </script>
+<script src="sync.js"></script>
 </body>
 </html>
