@@ -1,6 +1,7 @@
 {
   "name": "freightdesk-sync-server",
   "version": "1.0.0",
+  "description": "Self-hosted sync server for FreightDesk Pro",
   "main": "index.js",
   "scripts": {
     "start": "node index.js"
