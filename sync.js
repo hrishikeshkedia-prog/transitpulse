@@ -257,36 +257,40 @@
   window.srvLogin = function () {
     var u = (document.getElementById('srv_loginU').value || '').trim(), p = document.getElementById('srv_loginP').value || '', msg = document.getElementById('srvLoginMsg');
     if (!u || !p) { msg.style.color = '#dc2626'; msg.textContent = '✗ Enter username and password.'; return; }
-    // Verify local credentials first
+    msg.style.color = 'var(--tx2)'; msg.textContent = 'Signing in…';
     var localUsers = typeof window.gU === 'function' ? window.gU() : {};
     var localUser = localUsers[u];
-    var localOk = localUser && (localUser.pass === btoa(unescape(encodeURIComponent(p))));
-    if (!localOk) { msg.style.color = '#dc2626'; msg.textContent = '✗ Incorrect username or password.'; return; }
-    msg.style.color = 'var(--tx2)'; msg.textContent = 'Signing in…';
+
+    function afterLogin(token) {
+      setToken(token); refreshSrvUI();
+      // If no local account on this device, create one so the app works offline too
+      if (!localUser) {
+        var users = window.gU ? window.gU() : {};
+        users[u] = { pass: btoa(unescape(encodeURIComponent(p))), name: u };
+        if (window.sU) window.sU(users);
+        window.COMPANY = window.defCo ? window.defCo() : {};
+        window.loginUser ? window.loginUser(u, users[u]) : null;
+      }
+      api('GET', '/api/data').then(function (d) {
+        var hasData = d && ((d.iv && d.iv.length) || (d.tr && d.tr.length) || (d.co && d.co.name));
+        if (hasData) {
+          msg.style.color = '#059669'; msg.textContent = '✓ Signed in. Loading your data…';
+          pullAll();
+        } else {
+          msg.style.color = '#059669'; msg.textContent = '✓ Signed in. Uploading your data…';
+          pushAll();
+        }
+      }).catch(function () { pushAll(); });
+    }
+
     api('POST', '/api/auth/login', { username: u, password: p })
-      .then(function (data) {
-        setToken(data.token); refreshSrvUI();
-        // Pull from server first — if it has data use it, otherwise push local
-        api('GET', '/api/data').then(function (d) {
-          var hasData = d && ((d.iv && d.iv.length) || (d.tr && d.tr.length) || (d.co && d.co.name));
-          if (hasData) {
-            msg.style.color = '#059669'; msg.textContent = '✓ Signed in. Loading your data…';
-            pullAll();
-          } else {
-            msg.style.color = '#059669'; msg.textContent = '✓ Signed in. Uploading your data…';
-            pushAll();
-          }
-        }).catch(function () { pushAll(); });
-      })
+      .then(function (data) { afterLogin(data.token); })
       .catch(function () {
-        // Not on server yet — register automatically using local credentials
-        msg.textContent = 'First time on this server, registering…';
-        api('POST', '/api/auth/register', { username: u, name: localUser.name || u, password: p })
-          .then(function (data) {
-            setToken(data.token); refreshSrvUI();
-            msg.style.color = '#059669'; msg.textContent = '✓ Registered on server. Uploading your data…';
-            pushAll();
-          })
+        // Account doesn't exist on server yet — register it
+        msg.textContent = 'Registering on server…';
+        var name = localUser ? (localUser.name || u) : u;
+        api('POST', '/api/auth/register', { username: u, name: name, password: p })
+          .then(function (data) { afterLogin(data.token); })
           .catch(function (e2) { msg.style.color = '#dc2626'; msg.textContent = '✗ ' + e2.message; });
       });
   };
