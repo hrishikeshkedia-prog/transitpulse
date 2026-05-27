@@ -256,10 +256,22 @@
 
   window.srvLogin = function () {
     var u = (document.getElementById('srv_loginU').value || '').trim(), p = document.getElementById('srv_loginP').value || '', msg = document.getElementById('srvLoginMsg');
+    if (!u || !p) { msg.style.color = '#dc2626'; msg.textContent = '✗ Enter username and password.'; return; }
+    // Verify local credentials first
+    var localUsers = typeof window.gU === 'function' ? window.gU() : {};
+    var localUser = localUsers[u];
+    var localOk = localUser && (localUser.pass === btoa(unescape(encodeURIComponent(p))));
+    if (!localOk) { msg.style.color = '#dc2626'; msg.textContent = '✗ Incorrect username or password.'; return; }
     msg.style.color = 'var(--tx2)'; msg.textContent = 'Signing in…';
     api('POST', '/api/auth/login', { username: u, password: p })
-      .then(function (data) { setToken(data.token); msg.style.color = '#059669'; msg.textContent = '✓ Signed in. Syncing…'; refreshSrvUI(); pullAll(); })
-      .catch(function (e) { msg.style.color = '#dc2626'; msg.textContent = '✗ ' + e.message; });
+      .then(function (data) { setToken(data.token); msg.style.color = '#059669'; msg.textContent = '✓ Signed in. Syncing…'; refreshSrvUI(); pushAll(); })
+      .catch(function () {
+        // Not on server yet — register automatically using local credentials
+        msg.textContent = 'First time on this server, registering…';
+        api('POST', '/api/auth/register', { username: u, name: localUser.name || u, password: p })
+          .then(function (data) { setToken(data.token); msg.style.color = '#059669'; msg.textContent = '✓ Account created on server. Syncing…'; refreshSrvUI(); pushAll(); })
+          .catch(function (e2) { msg.style.color = '#dc2626'; msg.textContent = '✗ ' + e2.message; });
+      });
   };
 
   window.srvDisconnect = function () {
