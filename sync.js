@@ -232,6 +232,9 @@
     if (discBtn) discBtn.style.display = BASE ? '' : 'none';
     if (loginSec) loginSec.style.display = (BASE && !TOKEN) ? '' : 'none';
     setSyncStatus(BASE ? (TOKEN ? 'synced' : 'error') : 'none');
+    var msg = document.getElementById('srvMsg');
+    if (msg && BASE && TOKEN) { msg.style.color = '#059669'; msg.textContent = '✓ Signed in and syncing.'; }
+    else if (msg && BASE && !TOKEN) { msg.style.color = 'var(--ac)'; msg.textContent = '✓ Connected. Sign in below to start syncing.'; }
   }
 
   window.srvTest = function () {
