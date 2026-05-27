@@ -29,7 +29,11 @@
     api('PUT', '/api/data', {
       tr: window.trips, py: window.payments, iv: window.invoices,
       cl: window.clients, co: window.COMPANY, fi: window.finData, ml: window.savedMails
-    }).catch(function (e) { console.warn('[FDP] push failed:', e.message); });
+    }).catch(function (e) {
+      console.warn('[FDP] push failed:', e.message);
+      var msg = document.getElementById('srvMsg');
+      if (msg) { msg.style.color = '#dc2626'; msg.textContent = '✗ Sync failed: ' + e.message; }
+    });
   }
 
   function pullAll() {
@@ -39,7 +43,11 @@
       var k = 'fdp_' + window.CU + '_';
       var map = { tr:'trips', py:'payments', iv:'invoices', cl:'clients', co:'COMPANY', fi:'finData', ml:'savedMails' };
       Object.keys(map).forEach(function (type) {
-        if (d[type] != null) { window[map[type]] = d[type]; localStorage.setItem(k + type, JSON.stringify(d[type])); }
+        if (d[type] == null) return;
+        // For COMPANY: never overwrite a non-empty local name with an empty server name
+        if (type === 'co' && window.COMPANY && window.COMPANY.name && !d[type].name) return;
+        window[map[type]] = d[type];
+        localStorage.setItem(k + type, JSON.stringify(d[type]));
       });
       if (typeof window.render === 'function') window.render();
       if (typeof window.loadSetForm === 'function') window.loadSetForm();
@@ -47,7 +55,8 @@
       if (sbCo) sbCo.textContent = (window.COMPANY && window.COMPANY.name) || '—';
       setSyncStatus('synced');
       var ts = document.getElementById('srvLastSync');
-      if (ts) ts.textContent = 'Last pulled: ' + new Date().toLocaleTimeString();
+      var coName = (window.COMPANY && window.COMPANY.name) || '—';
+      if (ts) ts.textContent = 'Pulled ' + new Date().toLocaleTimeString() + ' · ' + coName;
     }).catch(function (e) { console.warn('[FDP] pull failed:', e.message); setSyncStatus('error'); });
   }
 
