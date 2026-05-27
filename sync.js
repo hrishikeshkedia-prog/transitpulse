@@ -264,12 +264,29 @@
     if (!localOk) { msg.style.color = '#dc2626'; msg.textContent = '✗ Incorrect username or password.'; return; }
     msg.style.color = 'var(--tx2)'; msg.textContent = 'Signing in…';
     api('POST', '/api/auth/login', { username: u, password: p })
-      .then(function (data) { setToken(data.token); msg.style.color = '#059669'; msg.textContent = '✓ Signed in. Syncing…'; refreshSrvUI(); pushAll(); })
+      .then(function (data) {
+        setToken(data.token); refreshSrvUI();
+        // Pull from server first — if it has data use it, otherwise push local
+        api('GET', '/api/data').then(function (d) {
+          var hasData = d && ((d.iv && d.iv.length) || (d.tr && d.tr.length) || (d.co && d.co.name));
+          if (hasData) {
+            msg.style.color = '#059669'; msg.textContent = '✓ Signed in. Loading your data…';
+            pullAll();
+          } else {
+            msg.style.color = '#059669'; msg.textContent = '✓ Signed in. Uploading your data…';
+            pushAll();
+          }
+        }).catch(function () { pushAll(); });
+      })
       .catch(function () {
         // Not on server yet — register automatically using local credentials
         msg.textContent = 'First time on this server, registering…';
         api('POST', '/api/auth/register', { username: u, name: localUser.name || u, password: p })
-          .then(function (data) { setToken(data.token); msg.style.color = '#059669'; msg.textContent = '✓ Account created on server. Syncing…'; refreshSrvUI(); pushAll(); })
+          .then(function (data) {
+            setToken(data.token); refreshSrvUI();
+            msg.style.color = '#059669'; msg.textContent = '✓ Registered on server. Uploading your data…';
+            pushAll();
+          })
           .catch(function (e2) { msg.style.color = '#dc2626'; msg.textContent = '✗ ' + e2.message; });
       });
   };
