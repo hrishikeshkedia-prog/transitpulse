@@ -1,6 +1,7 @@
 'use strict';
 const express = require('express');
 const path    = require('path');
+const { init } = require('./db');
 
 const app  = express();
 const PORT = process.env.PORT || 3800;
@@ -22,4 +23,6 @@ const clientDist = path.join(__dirname, '..', 'client', 'dist');
 app.use(express.static(clientDist));
 app.get('*', (req, res) => res.sendFile(path.join(clientDist, 'index.html')));
 
-app.listen(PORT, () => console.log(`Wardrobe server on http://localhost:${PORT}`));
+init()
+  .then(() => app.listen(PORT, () => console.log(`Wardrobe server on http://localhost:${PORT}`)))
+  .catch(err => { console.error('DB init failed:', err.message); process.exit(1); });
