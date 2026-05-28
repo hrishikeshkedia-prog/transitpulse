@@ -9,7 +9,7 @@ services:
     name: my-wardrobe
     env: node
     rootDir: wardrobe
-    buildCommand: "cd client && npm install && npm run build && cd ../server && npm install"
+    buildCommand: "cd client && npm install --include=dev && npm run build && cd ../server && npm install --omit=dev"
     startCommand: "node server/index.js"
     healthCheckPath: /api/health
     plan: free

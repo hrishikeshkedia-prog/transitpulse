@@ -30,7 +30,9 @@ async function init() {
     `);
     console.log('PostgreSQL ready');
   } else {
-    const Database = require('better-sqlite3');
+    let Database;
+    try { Database = require('better-sqlite3'); }
+    catch { throw new Error('Set DATABASE_URL to a PostgreSQL connection string, or install better-sqlite3 for local dev.'); }
     const DB_PATH = path.join(__dirname, '..', 'wardrobe.db');
     _sq = new Database(DB_PATH);
     _sq.pragma('journal_mode = WAL');
