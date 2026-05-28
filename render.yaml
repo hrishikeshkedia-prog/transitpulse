@@ -1,0 +1,14 @@
+services:
+  - type: web
+    name: my-wardrobe
+    env: node
+    rootDir: wardrobe
+    buildCommand: "cd client && npm install && npm run build && cd ../server && npm install"
+    startCommand: "node server/index.js"
+    healthCheckPath: /api/health
+    plan: free
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: DB_PATH
+        value: /opt/render/project/src/wardrobe/wardrobe.db

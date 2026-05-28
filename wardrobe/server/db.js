@@ -10,17 +10,17 @@ db.pragma('foreign_keys = ON');
 
 db.exec(`
   CREATE TABLE IF NOT EXISTS items (
-    id          TEXT PRIMARY KEY,
-    name        TEXT NOT NULL,
-    category    TEXT NOT NULL,
-    color       TEXT NOT NULL,
-    color_family TEXT NOT NULL DEFAULT 'neutral',
+    id            TEXT PRIMARY KEY,
+    name          TEXT NOT NULL,
+    category      TEXT NOT NULL,
+    color         TEXT NOT NULL,
+    color_family  TEXT NOT NULL DEFAULT 'neutral',
     formality_min INTEGER NOT NULL DEFAULT 1,
     formality_max INTEGER NOT NULL DEFAULT 5,
-    style_tags  TEXT NOT NULL DEFAULT '[]',
-    image_path  TEXT,
-    notes       TEXT DEFAULT '',
-    created_at  INTEGER NOT NULL
+    style_tags    TEXT NOT NULL DEFAULT '[]',
+    image_data    TEXT,
+    notes         TEXT DEFAULT '',
+    created_at    INTEGER NOT NULL
   );
 `);
 

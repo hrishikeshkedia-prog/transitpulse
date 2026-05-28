@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { api, WardrobeItem, imageUrl } from '../api';
+import { api, WardrobeItem } from '../api';
 
 const CATEGORIES = [
   { id: 'all',       label: 'All' },
@@ -35,14 +35,12 @@ function ItemSheet({ item, onClose, onDelete }: {
     }
   }
 
-  const img = imageUrl(item.image_path);
-
   return (
     <div className="sheet-overlay" onClick={onClose}>
       <div className="sheet" onClick={e => e.stopPropagation()}>
         <div className="sheet-handle" />
-        {img
-          ? <img src={img} alt={item.name} className="sheet-img" />
+        {item.image_data
+          ? <img src={item.image_data} alt={item.name} className="sheet-img" />
           : <div className="sheet-img-ph">{EMOJI[item.category] ?? '👔'}</div>
         }
         <p className="sheet-name">{item.name}</p>
@@ -132,11 +130,10 @@ export default function Closet() {
       ) : (
         <div className="item-grid">
           {items.map(item => {
-            const img = imageUrl(item.image_path);
             return (
               <div key={item.id} className="item-card" onClick={() => setSelected(item)}>
-                {img
-                  ? <img src={img} alt={item.name} className="item-card-img" />
+                {item.image_data
+                  ? <img src={item.image_data} alt={item.name} className="item-card-img" />
                   : <div className="item-card-placeholder">{EMOJI[item.category] ?? '👔'}</div>
                 }
                 <div className="item-card-body">

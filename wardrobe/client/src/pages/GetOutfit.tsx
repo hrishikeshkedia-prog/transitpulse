@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { api, OutfitResult, WardrobeItem, imageUrl } from '../api';
+import { api, OutfitResult, WardrobeItem } from '../api';
 
 const FORMALITY_OPTIONS = [
   { value: 1, title: 'Loungewear',    desc: 'Homebody mode — comfort is king.' },
@@ -14,11 +14,10 @@ const EMOJI: Record<string, string> = {
 };
 
 function OutfitPiece({ role, item }: { role: string; item: WardrobeItem }) {
-  const img = imageUrl(item.image_path);
   return (
     <div className="outfit-piece">
-      {img
-        ? <img src={img} alt={item.name} className="outfit-piece-img" />
+      {item.image_data
+        ? <img src={item.image_data} alt={item.name} className="outfit-piece-img" />
         : <div className="outfit-piece-placeholder">{EMOJI[item.category] ?? '👔'}</div>
       }
       <div>

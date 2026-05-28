@@ -7,7 +7,7 @@ export interface WardrobeItem {
   formality_min: number;
   formality_max: number;
   style_tags: string[];
-  image_path: string | null;
+  image_data: string | null;
   notes: string;
   created_at: number;
 }
@@ -27,19 +27,13 @@ export interface OutfitResult {
   keywords: string[];
 }
 
-const BASE = import.meta.env.DEV ? '' : '';
-
-async function req<T>(method: string, path: string, body?: unknown, isForm = false): Promise<T> {
+async function req<T>(method: string, path: string, body?: unknown): Promise<T> {
   const opts: RequestInit = { method };
-  if (body) {
-    if (isForm) {
-      opts.body = body as FormData;
-    } else {
-      opts.headers = { 'Content-Type': 'application/json' };
-      opts.body = JSON.stringify(body);
-    }
+  if (body !== undefined) {
+    opts.headers = { 'Content-Type': 'application/json' };
+    opts.body = JSON.stringify(body);
   }
-  const res = await fetch(BASE + path, opts);
+  const res = await fetch(path, opts);
   const data = await res.json();
   if (!res.ok) throw new Error(data.error || res.statusText);
   return data as T;
@@ -49,10 +43,10 @@ export const api = {
   items: {
     list: (category?: string) =>
       req<WardrobeItem[]>('GET', `/api/items${category ? `?category=${category}` : ''}`),
-    create: (form: FormData) =>
-      req<WardrobeItem>('POST', '/api/items', form, true),
-    update: (id: string, form: FormData) =>
-      req<WardrobeItem>('PUT', `/api/items/${id}`, form, true),
+    create: (body: Record<string, unknown>) =>
+      req<WardrobeItem>('POST', '/api/items', body),
+    update: (id: string, body: Record<string, unknown>) =>
+      req<WardrobeItem>('PUT', `/api/items/${id}`, body),
     delete: (id: string) =>
       req<{ ok: boolean }>('DELETE', `/api/items/${id}`),
   },
@@ -62,7 +56,24 @@ export const api = {
   },
 };
 
-export function imageUrl(filename: string | null): string | undefined {
-  if (!filename) return undefined;
-  return `/uploads/${filename}`;
+export async function resizeImage(file: File, maxPx = 900): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    const url = URL.createObjectURL(file);
+    img.onload = () => {
+      URL.revokeObjectURL(url);
+      let { width, height } = img;
+      if (width > height) {
+        if (width > maxPx) { height = Math.round(height * maxPx / width); width = maxPx; }
+      } else {
+        if (height > maxPx) { width = Math.round(width * maxPx / height); height = maxPx; }
+      }
+      const canvas = document.createElement('canvas');
+      canvas.width = width; canvas.height = height;
+      canvas.getContext('2d')!.drawImage(img, 0, 0, width, height);
+      resolve(canvas.toDataURL('image/jpeg', 0.82));
+    };
+    img.onerror = reject;
+    img.src = url;
+  });
 }

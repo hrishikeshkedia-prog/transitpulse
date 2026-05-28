@@ -1,30 +1,12 @@
 'use strict';
 const express = require('express');
-const multer  = require('multer');
-const path    = require('path');
 const { v4: uuidv4 } = require('uuid');
-const db      = require('../db');
+const db = require('../db');
 
 const router = express.Router();
 
-const storage = multer.diskStorage({
-  destination: path.join(__dirname, '../../uploads'),
-  filename: (req, file, cb) => {
-    const ext = path.extname(file.originalname) || '.jpg';
-    cb(null, uuidv4() + ext);
-  },
-});
-const upload = multer({
-  storage,
-  limits: { fileSize: 10 * 1024 * 1024 },
-  fileFilter: (req, file, cb) => {
-    if (file.mimetype.startsWith('image/')) cb(null, true);
-    else cb(new Error('Only image files allowed'));
-  },
-});
-
 router.get('/', (req, res) => {
-  const category = req.query.category;
+  const { category } = req.query;
   let rows;
   if (category && category !== 'all') {
     rows = db.prepare('SELECT * FROM items WHERE category = ? ORDER BY created_at DESC').all(category);
@@ -40,39 +22,34 @@ router.get('/:id', (req, res) => {
   res.json(parseItem(row));
 });
 
-router.post('/', upload.single('image'), (req, res) => {
-  const { name, category, color, color_family, formality_min, formality_max, style_tags, notes } = req.body;
+router.post('/', (req, res) => {
+  const { name, category, color, color_family, formality_min, formality_max, style_tags, notes, image_data } = req.body ?? {};
   if (!name || !category || !color) {
     return res.status(400).json({ error: 'name, category, and color are required' });
   }
   const id = uuidv4();
-  const image_path = req.file ? req.file.filename : null;
   db.prepare(`
-    INSERT INTO items (id, name, category, color, color_family, formality_min, formality_max, style_tags, image_path, notes, created_at)
+    INSERT INTO items (id, name, category, color, color_family, formality_min, formality_max, style_tags, image_data, notes, created_at)
     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
   `).run(
     id, name, category, color,
     color_family || 'neutral',
     parseInt(formality_min) || 1,
     parseInt(formality_max) || 5,
-    style_tags || '[]',
-    image_path,
+    Array.isArray(style_tags) ? JSON.stringify(style_tags) : (style_tags || '[]'),
+    image_data || null,
     notes || '',
     Date.now()
   );
-  const row = db.prepare('SELECT * FROM items WHERE id = ?').get(id);
-  res.status(201).json(parseItem(row));
+  res.status(201).json(parseItem(db.prepare('SELECT * FROM items WHERE id = ?').get(id)));
 });
 
-router.put('/:id', upload.single('image'), (req, res) => {
+router.put('/:id', (req, res) => {
   const existing = db.prepare('SELECT * FROM items WHERE id = ?').get(req.params.id);
   if (!existing) return res.status(404).json({ error: 'Not found' });
-
-  const { name, category, color, color_family, formality_min, formality_max, style_tags, notes } = req.body;
-  const image_path = req.file ? req.file.filename : existing.image_path;
-
+  const { name, category, color, color_family, formality_min, formality_max, style_tags, notes, image_data } = req.body ?? {};
   db.prepare(`
-    UPDATE items SET name=?, category=?, color=?, color_family=?, formality_min=?, formality_max=?, style_tags=?, image_path=?, notes=?
+    UPDATE items SET name=?, category=?, color=?, color_family=?, formality_min=?, formality_max=?, style_tags=?, image_data=?, notes=?
     WHERE id=?
   `).run(
     name || existing.name,
@@ -81,18 +58,18 @@ router.put('/:id', upload.single('image'), (req, res) => {
     color_family || existing.color_family,
     parseInt(formality_min) || existing.formality_min,
     parseInt(formality_max) || existing.formality_max,
-    style_tags || existing.style_tags,
-    image_path,
+    Array.isArray(style_tags) ? JSON.stringify(style_tags) : (style_tags || existing.style_tags),
+    image_data !== undefined ? (image_data || null) : existing.image_data,
     notes !== undefined ? notes : existing.notes,
     req.params.id
   );
-  const row = db.prepare('SELECT * FROM items WHERE id = ?').get(req.params.id);
-  res.json(parseItem(row));
+  res.json(parseItem(db.prepare('SELECT * FROM items WHERE id = ?').get(req.params.id)));
 });
 
 router.delete('/:id', (req, res) => {
-  const existing = db.prepare('SELECT * FROM items WHERE id = ?').get(req.params.id);
-  if (!existing) return res.status(404).json({ error: 'Not found' });
+  if (!db.prepare('SELECT id FROM items WHERE id = ?').get(req.params.id)) {
+    return res.status(404).json({ error: 'Not found' });
+  }
   db.prepare('DELETE FROM items WHERE id = ?').run(req.params.id);
   res.json({ ok: true });
 });

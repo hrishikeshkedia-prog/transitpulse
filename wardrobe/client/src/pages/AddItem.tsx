@@ -1,6 +1,6 @@
 import { useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { api } from '../api';
+import { api, resizeImage } from '../api';
 
 const CATEGORIES = [
   { value: 'top',       label: 'Top (shirt, t-shirt, blouse…)' },
@@ -39,11 +39,11 @@ const COLORS: { name: string; hex: string; family: string }[] = [
 ];
 
 const FORMALITY_LEVELS = [
-  { value: 1, label: 'Lounge', desc: 'PJs, sweats' },
-  { value: 2, label: 'Casual', desc: 'Everyday' },
-  { value: 3, label: 'Smart',  desc: 'Smart casual' },
-  { value: 4, label: 'Business', desc: 'Work' },
-  { value: 5, label: 'Formal', desc: 'Events' },
+  { value: 1, label: 'Lounge',    desc: 'PJs, sweats' },
+  { value: 2, label: 'Casual',    desc: 'Everyday' },
+  { value: 3, label: 'Smart',     desc: 'Smart casual' },
+  { value: 4, label: 'Business',  desc: 'Work' },
+  { value: 5, label: 'Formal',    desc: 'Events' },
 ];
 
 const ALL_TAGS = [
@@ -57,7 +57,7 @@ export default function AddItem() {
   const navigate = useNavigate();
   const fileRef = useRef<HTMLInputElement>(null);
   const [preview, setPreview] = useState<string | null>(null);
-  const [file, setFile] = useState<File | null>(null);
+  const [imageData, setImageData] = useState<string | null>(null);
   const [name, setName] = useState('');
   const [category, setCategory] = useState('top');
   const [color, setColor] = useState('black');
@@ -67,13 +67,12 @@ export default function AddItem() {
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
 
-  function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
+  async function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
     const f = e.target.files?.[0];
     if (!f) return;
-    setFile(f);
-    const reader = new FileReader();
-    reader.onload = ev => setPreview(ev.target?.result as string);
-    reader.readAsDataURL(f);
+    const data = await resizeImage(f);
+    setImageData(data);
+    setPreview(data);
   }
 
   function toggleTag(tag: string) {
@@ -98,17 +97,17 @@ export default function AddItem() {
     setSaving(true); setError('');
     try {
       const colorObj = COLORS.find(c => c.name === color);
-      const form = new FormData();
-      form.append('name', name.trim());
-      form.append('category', category);
-      form.append('color', color);
-      form.append('color_family', colorObj?.family ?? 'neutral');
-      form.append('formality_min', String(formalityRange[0]));
-      form.append('formality_max', String(formalityRange[1]));
-      form.append('style_tags', JSON.stringify(tags));
-      form.append('notes', notes.trim());
-      if (file) form.append('image', file);
-      await api.items.create(form);
+      await api.items.create({
+        name: name.trim(),
+        category,
+        color,
+        color_family: colorObj?.family ?? 'neutral',
+        formality_min: formalityRange[0],
+        formality_max: formalityRange[1],
+        style_tags: tags,
+        notes: notes.trim(),
+        image_data: imageData,
+      });
       navigate('/');
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to save');
@@ -123,7 +122,6 @@ export default function AddItem() {
       <form onSubmit={handleSubmit}>
         {error && <div className="err-box">{error}</div>}
 
-        {/* Photo */}
         <div className="card">
           <div className="ch"><span className="ct">Photo</span><span style={{ fontSize: 11, color: 'var(--tx3)' }}>optional</span></div>
           <div className="cb">
@@ -144,7 +142,6 @@ export default function AddItem() {
           </div>
         </div>
 
-        {/* Details */}
         <div className="card">
           <div className="ch"><span className="ct">Details</span></div>
           <div className="cb">
@@ -165,13 +162,10 @@ export default function AddItem() {
           </div>
         </div>
 
-        {/* Color */}
         <div className="card">
           <div className="ch">
             <span className="ct">Colour</span>
-            {selectedColor && (
-              <span className="bdg bg-gr" style={{ textTransform: 'capitalize' }}>{selectedColor.name}</span>
-            )}
+            {selectedColor && <span className="bdg bg-gr" style={{ textTransform: 'capitalize' }}>{selectedColor.name}</span>}
           </div>
           <div className="cb">
             <div className="color-grid">
@@ -189,7 +183,6 @@ export default function AddItem() {
           </div>
         </div>
 
-        {/* Formality */}
         <div className="card">
           <div className="ch">
             <span className="ct">Formality Range</span>
@@ -204,8 +197,7 @@ export default function AddItem() {
                   className={`formality-btn${isFSel(f.value) ? ' selected' : ''}`}
                   onClick={() => toggleFormality(f.value)}
                 >
-                  {f.label}
-                  <br />
+                  {f.label}<br />
                   <span style={{ fontWeight: 400, fontSize: 10 }}>{f.desc}</span>
                 </button>
               ))}
@@ -213,7 +205,6 @@ export default function AddItem() {
           </div>
         </div>
 
-        {/* Style tags */}
         <div className="card">
           <div className="ch"><span className="ct">Style Tags</span><span style={{ fontSize: 11, color: 'var(--tx3)' }}>optional</span></div>
           <div className="cb">
