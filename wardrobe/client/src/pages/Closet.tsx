@@ -11,13 +11,13 @@ const CATEGORIES = [
   { id: 'accessory', label: 'Accessories' },
 ];
 
-const CATEGORY_EMOJI: Record<string, string> = {
+const EMOJI: Record<string, string> = {
   top: '👕', bottom: '👖', shoes: '👟', accessory: '👜', outerwear: '🧥', dress: '👗',
 };
 
-const FORMALITY_LABELS = ['', 'Loungewear', 'Casual', 'Smart Casual', 'Business', 'Formal'];
+const FORMALITY = ['', 'Lounge', 'Casual', 'Smart', 'Business', 'Formal'];
 
-function ItemDetail({ item, onClose, onDelete }: {
+function ItemSheet({ item, onClose, onDelete }: {
   item: WardrobeItem;
   onClose: () => void;
   onDelete: (id: string) => void;
@@ -43,22 +43,26 @@ function ItemDetail({ item, onClose, onDelete }: {
         <div className="sheet-handle" />
         {img
           ? <img src={img} alt={item.name} className="sheet-img" />
-          : <div className="sheet-img" style={{ display:'flex',alignItems:'center',justifyContent:'center',fontSize:64 }}>{CATEGORY_EMOJI[item.category] || '👔'}</div>
+          : <div className="sheet-img-ph">{EMOJI[item.category] ?? '👔'}</div>
         }
-        <p className="sheet-title">{item.name}</p>
+        <p className="sheet-name">{item.name}</p>
         <p className="sheet-meta">
-          {item.category} · {item.color} · {FORMALITY_LABELS[item.formality_min]}–{FORMALITY_LABELS[item.formality_max]}
+          {item.category} · {item.color} · {FORMALITY[item.formality_min]}–{FORMALITY[item.formality_max]}
         </p>
         {item.style_tags.length > 0 && (
           <div className="sheet-tags">
-            {item.style_tags.map(t => <span key={t} className="sheet-tag">{t}</span>)}
+            {item.style_tags.map(t => (
+              <span key={t} className="bdg bg-b">{t}</span>
+            ))}
           </div>
         )}
         {item.notes && <p className="sheet-notes">{item.notes}</p>}
-        <button className="btn btn-danger" onClick={handleDelete} disabled={deleting}>
-          {deleting ? 'Removing…' : 'Remove from Wardrobe'}
-        </button>
-        <button className="btn btn-ghost" style={{ marginTop: 8 }} onClick={onClose}>Close</button>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+          <button className="btn btn-r btn-full" onClick={handleDelete} disabled={deleting}>
+            {deleting ? 'Removing…' : 'Remove from Wardrobe'}
+          </button>
+          <button className="btn btn-gh btn-full" onClick={onClose}>Close</button>
+        </div>
       </div>
     </div>
   );
@@ -72,12 +76,8 @@ export default function Closet() {
 
   const load = useCallback(async () => {
     setLoading(true);
-    try {
-      const data = await api.items.list(category);
-      setItems(data);
-    } finally {
-      setLoading(false);
-    }
+    try { setItems(await api.items.list(category)); }
+    finally { setLoading(false); }
   }, [category]);
 
   useEffect(() => { load(); }, [load]);
@@ -87,9 +87,30 @@ export default function Closet() {
     setItems(prev => prev.filter(i => i.id !== id));
   }
 
+  const counts: Record<string, number> = { all: items.length };
+  // Only relevant when showing "all" — this is the filtered count
+
   return (
     <main className="page">
-      <div className="category-tabs">
+      {/* Stats row */}
+      {category === 'all' && items.length > 0 && (
+        <div className="sg" style={{ marginBottom: '1rem' }}>
+          <div className="stat">
+            <div className="stat-lbl">Total Items</div>
+            <div className="stat-val">{items.length}</div>
+            <div className="stat-sub">in your closet</div>
+          </div>
+          <div className="stat">
+            <div className="stat-lbl">Categories</div>
+            <div className="stat-val mono">
+              {new Set(items.map(i => i.category)).size}
+            </div>
+            <div className="stat-sub">types of clothing</div>
+          </div>
+        </div>
+      )}
+
+      <div className="cat-tabs">
         {CATEGORIES.map(cat => (
           <button
             key={cat.id}
@@ -104,9 +125,9 @@ export default function Closet() {
       {loading ? (
         <div className="spinner" />
       ) : items.length === 0 ? (
-        <div className="empty-state">
-          <div className="empty-icon">👗</div>
-          <p>Your closet is empty.<br />Tap <strong>Add</strong> to upload your first item.</p>
+        <div className="empty">
+          <div className="empty-ic">👗</div>
+          <p>Your closet is empty.<br />Tap <strong>Add Item</strong> below to get started.</p>
         </div>
       ) : (
         <div className="item-grid">
@@ -116,12 +137,12 @@ export default function Closet() {
               <div key={item.id} className="item-card" onClick={() => setSelected(item)}>
                 {img
                   ? <img src={img} alt={item.name} className="item-card-img" />
-                  : <div className="item-card-img-placeholder">{CATEGORY_EMOJI[item.category] || '👔'}</div>
+                  : <div className="item-card-placeholder">{EMOJI[item.category] ?? '👔'}</div>
                 }
                 <div className="item-card-body">
                   <p className="item-card-name">{item.name}</p>
                   <p className="item-card-meta">
-                    <span className="item-card-color-dot" style={{ background: item.color }} />
+                    <span className="color-dot" style={{ background: item.color }} />
                     {item.category}
                   </p>
                 </div>
@@ -132,7 +153,7 @@ export default function Closet() {
       )}
 
       {selected && (
-        <ItemDetail
+        <ItemSheet
           item={selected}
           onClose={() => setSelected(null)}
           onDelete={handleDelete}
