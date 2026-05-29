@@ -25,21 +25,22 @@
   }
 
   function pushAll() {
-    if (!BASE || !TOKEN || !window.CU) return;
-    api('PUT', '/api/data', {
+    if (!BASE || !TOKEN || !window.CU) return Promise.resolve();
+    return api('PUT', '/api/data', {
       tr: window.trips, py: window.payments, iv: window.invoices,
       cl: window.clients, co: window.COMPANY, fi: window.finData, ml: window.savedMails
     }).catch(function (e) {
       console.warn('[FDP] push failed:', e.message);
       var msg = document.getElementById('srvMsg');
       if (msg) { msg.style.color = '#dc2626'; msg.textContent = '✗ Sync failed: ' + e.message; }
+      throw e;
     });
   }
 
   function pullAll() {
-    if (!BASE || !TOKEN || !window.CU) return;
+    if (!BASE || !TOKEN || !window.CU) return Promise.resolve();
     setSyncStatus('syncing');
-    api('GET', '/api/data').then(function (d) {
+    return api('GET', '/api/data').then(function (d) {
       var k = 'fdp_' + window.CU + '_';
       var map = { tr:'trips', py:'payments', iv:'invoices', cl:'clients', co:'COMPANY', fi:'finData', ml:'savedMails' };
       Object.keys(map).forEach(function (type) {
@@ -51,8 +52,16 @@
           var local = window[map[type]];
           if (Array.isArray(local) && local.length > 0) return;
         }
-        window[map[type]] = d[type];
-        localStorage.setItem(k + type, JSON.stringify(d[type]));
+        var val = d[type];
+        // For COMPANY: merge local cfaInvoices if server has none (they live inside COMPANY object)
+        if (type === 'co' && val && window.COMPANY) {
+          var localCfa = window.COMPANY.cfaInvoices;
+          if (Array.isArray(localCfa) && localCfa.length > 0 && (!val.cfaInvoices || val.cfaInvoices.length === 0)) {
+            val = Object.assign({}, val, {cfaInvoices: localCfa});
+          }
+        }
+        window[map[type]] = val;
+        localStorage.setItem(k + type, JSON.stringify(val));
       });
       if (typeof window.render === 'function') window.render();
       if (typeof window.loadSetForm === 'function') window.loadSetForm();
@@ -62,27 +71,27 @@
       var ts = document.getElementById('srvLastSync');
       var coName = (window.COMPANY && window.COMPANY.name) || '—';
       if (ts) ts.textContent = 'Pulled ' + new Date().toLocaleTimeString() + ' · ' + coName;
-    }).catch(function (e) { console.warn('[FDP] pull failed:', e.message); setSyncStatus('error'); });
+    }).catch(function (e) { console.warn('[FDP] pull failed:', e.message); setSyncStatus('error'); throw e; });
   }
 
   window.srvPull = function () {
     if (!BASE || !TOKEN) return;
     var msg = document.getElementById('srvMsg');
     if (msg) { msg.style.color = 'var(--tx2)'; msg.textContent = 'Pulling latest data from server…'; }
-    pullAll();
-    setTimeout(function () {
-      if (msg && BASE && TOKEN) { msg.style.color = '#059669'; msg.textContent = '✓ Signed in and syncing.'; }
-    }, 3000);
+    pullAll().then(function () {
+      if (msg && BASE && TOKEN) { msg.style.color = '#059669'; msg.textContent = '✓ Data pulled from server.'; }
+    }).catch(function (e) {
+      if (msg) { msg.style.color = '#dc2626'; msg.textContent = '✗ Pull failed: ' + (e && e.message || 'Network error'); }
+    });
   };
 
   window.srvPush = function () {
     if (!BASE || !TOKEN) return;
     var msg = document.getElementById('srvMsg');
     if (msg) { msg.style.color = 'var(--tx2)'; msg.textContent = 'Pushing your data to server…'; }
-    pushAll();
-    setTimeout(function () {
+    pushAll().then(function () {
       if (msg && BASE && TOKEN) { msg.style.color = '#059669'; msg.textContent = '✓ Data pushed to server.'; }
-    }, 2000);
+    }).catch(function () {});
   };
 
   var _origSaveAll = window.saveAll;
@@ -252,7 +261,7 @@
           '<div class="fg"><label>&nbsp;</label><button class="btn btn-r btn-sm" onclick="srvDisconnect()" id="srvDisconnBtn" style="display:none">Disconnect</button></div>' +
         '</div>' +
         '<div id="srvMsg" style="font-size:12px;margin-top:6px;color:var(--tx2)"></div>' +
-      '<div id="srvSyncButtons" style="display:none;margin-top:10px;display:flex;gap:8px;flex-wrap:wrap">' +
+      '<div id="srvSyncButtons" style="margin-top:10px;display:flex;gap:8px;flex-wrap:wrap">' +
         '<button class="btn btn-p btn-sm" onclick="srvPull()">⬇ Pull from server</button>' +
         '<button class="btn btn-sm" onclick="srvPush()">⬆ Push to server</button>' +
         '<span id="srvLastSync" style="font-size:11px;color:var(--tx3);align-self:center"></span>' +
