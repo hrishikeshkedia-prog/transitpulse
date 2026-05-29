@@ -46,6 +46,11 @@
         if (d[type] == null) return;
         // For COMPANY: never overwrite a non-empty local name with an empty server name
         if (type === 'co' && window.COMPANY && window.COMPANY.name && !d[type].name) return;
+        // Never overwrite non-empty local data with empty server arrays (prevents data loss on fresh server)
+        if (Array.isArray(d[type]) && d[type].length === 0) {
+          var local = window[map[type]];
+          if (Array.isArray(local) && local.length > 0) return;
+        }
         window[map[type]] = d[type];
         localStorage.setItem(k + type, JSON.stringify(d[type]));
       });
