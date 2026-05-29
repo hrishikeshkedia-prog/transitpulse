@@ -1,12 +1,22 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { api, resizeImage } from '../api';
+import type { Gender } from '../App';
+import { detectFormality } from '../utils/formality';
 
-const CATEGORIES = [
-  { value: 'top',       label: 'Top (shirt, t-shirt, blouse…)' },
+const CATEGORIES_MEN = [
+  { value: 'top',       label: 'Top (shirt, t-shirt, polo…)' },
+  { value: 'bottom',    label: 'Bottom (pants, jeans, chinos…)' },
+  { value: 'shoes',     label: 'Shoes / Sneakers / Boots' },
+  { value: 'outerwear', label: 'Outerwear (jacket, coat…)' },
+  { value: 'accessory', label: 'Accessory (bag, hat, belt…)' },
+];
+
+const CATEGORIES_WOMEN = [
+  { value: 'top',       label: 'Top (shirt, blouse, t-shirt…)' },
   { value: 'bottom',    label: 'Bottom (pants, jeans, skirt…)' },
   { value: 'dress',     label: 'Dress / Jumpsuit' },
-  { value: 'shoes',     label: 'Shoes / Sneakers / Boots' },
+  { value: 'shoes',     label: 'Shoes / Heels / Boots' },
   { value: 'outerwear', label: 'Outerwear (jacket, coat…)' },
   { value: 'accessory', label: 'Accessory (bag, hat, belt…)' },
 ];
@@ -53,19 +63,33 @@ const ALL_TAGS = [
   'vintage', 'timeless', 'chic', 'statement',
 ];
 
-export default function AddItem() {
+export default function AddItem({ gender }: { gender: Gender }) {
   const navigate = useNavigate();
   const fileRef = useRef<HTMLInputElement>(null);
+  const categories = gender === 'men' ? CATEGORIES_MEN : CATEGORIES_WOMEN;
+
   const [preview, setPreview] = useState<string | null>(null);
   const [imageData, setImageData] = useState<string | null>(null);
   const [name, setName] = useState('');
   const [category, setCategory] = useState('top');
   const [color, setColor] = useState('black');
   const [formalityRange, setFormalityRange] = useState<[number, number]>([1, 5]);
+  const [autoDetected, setAutoDetected] = useState(false);
   const [tags, setTags] = useState<string[]>([]);
   const [notes, setNotes] = useState('');
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
+
+  useEffect(() => {
+    if (!name.trim()) return;
+    const detected = detectFormality(name, category);
+    if (detected) {
+      setFormalityRange(detected);
+      setAutoDetected(true);
+    } else {
+      setAutoDetected(false);
+    }
+  }, [name, category]);
 
   async function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
     const f = e.target.files?.[0];
@@ -80,6 +104,7 @@ export default function AddItem() {
   }
 
   function toggleFormality(val: number) {
+    setAutoDetected(false);
     const [min, max] = formalityRange;
     if (val < min) setFormalityRange([val, max]);
     else if (val > max) setFormalityRange([min, val]);
@@ -152,7 +177,7 @@ export default function AddItem() {
             <div className="fg">
               <label>Category</label>
               <select value={category} onChange={e => setCategory(e.target.value)}>
-                {CATEGORIES.map(c => <option key={c.value} value={c.value}>{c.label}</option>)}
+                {categories.map(c => <option key={c.value} value={c.value}>{c.label}</option>)}
               </select>
             </div>
             <div className="fg">
@@ -186,7 +211,10 @@ export default function AddItem() {
         <div className="card">
           <div className="ch">
             <span className="ct">Formality Range</span>
-            <span style={{ fontSize: 11, color: 'var(--tx3)' }}>tap to toggle</span>
+            {autoDetected
+              ? <span className="bdg bg-b" style={{ fontSize: 10, padding: '2px 7px' }}>auto-detected</span>
+              : <span style={{ fontSize: 11, color: 'var(--tx3)' }}>tap to toggle</span>
+            }
           </div>
           <div className="cb">
             <div className="formality-row">
@@ -202,6 +230,11 @@ export default function AddItem() {
                 </button>
               ))}
             </div>
+            {autoDetected && (
+              <p style={{ fontSize: 11, color: 'var(--tx3)', marginTop: 8, textAlign: 'center' }}>
+                Detected from item name — tap any level to override
+              </p>
+            )}
           </div>
         </div>
 
