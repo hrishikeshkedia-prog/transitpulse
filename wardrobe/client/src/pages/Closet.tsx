@@ -1,7 +1,8 @@
 import { useState, useEffect, useCallback } from 'react';
 import { api, WardrobeItem } from '../api';
+import { getGender } from '../App';
 
-const CATEGORIES = [
+const CATEGORIES_ALL = [
   { id: 'all',       label: 'All' },
   { id: 'top',       label: 'Tops' },
   { id: 'bottom',    label: 'Bottoms' },
@@ -10,6 +11,8 @@ const CATEGORIES = [
   { id: 'outerwear', label: 'Outerwear' },
   { id: 'accessory', label: 'Accessories' },
 ];
+
+const CATEGORIES_MEN = CATEGORIES_ALL.filter(c => c.id !== 'dress');
 
 const EMOJI: Record<string, string> = {
   top: '👕', bottom: '👖', shoes: '👟', accessory: '👜', outerwear: '🧥', dress: '👗',
@@ -67,6 +70,8 @@ function ItemSheet({ item, onClose, onDelete }: {
 }
 
 export default function Closet() {
+  const gender = getGender();
+  const categories = gender === 'men' ? CATEGORIES_MEN : CATEGORIES_ALL;
   const [category, setCategory] = useState('all');
   const [items, setItems] = useState<WardrobeItem[]>([]);
   const [loading, setLoading] = useState(true);
@@ -109,7 +114,7 @@ export default function Closet() {
       )}
 
       <div className="cat-tabs">
-        {CATEGORIES.map(cat => (
+        {categories.map(cat => (
           <button
             key={cat.id}
             className={`cat-tab${category === cat.id ? ' active' : ''}`}
@@ -124,7 +129,7 @@ export default function Closet() {
         <div className="spinner" />
       ) : items.length === 0 ? (
         <div className="empty">
-          <div className="empty-ic">👗</div>
+          <div className="empty-ic">{gender === 'men' ? '👔' : '👗'}</div>
           <p>Your closet is empty.<br />Tap <strong>Add Item</strong> below to get started.</p>
         </div>
       ) : (
