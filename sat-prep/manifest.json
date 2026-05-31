@@ -1,0 +1,37 @@
+{
+  "name": "SAT Quest — Level Up to 1500+",
+  "short_name": "SAT Quest",
+  "description": "RPG-style SAT preparation tracker for your journey to 1500+",
+  "start_url": "/sat-prep/",
+  "display": "standalone",
+  "background_color": "#0a0a1a",
+  "theme_color": "#7c3aed",
+  "orientation": "portrait-primary",
+  "icons": [
+    { "src": "icons/icon-72.svg",  "sizes": "72x72",   "type": "image/svg+xml" },
+    { "src": "icons/icon-96.svg",  "sizes": "96x96",   "type": "image/svg+xml" },
+    { "src": "icons/icon-128.svg", "sizes": "128x128", "type": "image/svg+xml" },
+    { "src": "icons/icon-144.svg", "sizes": "144x144", "type": "image/svg+xml" },
+    { "src": "icons/icon-152.svg", "sizes": "152x152", "type": "image/svg+xml" },
+    { "src": "icons/icon-192.svg", "sizes": "192x192", "type": "image/svg+xml", "purpose": "any maskable" },
+    { "src": "icons/icon-384.svg", "sizes": "384x384", "type": "image/svg+xml" },
+    { "src": "icons/icon-512.svg", "sizes": "512x512", "type": "image/svg+xml" }
+  ],
+  "categories": ["education", "productivity"],
+  "shortcuts": [
+    {
+      "name": "Log Study Session",
+      "short_name": "Log Session",
+      "description": "Quickly log a study session",
+      "url": "/sat-prep/#dashboard",
+      "icons": [{ "src": "icons/icon-96.svg", "sizes": "96x96" }]
+    },
+    {
+      "name": "Enter Paper Scores",
+      "short_name": "Add Paper",
+      "description": "Enter scores from a practice paper",
+      "url": "/sat-prep/#papers",
+      "icons": [{ "src": "icons/icon-96.svg", "sizes": "96x96" }]
+    }
+  ]
+}
