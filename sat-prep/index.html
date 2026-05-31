@@ -1188,7 +1188,7 @@
       </div>
       <div class="modal-footer">
         <button class="btn btn-ghost" onclick="closeModal('add-paper-modal')">Cancel</button>
-        <button class="btn btn-secondary" onclick="submitPaper()">💾 Save Paper</button>
+        <button class="btn btn-secondary" onclick="submitPaperForm()">💾 Save Paper</button>
       </div>
     </div>
   </div>
@@ -1250,8 +1250,8 @@
           </select>
         </div>
         <div class="form-group">
-          <label class="form-label">Duration: <span id="duration-val">45</span> min</label>
-          <input type="range" class="form-range" id="session-duration" min="15" max="120" step="5" value="45" oninput="updateDuration(this.value)" />
+          <label class="form-label">Duration: <span id="duration-display">45 min</span></label>
+          <input type="range" class="form-range" id="session-minutes" min="15" max="120" step="5" value="45" oninput="updateDurationDisplay()" />
           <div class="range-labels">
             <span>15 min</span>
             <span>120 min</span>
@@ -1273,7 +1273,7 @@
       </div>
       <div class="modal-footer">
         <button class="btn btn-ghost" onclick="closeModal('log-session-modal')">Cancel</button>
-        <button class="btn btn-primary" onclick="submitSession()">⚡ Log Session (+120 XP)</button>
+        <button class="btn btn-primary" onclick="submitSessionForm()">⚡ Log Session</button>
       </div>
     </div>
   </div>
