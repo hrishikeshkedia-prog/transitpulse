@@ -1,0 +1,1609 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SAT Quest — RPG Prep Tracker</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+
+  <!-- ===================== FIXED TOP HEADER ===================== -->
+  <header class="top-header">
+    <div class="header-left">
+      <div class="header-avatar">⚔️</div>
+      <div class="header-info">
+        <span class="header-name" id="header-name">Arjun Sharma</span>
+        <span class="header-level-badge" id="header-level">Lv. 4 Scholar</span>
+      </div>
+    </div>
+    <div class="header-right">
+      <div class="header-streak">
+        <span class="fire-icon">🔥</span>
+        <span class="streak-count" id="header-streak-count">7</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- ===================== MAIN CONTENT ===================== -->
+  <main class="main-content">
+
+    <!-- =========== SECTION 1: DASHBOARD =========== -->
+    <section id="dashboard" class="tab-panel active">
+
+      <!-- Hero Character Card -->
+      <div class="card hero-card">
+        <div class="hero-top">
+          <div class="hero-avatar-wrap">
+            <div class="hero-avatar">⚔️</div>
+            <div class="hero-avatar-ring"></div>
+          </div>
+          <div class="hero-meta">
+            <h2 class="hero-name" id="hero-name">Arjun Sharma</h2>
+            <div class="hero-level-row">
+              <div class="hero-level-big" id="hero-level-num">4</div>
+              <div class="hero-class" id="hero-class">Scholar</div>
+            </div>
+            <div class="hero-target-label">Target: Aug 15 · 1500+ SAT</div>
+          </div>
+        </div>
+        <div class="xp-bars-row">
+          <div class="xp-bar-group">
+            <div class="xp-bar-label">
+              <span class="xp-bar-subject math-label">⚡ Math XP</span>
+              <span class="xp-bar-value" id="math-xp-val">1240 / 2000</span>
+            </div>
+            <div class="xp-bar-track">
+              <div class="xp-bar-fill math-bar" id="math-xp-bar" style="--xp-pct: 62%"></div>
+            </div>
+          </div>
+          <div class="xp-bar-group">
+            <div class="xp-bar-label">
+              <span class="xp-bar-subject rw-label">📖 RW XP</span>
+              <span class="xp-bar-value" id="rw-xp-val">890 / 2000</span>
+            </div>
+            <div class="xp-bar-track">
+              <div class="xp-bar-fill rw-bar" id="rw-xp-bar" style="--xp-pct: 44.5%"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Streak + Predicted Row -->
+      <div class="dashboard-row">
+
+        <!-- Streak Counter Card -->
+        <div class="card streak-card">
+          <div class="streak-fire">🔥</div>
+          <div class="streak-number" id="dash-streak">7</div>
+          <div class="streak-label">day streak</div>
+          <div class="streak-last">Last: May 30</div>
+        </div>
+
+        <!-- Predicted Score Card -->
+        <div class="card predicted-card">
+          <div class="card-title">🎯 Predicted Score</div>
+          <div class="predicted-total" id="pred-total">1220</div>
+          <div class="predicted-breakdown">
+            <div class="pred-item">
+              <span class="pred-label math-label">Math</span>
+              <span class="pred-score" id="pred-math">590</span>
+              <span class="pred-target behind">/ 750 ▼</span>
+            </div>
+            <div class="pred-item">
+              <span class="pred-label rw-label">RW</span>
+              <span class="pred-score" id="pred-rw">630</span>
+              <span class="pred-target behind">/ 650 ▼</span>
+            </div>
+          </div>
+          <div class="pred-status status-behind">📊 Behind — push harder!</div>
+        </div>
+      </div>
+
+      <!-- Today's Study Plan Card -->
+      <div class="card quests-card">
+        <div class="card-title-row">
+          <div class="card-title">📜 Today's Quests</div>
+          <div class="quest-date" id="quest-date">Sunday, Jun 1</div>
+        </div>
+        <div class="quest-list" id="quest-list">
+          <div class="quest-item">
+            <input type="checkbox" class="quest-checkbox" id="q1" />
+            <label for="q1" class="quest-label">
+              <span class="quest-topic">Linear Equations</span>
+              <span class="quest-badge badge-math">Math</span>
+              <span class="quest-xp">+120 XP</span>
+            </label>
+          </div>
+          <div class="quest-item">
+            <input type="checkbox" class="quest-checkbox" id="q2" />
+            <label for="q2" class="quest-label">
+              <span class="quest-topic">Vocabulary in Context</span>
+              <span class="quest-badge badge-rw">RW</span>
+              <span class="quest-xp">+100 XP</span>
+            </label>
+          </div>
+          <div class="quest-item">
+            <input type="checkbox" class="quest-checkbox" id="q3" />
+            <label for="q3" class="quest-label">
+              <span class="quest-topic">Mock Test Review</span>
+              <span class="quest-badge badge-review">Review</span>
+              <span class="quest-xp">+200 XP</span>
+            </label>
+          </div>
+        </div>
+      </div>
+
+      <!-- Boss Battle Card -->
+      <div class="card boss-card">
+        <div class="boss-header">
+          <span class="boss-title">⚔️ BOSS BATTLE</span>
+          <span class="boss-type-badge">MOCK TEST</span>
+        </div>
+        <div class="boss-name">Saturday Mock — Week 1</div>
+        <div class="boss-countdown" id="boss-countdown">
+          <div class="countdown-block">
+            <span class="cd-val" id="cd-days">06</span>
+            <span class="cd-unit">days</span>
+          </div>
+          <div class="countdown-sep">:</div>
+          <div class="countdown-block">
+            <span class="cd-val" id="cd-hours">14</span>
+            <span class="cd-unit">hours</span>
+          </div>
+          <div class="countdown-sep">:</div>
+          <div class="countdown-block">
+            <span class="cd-val" id="cd-mins">32</span>
+            <span class="cd-unit">mins</span>
+          </div>
+        </div>
+        <div class="boss-subtitle">Prepare: Full Math + RW timed session</div>
+      </div>
+
+      <!-- Weakest Topic Card -->
+      <div class="card weak-card">
+        <div class="card-title">⚠️ Weakest Topic</div>
+        <div class="weak-topic-name" id="weak-topic-name">Quadratics</div>
+        <div class="weak-meta">
+          <span class="weak-category badge-math">Math — Advanced Math</span>
+          <span class="weak-accuracy">Accuracy: <strong id="weak-acc">38%</strong></span>
+        </div>
+        <div class="focus-badge">🎯 Focus Today</div>
+      </div>
+
+      <!-- Quick Action Buttons -->
+      <div class="quick-actions">
+        <button class="btn btn-primary btn-lg" onclick="openModal('log-session-modal')">
+          ⚡ Log Study Session
+        </button>
+        <button class="btn btn-secondary btn-lg" onclick="openModal('add-paper-modal')">
+          📋 Enter Paper Scores
+        </button>
+      </div>
+
+    </section><!-- end #dashboard -->
+
+    <!-- =========== SECTION 2: SKILL TREE =========== -->
+    <section id="skill-tree" class="tab-panel">
+
+      <div class="section-header">
+        <h2 class="section-title">🌳 Skill Tree</h2>
+      </div>
+
+      <!-- Sub tabs -->
+      <div class="sub-tabs">
+        <button class="sub-tab active" data-subtab="math-tree" onclick="switchSubTab('math-tree', this)">⚡ Math Skills</button>
+        <button class="sub-tab" data-subtab="rw-tree" onclick="switchSubTab('rw-tree', this)">📖 Reading &amp; Writing</button>
+      </div>
+
+      <!-- Math Skill Tree -->
+      <div id="math-tree" class="subtab-panel active">
+
+        <!-- Algebra -->
+        <div class="skill-category">
+          <div class="skill-cat-header">
+            <span class="skill-cat-icon">📐</span>
+            <span class="skill-cat-name">Algebra</span>
+            <span class="skill-cat-level">Lv 2</span>
+          </div>
+          <div class="skill-nodes-row">
+            <div class="skill-node" data-status="steady" data-topic="linear_equations" onclick="openSessionModal('Linear Equations')">
+              <div class="node-icon">📈</div>
+              <div class="node-name">Linear Equations</div>
+              <div class="node-acc">72%</div>
+              <div class="node-sessions">8 sessions</div>
+            </div>
+            <div class="skill-node" data-status="weak" data-topic="systems_of_equations" onclick="openSessionModal('Systems of Equations')">
+              <div class="node-icon">⚠️</div>
+              <div class="node-name">Systems of Equations</div>
+              <div class="node-acc">45%</div>
+              <div class="node-sessions">4 sessions</div>
+            </div>
+            <div class="skill-node" data-status="in_progress" data-topic="inequalities" onclick="openSessionModal('Inequalities')">
+              <div class="node-icon">⚡</div>
+              <div class="node-name">Inequalities</div>
+              <div class="node-acc">58%</div>
+              <div class="node-sessions">3 sessions</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Advanced Math -->
+        <div class="skill-category">
+          <div class="skill-cat-header">
+            <span class="skill-cat-icon">🔢</span>
+            <span class="skill-cat-name">Advanced Math</span>
+            <span class="skill-cat-level">Lv 1</span>
+          </div>
+          <div class="skill-nodes-row">
+            <div class="skill-node" data-status="weak" data-topic="quadratics" onclick="openSessionModal('Quadratics')">
+              <div class="node-icon">⚠️</div>
+              <div class="node-name">Quadratics</div>
+              <div class="node-acc">38%</div>
+              <div class="node-sessions">3 sessions</div>
+            </div>
+            <div class="skill-node" data-status="locked" data-topic="polynomials" onclick="openSessionModal('Polynomials')">
+              <div class="node-icon">🔒</div>
+              <div class="node-name">Polynomials</div>
+              <div class="node-acc">—</div>
+              <div class="node-sessions">0 sessions</div>
+            </div>
+            <div class="skill-node" data-status="locked" data-topic="exponential" onclick="openSessionModal('Exponential')">
+              <div class="node-icon">🔒</div>
+              <div class="node-name">Exponential</div>
+              <div class="node-acc">—</div>
+              <div class="node-sessions">0 sessions</div>
+            </div>
+            <div class="skill-node" data-status="locked" data-topic="radical_equations" onclick="openSessionModal('Radical Equations')">
+              <div class="node-icon">🔒</div>
+              <div class="node-name">Radical Equations</div>
+              <div class="node-acc">—</div>
+              <div class="node-sessions">0 sessions</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Problem Solving & Data Analysis -->
+        <div class="skill-category">
+          <div class="skill-cat-header">
+            <span class="skill-cat-icon">📊</span>
+            <span class="skill-cat-name">Problem Solving &amp; Data Analysis</span>
+            <span class="skill-cat-level">Lv 1</span>
+          </div>
+          <div class="skill-nodes-row">
+            <div class="skill-node" data-status="in_progress" data-topic="ratios" onclick="openSessionModal('Ratios & Proportions')">
+              <div class="node-icon">⚡</div>
+              <div class="node-name">Ratios &amp; Proportions</div>
+              <div class="node-acc">61%</div>
+              <div class="node-sessions">2 sessions</div>
+            </div>
+            <div class="skill-node" data-status="steady" data-topic="percentages" onclick="openSessionModal('Percentages')">
+              <div class="node-icon">📈</div>
+              <div class="node-name">Percentages</div>
+              <div class="node-acc">75%</div>
+              <div class="node-sessions">5 sessions</div>
+            </div>
+            <div class="skill-node" data-status="locked" data-topic="statistics" onclick="openSessionModal('Statistics')">
+              <div class="node-icon">🔒</div>
+              <div class="node-name">Statistics</div>
+              <div class="node-acc">—</div>
+              <div class="node-sessions">0 sessions</div>
+            </div>
+            <div class="skill-node" data-status="locked" data-topic="probability" onclick="openSessionModal('Probability')">
+              <div class="node-icon">🔒</div>
+              <div class="node-name">Probability</div>
+              <div class="node-acc">—</div>
+              <div class="node-sessions">0 sessions</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Geometry & Trigonometry -->
+        <div class="skill-category">
+          <div class="skill-cat-header">
+            <span class="skill-cat-icon">📏</span>
+            <span class="skill-cat-name">Geometry &amp; Trigonometry</span>
+            <span class="skill-cat-level">Lv 0</span>
+          </div>
+          <div class="skill-nodes-row">
+            <div class="skill-node" data-status="locked" data-topic="area_volume" onclick="openSessionModal('Area & Volume')">
+              <div class="node-icon">🔒</div>
+              <div class="node-name">Area &amp; Volume</div>
+              <div class="node-acc">—</div>
+              <div class="node-sessions">0 sessions</div>
+            </div>
+            <div class="skill-node" data-status="locked" data-topic="circles" onclick="openSessionModal('Circles')">
+              <div class="node-icon">🔒</div>
+              <div class="node-name">Circles</div>
+              <div class="node-acc">—</div>
+              <div class="node-sessions">0 sessions</div>
+            </div>
+            <div class="skill-node" data-status="locked" data-topic="right_triangles" onclick="openSessionModal('Right Triangles')">
+              <div class="node-icon">🔒</div>
+              <div class="node-name">Right Triangles</div>
+              <div class="node-acc">—</div>
+              <div class="node-sessions">0 sessions</div>
+            </div>
+            <div class="skill-node" data-status="locked" data-topic="trig" onclick="openSessionModal('Trigonometry')">
+              <div class="node-icon">🔒</div>
+              <div class="node-name">Trigonometry</div>
+              <div class="node-acc">—</div>
+              <div class="node-sessions">0 sessions</div>
+            </div>
+          </div>
+        </div>
+
+      </div><!-- end #math-tree -->
+
+      <!-- RW Skill Tree -->
+      <div id="rw-tree" class="subtab-panel">
+
+        <!-- Information & Ideas -->
+        <div class="skill-category">
+          <div class="skill-cat-header">
+            <span class="skill-cat-icon">💡</span>
+            <span class="skill-cat-name">Information &amp; Ideas</span>
+            <span class="skill-cat-level">Lv 2</span>
+          </div>
+          <div class="skill-nodes-row">
+            <div class="skill-node" data-status="steady" data-topic="central_ideas" onclick="openSessionModal('Central Ideas')">
+              <div class="node-icon">📈</div>
+              <div class="node-name">Central Ideas</div>
+              <div class="node-acc">70%</div>
+              <div class="node-sessions">6 sessions</div>
+            </div>
+            <div class="skill-node" data-status="in_progress" data-topic="command_of_evidence" onclick="openSessionModal('Command of Evidence')">
+              <div class="node-icon">⚡</div>
+              <div class="node-name">Command of Evidence</div>
+              <div class="node-acc">55%</div>
+              <div class="node-sessions">4 sessions</div>
+            </div>
+            <div class="skill-node" data-status="weak" data-topic="inferences" onclick="openSessionModal('Inferences')">
+              <div class="node-icon">⚠️</div>
+              <div class="node-name">Inferences</div>
+              <div class="node-acc">42%</div>
+              <div class="node-sessions">3 sessions</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Craft & Structure -->
+        <div class="skill-category">
+          <div class="skill-cat-header">
+            <span class="skill-cat-icon">✍️</span>
+            <span class="skill-cat-name">Craft &amp; Structure</span>
+            <span class="skill-cat-level">Lv 2</span>
+          </div>
+          <div class="skill-nodes-row">
+            <div class="skill-node" data-status="strong" data-topic="vocabulary_in_context" onclick="openSessionModal('Vocabulary in Context')">
+              <div class="node-icon">✨</div>
+              <div class="node-name">Vocabulary in Context</div>
+              <div class="node-acc">82%</div>
+              <div class="node-sessions">9 sessions</div>
+            </div>
+            <div class="skill-node" data-status="in_progress" data-topic="text_structure" onclick="openSessionModal('Text Structure')">
+              <div class="node-icon">⚡</div>
+              <div class="node-name">Text Structure</div>
+              <div class="node-acc">60%</div>
+              <div class="node-sessions">3 sessions</div>
+            </div>
+            <div class="skill-node" data-status="locked" data-topic="cross_text_connections" onclick="openSessionModal('Cross-Text Connections')">
+              <div class="node-icon">🔒</div>
+              <div class="node-name">Cross-Text Connections</div>
+              <div class="node-acc">—</div>
+              <div class="node-sessions">0 sessions</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Expression of Ideas -->
+        <div class="skill-category">
+          <div class="skill-cat-header">
+            <span class="skill-cat-icon">🗣️</span>
+            <span class="skill-cat-name">Expression of Ideas</span>
+            <span class="skill-cat-level">Lv 1</span>
+          </div>
+          <div class="skill-nodes-row">
+            <div class="skill-node" data-status="in_progress" data-topic="rhetorical_synthesis" onclick="openSessionModal('Rhetorical Synthesis')">
+              <div class="node-icon">⚡</div>
+              <div class="node-name">Rhetorical Synthesis</div>
+              <div class="node-acc">53%</div>
+              <div class="node-sessions">2 sessions</div>
+            </div>
+            <div class="skill-node" data-status="steady" data-topic="transitions" onclick="openSessionModal('Transitions')">
+              <div class="node-icon">📈</div>
+              <div class="node-name">Transitions</div>
+              <div class="node-acc">68%</div>
+              <div class="node-sessions">4 sessions</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Standard English Conventions -->
+        <div class="skill-category">
+          <div class="skill-cat-header">
+            <span class="skill-cat-icon">📝</span>
+            <span class="skill-cat-name">Standard English Conventions</span>
+            <span class="skill-cat-level">Lv 2</span>
+          </div>
+          <div class="skill-nodes-row">
+            <div class="skill-node" data-status="steady" data-topic="grammar" onclick="openSessionModal('Grammar')">
+              <div class="node-icon">📈</div>
+              <div class="node-name">Grammar</div>
+              <div class="node-acc">74%</div>
+              <div class="node-sessions">7 sessions</div>
+            </div>
+            <div class="skill-node" data-status="in_progress" data-topic="punctuation" onclick="openSessionModal('Punctuation')">
+              <div class="node-icon">⚡</div>
+              <div class="node-name">Punctuation</div>
+              <div class="node-acc">63%</div>
+              <div class="node-sessions">5 sessions</div>
+            </div>
+            <div class="skill-node" data-status="weak" data-topic="sentence_structure" onclick="openSessionModal('Sentence Structure')">
+              <div class="node-icon">⚠️</div>
+              <div class="node-name">Sentence Structure</div>
+              <div class="node-acc">47%</div>
+              <div class="node-sessions">3 sessions</div>
+            </div>
+          </div>
+        </div>
+
+      </div><!-- end #rw-tree -->
+
+    </section><!-- end #skill-tree -->
+
+    <!-- =========== SECTION 3: PAPERS =========== -->
+    <section id="papers" class="tab-panel">
+
+      <div class="section-header">
+        <h2 class="section-title">📋 Paper Log</h2>
+        <button class="btn btn-secondary" onclick="openModal('add-paper-modal')">+ Add Paper</button>
+      </div>
+
+      <!-- Filter tabs -->
+      <div class="filter-tabs">
+        <button class="filter-tab active" onclick="filterPapers('all', this)">All</button>
+        <button class="filter-tab" onclick="filterPapers('mock', this)">Mock Tests</button>
+        <button class="filter-tab" onclick="filterPapers('full', this)">Full Papers</button>
+        <button class="filter-tab" onclick="filterPapers('practice', this)">Practice Sets</button>
+      </div>
+
+      <!-- Paper List -->
+      <div class="paper-list" id="paper-list">
+
+        <div class="paper-card" data-type="mock">
+          <div class="paper-card-header" onclick="togglePaperDetail(this)">
+            <div class="paper-meta-col">
+              <span class="paper-date">May 25, 2026</span>
+              <span class="paper-type-badge badge-mock">Mock Test</span>
+            </div>
+            <div class="paper-scores">
+              <div class="paper-score-item math-label">Math <strong>570</strong></div>
+              <div class="paper-score-item rw-label">RW <strong>610</strong></div>
+              <div class="paper-total-score">Total <strong>1180</strong></div>
+            </div>
+            <div class="paper-improvement positive">▲ +30</div>
+            <div class="paper-toggle">▼</div>
+          </div>
+          <div class="paper-detail hidden">
+            <div class="paper-detail-inner">
+              <div class="detail-section">
+                <div class="detail-title">Wrong Answers by Topic</div>
+                <div class="wrong-answer-row">
+                  <span class="wa-topic">Quadratics</span>
+                  <span class="wa-error error-concept">Concept Gap</span>
+                  <span class="wa-count">4 wrong</span>
+                </div>
+                <div class="wrong-answer-row">
+                  <span class="wa-topic">Systems of Equations</span>
+                  <span class="wa-error error-careless">Careless</span>
+                  <span class="wa-count">2 wrong</span>
+                </div>
+                <div class="wrong-answer-row">
+                  <span class="wa-topic">Inferences</span>
+                  <span class="wa-error error-concept">Concept Gap</span>
+                  <span class="wa-count">3 wrong</span>
+                </div>
+              </div>
+              <div class="detail-section">
+                <div class="detail-title">Error Type Distribution</div>
+                <div class="error-dist">
+                  <div class="error-dist-item">
+                    <span class="error-dist-label">Concept Gap</span>
+                    <div class="error-dist-bar"><div class="error-dist-fill error-concept-fill" style="width:60%"></div></div>
+                    <span class="error-dist-pct">60%</span>
+                  </div>
+                  <div class="error-dist-item">
+                    <span class="error-dist-label">Careless</span>
+                    <div class="error-dist-bar"><div class="error-dist-fill error-careless-fill" style="width:25%"></div></div>
+                    <span class="error-dist-pct">25%</span>
+                  </div>
+                  <div class="error-dist-item">
+                    <span class="error-dist-label">Time Pressure</span>
+                    <div class="error-dist-bar"><div class="error-dist-fill error-time-fill" style="width:15%"></div></div>
+                    <span class="error-dist-pct">15%</span>
+                  </div>
+                </div>
+              </div>
+              <div class="detail-section">
+                <div class="detail-title">Insights</div>
+                <p class="paper-insight">Strong on grammar and vocabulary. Focus on quadratics and inference questions for the next mock. Time management on Module 2 Math needs work.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="paper-card" data-type="full">
+          <div class="paper-card-header" onclick="togglePaperDetail(this)">
+            <div class="paper-meta-col">
+              <span class="paper-date">May 18, 2026</span>
+              <span class="paper-type-badge badge-full">Full Paper</span>
+            </div>
+            <div class="paper-scores">
+              <div class="paper-score-item math-label">Math <strong>550</strong></div>
+              <div class="paper-score-item rw-label">RW <strong>600</strong></div>
+              <div class="paper-total-score">Total <strong>1150</strong></div>
+            </div>
+            <div class="paper-improvement neutral">— baseline</div>
+            <div class="paper-toggle">▼</div>
+          </div>
+          <div class="paper-detail hidden">
+            <div class="paper-detail-inner">
+              <div class="detail-section">
+                <div class="detail-title">Wrong Answers by Topic</div>
+                <div class="wrong-answer-row">
+                  <span class="wa-topic">Quadratics</span>
+                  <span class="wa-error error-concept">Concept Gap</span>
+                  <span class="wa-count">5 wrong</span>
+                </div>
+                <div class="wrong-answer-row">
+                  <span class="wa-topic">Statistics</span>
+                  <span class="wa-error error-time">Time Pressure</span>
+                  <span class="wa-count">3 wrong</span>
+                </div>
+              </div>
+              <div class="detail-section">
+                <div class="detail-title">Insights</div>
+                <p class="paper-insight">Baseline established. Math Module 1 was manageable but Module 2 proved challenging. RW Section was solid overall.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div><!-- end #paper-list -->
+
+    </section><!-- end #papers -->
+
+    <!-- =========== SECTION 4: PROGRESS =========== -->
+    <section id="progress" class="tab-panel">
+
+      <div class="section-header">
+        <h2 class="section-title">📊 Progress</h2>
+      </div>
+
+      <!-- Score History Chart -->
+      <div class="card">
+        <div class="card-title">Score History</div>
+        <div class="chart-container">
+          <canvas id="scoreChart"></canvas>
+        </div>
+        <div class="chart-legend">
+          <span class="legend-item"><span class="legend-dot math-dot"></span>Math</span>
+          <span class="legend-item"><span class="legend-dot rw-dot"></span>RW</span>
+          <span class="legend-item"><span class="legend-dash math-dash"></span>Math Target</span>
+          <span class="legend-item"><span class="legend-dash rw-dash"></span>RW Target</span>
+        </div>
+      </div>
+
+      <!-- Topic Performance -->
+      <div class="card">
+        <div class="card-title">Topic Performance <span class="card-subtitle">(weakest first)</span></div>
+        <div class="topic-perf-grid" id="topic-perf-grid">
+          <div class="topic-perf-item">
+            <div class="topic-perf-header">
+              <span class="topic-perf-name">Quadratics</span>
+              <span class="topic-perf-pct danger-text">38%</span>
+            </div>
+            <div class="topic-perf-bar-track">
+              <div class="topic-perf-fill" style="width:38%; background: var(--danger)"></div>
+            </div>
+          </div>
+          <div class="topic-perf-item">
+            <div class="topic-perf-header">
+              <span class="topic-perf-name">Inferences</span>
+              <span class="topic-perf-pct danger-text">42%</span>
+            </div>
+            <div class="topic-perf-bar-track">
+              <div class="topic-perf-fill" style="width:42%; background: var(--danger)"></div>
+            </div>
+          </div>
+          <div class="topic-perf-item">
+            <div class="topic-perf-header">
+              <span class="topic-perf-name">Systems of Equations</span>
+              <span class="topic-perf-pct warning-text">45%</span>
+            </div>
+            <div class="topic-perf-bar-track">
+              <div class="topic-perf-fill" style="width:45%; background: var(--warning)"></div>
+            </div>
+          </div>
+          <div class="topic-perf-item">
+            <div class="topic-perf-header">
+              <span class="topic-perf-name">Sentence Structure</span>
+              <span class="topic-perf-pct warning-text">47%</span>
+            </div>
+            <div class="topic-perf-bar-track">
+              <div class="topic-perf-fill" style="width:47%; background: var(--warning)"></div>
+            </div>
+          </div>
+          <div class="topic-perf-item">
+            <div class="topic-perf-header">
+              <span class="topic-perf-name">Rhetorical Synthesis</span>
+              <span class="topic-perf-pct warning-text">53%</span>
+            </div>
+            <div class="topic-perf-bar-track">
+              <div class="topic-perf-fill" style="width:53%; background: var(--warning)"></div>
+            </div>
+          </div>
+          <div class="topic-perf-item">
+            <div class="topic-perf-header">
+              <span class="topic-perf-name">Command of Evidence</span>
+              <span class="topic-perf-pct warning-text">55%</span>
+            </div>
+            <div class="topic-perf-bar-track">
+              <div class="topic-perf-fill" style="width:55%; background: var(--warning)"></div>
+            </div>
+          </div>
+          <div class="topic-perf-item">
+            <div class="topic-perf-header">
+              <span class="topic-perf-name">Inequalities</span>
+              <span class="topic-perf-pct warning-text">58%</span>
+            </div>
+            <div class="topic-perf-bar-track">
+              <div class="topic-perf-fill" style="width:58%; background: var(--warning)"></div>
+            </div>
+          </div>
+          <div class="topic-perf-item">
+            <div class="topic-perf-header">
+              <span class="topic-perf-name">Text Structure</span>
+              <span class="topic-perf-pct warning-text">60%</span>
+            </div>
+            <div class="topic-perf-bar-track">
+              <div class="topic-perf-fill" style="width:60%; background: var(--warning)"></div>
+            </div>
+          </div>
+          <div class="topic-perf-item">
+            <div class="topic-perf-header">
+              <span class="topic-perf-name">Ratios &amp; Proportions</span>
+              <span class="topic-perf-pct success-text">61%</span>
+            </div>
+            <div class="topic-perf-bar-track">
+              <div class="topic-perf-fill" style="width:61%; background: var(--success)"></div>
+            </div>
+          </div>
+          <div class="topic-perf-item">
+            <div class="topic-perf-header">
+              <span class="topic-perf-name">Punctuation</span>
+              <span class="topic-perf-pct success-text">63%</span>
+            </div>
+            <div class="topic-perf-bar-track">
+              <div class="topic-perf-fill" style="width:63%; background: var(--success)"></div>
+            </div>
+          </div>
+          <div class="topic-perf-item">
+            <div class="topic-perf-header">
+              <span class="topic-perf-name">Transitions</span>
+              <span class="topic-perf-pct success-text">68%</span>
+            </div>
+            <div class="topic-perf-bar-track">
+              <div class="topic-perf-fill" style="width:68%; background: var(--success)"></div>
+            </div>
+          </div>
+          <div class="topic-perf-item">
+            <div class="topic-perf-header">
+              <span class="topic-perf-name">Central Ideas</span>
+              <span class="topic-perf-pct success-text">70%</span>
+            </div>
+            <div class="topic-perf-bar-track">
+              <div class="topic-perf-fill" style="width:70%; background: var(--success)"></div>
+            </div>
+          </div>
+          <div class="topic-perf-item">
+            <div class="topic-perf-header">
+              <span class="topic-perf-name">Linear Equations</span>
+              <span class="topic-perf-pct success-text">72%</span>
+            </div>
+            <div class="topic-perf-bar-track">
+              <div class="topic-perf-fill" style="width:72%; background: var(--success)"></div>
+            </div>
+          </div>
+          <div class="topic-perf-item">
+            <div class="topic-perf-header">
+              <span class="topic-perf-name">Grammar</span>
+              <span class="topic-perf-pct success-text">74%</span>
+            </div>
+            <div class="topic-perf-bar-track">
+              <div class="topic-perf-fill" style="width:74%; background: var(--success)"></div>
+            </div>
+          </div>
+          <div class="topic-perf-item">
+            <div class="topic-perf-header">
+              <span class="topic-perf-name">Percentages</span>
+              <span class="topic-perf-pct success-text">75%</span>
+            </div>
+            <div class="topic-perf-bar-track">
+              <div class="topic-perf-fill" style="width:75%; background: var(--success)"></div>
+            </div>
+          </div>
+          <div class="topic-perf-item">
+            <div class="topic-perf-header">
+              <span class="topic-perf-name">Vocabulary in Context</span>
+              <span class="topic-perf-pct success-text">82%</span>
+            </div>
+            <div class="topic-perf-bar-track">
+              <div class="topic-perf-fill" style="width:82%; background: var(--accent)"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 10-Week Dungeon Map -->
+      <div class="card">
+        <div class="card-title">🗺️ 10-Week Dungeon Map</div>
+        <div class="dungeon-subtitle">June 1 → August 15, 2026 — Final Boss</div>
+        <div class="dungeon-map" id="dungeon-map">
+
+          <div class="dungeon-week" data-status="current">
+            <div class="dungeon-week-header">
+              <span class="dungeon-week-num">Week 1</span>
+              <span class="dungeon-week-dates">Jun 1–7</span>
+            </div>
+            <div class="dungeon-zone-name">⚔️ Tutorial Ruins</div>
+            <div class="dungeon-topics">Linear Equations · Systems · Inequalities</div>
+            <div class="dungeon-boss-row">
+              <span class="dungeon-boss-indicator">⚔️ Boss: Sat Jun 7</span>
+            </div>
+            <div class="dungeon-status-badge current-badge">CURRENT</div>
+          </div>
+
+          <div class="dungeon-week" data-status="upcoming">
+            <div class="dungeon-week-header">
+              <span class="dungeon-week-num">Week 2</span>
+              <span class="dungeon-week-dates">Jun 8–14</span>
+            </div>
+            <div class="dungeon-zone-name">🔮 Algebra Caverns</div>
+            <div class="dungeon-topics">Quadratics · Polynomials · Exponential</div>
+            <div class="dungeon-boss-row">
+              <span class="dungeon-boss-indicator">⚔️ Boss: Sat Jun 14</span>
+            </div>
+            <div class="dungeon-status-badge upcoming-badge">UPCOMING</div>
+          </div>
+
+          <div class="dungeon-week" data-status="upcoming">
+            <div class="dungeon-week-header">
+              <span class="dungeon-week-num">Week 3</span>
+              <span class="dungeon-week-dates">Jun 15–21</span>
+            </div>
+            <div class="dungeon-zone-name">📊 Data Swamps</div>
+            <div class="dungeon-topics">Ratios · Statistics · Probability</div>
+            <div class="dungeon-boss-row">
+              <span class="dungeon-boss-indicator">⚔️ Boss: Sat Jun 21</span>
+            </div>
+            <div class="dungeon-status-badge upcoming-badge">UPCOMING</div>
+          </div>
+
+          <div class="dungeon-week" data-status="upcoming">
+            <div class="dungeon-week-header">
+              <span class="dungeon-week-num">Week 4</span>
+              <span class="dungeon-week-dates">Jun 22–28</span>
+            </div>
+            <div class="dungeon-zone-name">📐 Geometry Fortress</div>
+            <div class="dungeon-topics">Area · Circles · Trigonometry</div>
+            <div class="dungeon-boss-row">
+              <span class="dungeon-boss-indicator">⚔️ Boss: Sat Jun 28</span>
+            </div>
+            <div class="dungeon-status-badge upcoming-badge">UPCOMING</div>
+          </div>
+
+          <div class="dungeon-week" data-status="upcoming">
+            <div class="dungeon-week-header">
+              <span class="dungeon-week-num">Week 5</span>
+              <span class="dungeon-week-dates">Jun 29–Jul 5</span>
+            </div>
+            <div class="dungeon-zone-name">💡 Evidence Labyrinth</div>
+            <div class="dungeon-topics">Central Ideas · Evidence · Inferences</div>
+            <div class="dungeon-boss-row">
+              <span class="dungeon-boss-indicator">⚔️ Boss: Sat Jul 5</span>
+            </div>
+            <div class="dungeon-status-badge upcoming-badge">UPCOMING</div>
+          </div>
+
+          <div class="dungeon-week" data-status="upcoming">
+            <div class="dungeon-week-header">
+              <span class="dungeon-week-num">Week 6</span>
+              <span class="dungeon-week-dates">Jul 6–12</span>
+            </div>
+            <div class="dungeon-zone-name">✍️ Craft Citadel</div>
+            <div class="dungeon-topics">Vocabulary · Structure · Cross-Text</div>
+            <div class="dungeon-boss-row">
+              <span class="dungeon-boss-indicator">⚔️ Boss: Sat Jul 12</span>
+            </div>
+            <div class="dungeon-status-badge upcoming-badge">UPCOMING</div>
+          </div>
+
+          <div class="dungeon-week" data-status="upcoming">
+            <div class="dungeon-week-header">
+              <span class="dungeon-week-num">Week 7</span>
+              <span class="dungeon-week-dates">Jul 13–19</span>
+            </div>
+            <div class="dungeon-zone-name">🗣️ Expression Tower</div>
+            <div class="dungeon-topics">Rhetoric · Transitions · Grammar</div>
+            <div class="dungeon-boss-row">
+              <span class="dungeon-boss-indicator">⚔️ Boss: Sat Jul 19</span>
+            </div>
+            <div class="dungeon-status-badge upcoming-badge">UPCOMING</div>
+          </div>
+
+          <div class="dungeon-week" data-status="upcoming">
+            <div class="dungeon-week-header">
+              <span class="dungeon-week-num">Week 8</span>
+              <span class="dungeon-week-dates">Jul 20–26</span>
+            </div>
+            <div class="dungeon-zone-name">🔥 Full Mock Gauntlet</div>
+            <div class="dungeon-topics">Full Paper × 2 · All Sections</div>
+            <div class="dungeon-boss-row">
+              <span class="dungeon-boss-indicator">⚔️ Boss: Sun Jul 27</span>
+            </div>
+            <div class="dungeon-status-badge upcoming-badge">UPCOMING</div>
+          </div>
+
+          <div class="dungeon-week" data-status="upcoming">
+            <div class="dungeon-week-header">
+              <span class="dungeon-week-num">Week 9</span>
+              <span class="dungeon-week-dates">Jul 27–Aug 2</span>
+            </div>
+            <div class="dungeon-zone-name">⚡ Weakness Purge</div>
+            <div class="dungeon-topics">Weak Topics Deep Dive · Review</div>
+            <div class="dungeon-boss-row">
+              <span class="dungeon-boss-indicator">⚔️ Boss: Sat Aug 2</span>
+            </div>
+            <div class="dungeon-status-badge upcoming-badge">UPCOMING</div>
+          </div>
+
+          <div class="dungeon-week" data-status="upcoming">
+            <div class="dungeon-week-header">
+              <span class="dungeon-week-num">Week 10</span>
+              <span class="dungeon-week-dates">Aug 3–10</span>
+            </div>
+            <div class="dungeon-zone-name">🛡️ Final Preparation</div>
+            <div class="dungeon-topics">Light Review · Strategy · Rest</div>
+            <div class="dungeon-boss-row">
+              <span class="dungeon-boss-indicator">⚔️ Boss: Sat Aug 10</span>
+            </div>
+            <div class="dungeon-status-badge upcoming-badge">UPCOMING</div>
+          </div>
+
+          <div class="dungeon-final-boss">
+            <div class="final-boss-header">💀 FINAL BOSS</div>
+            <div class="final-boss-name">SAT EXAM DAY</div>
+            <div class="final-boss-date">August 15, 2026</div>
+            <div class="final-boss-target">Target: 1500+ · 750 Math / 650 RW</div>
+          </div>
+
+        </div><!-- end dungeon-map -->
+      </div>
+
+      <!-- Weekly Performance Summary -->
+      <div class="card">
+        <div class="card-title">📅 Last Week's Performance</div>
+        <div class="weekly-stats-grid">
+          <div class="weekly-stat">
+            <div class="weekly-stat-val">12</div>
+            <div class="weekly-stat-label">Sessions</div>
+          </div>
+          <div class="weekly-stat">
+            <div class="weekly-stat-val">1,840</div>
+            <div class="weekly-stat-label">XP Gained</div>
+          </div>
+          <div class="weekly-stat">
+            <div class="weekly-stat-val">2</div>
+            <div class="weekly-stat-label">Papers Done</div>
+          </div>
+          <div class="weekly-stat positive">
+            <div class="weekly-stat-val">+30</div>
+            <div class="weekly-stat-label">Score Change</div>
+          </div>
+        </div>
+      </div>
+
+    </section><!-- end #progress -->
+
+    <!-- =========== SECTION 5: ACHIEVEMENTS =========== -->
+    <section id="achievements" class="tab-panel">
+
+      <div class="section-header">
+        <h2 class="section-title">🏆 Achievements</h2>
+        <div class="achievement-counter"><span id="ach-unlocked">3</span> / 18 unlocked</div>
+      </div>
+
+      <div class="achievements-grid">
+
+        <div class="achievement-badge unlocked">
+          <div class="badge-icon">👣</div>
+          <div class="badge-name">First Steps</div>
+          <div class="badge-desc">Complete first study session</div>
+          <div class="badge-date">May 20, 2026</div>
+        </div>
+
+        <div class="achievement-badge unlocked">
+          <div class="badge-icon">📋</div>
+          <div class="badge-name">Paper Slayer</div>
+          <div class="badge-desc">Complete first practice paper</div>
+          <div class="badge-date">May 18, 2026</div>
+        </div>
+
+        <div class="achievement-badge unlocked">
+          <div class="badge-icon">⚔️</div>
+          <div class="badge-name">Boss Slayer</div>
+          <div class="badge-desc">Complete first boss battle</div>
+          <div class="badge-date">May 25, 2026</div>
+        </div>
+
+        <div class="achievement-badge locked">
+          <div class="badge-icon">🔥</div>
+          <div class="badge-name">Week Warrior</div>
+          <div class="badge-desc">Maintain 7-day streak</div>
+          <div class="badge-condition">7-day streak needed</div>
+        </div>
+
+        <div class="achievement-badge locked">
+          <div class="badge-icon">📅</div>
+          <div class="badge-name">Perfect Week</div>
+          <div class="badge-desc">Study all 7 days in a week</div>
+          <div class="badge-condition">7 days in one week</div>
+        </div>
+
+        <div class="achievement-badge locked">
+          <div class="badge-icon">💪</div>
+          <div class="badge-name">Month Master</div>
+          <div class="badge-desc">Achieve 30-day streak</div>
+          <div class="badge-condition">30-day streak needed</div>
+        </div>
+
+        <div class="achievement-badge locked">
+          <div class="badge-icon">📈</div>
+          <div class="badge-name">Math Climber</div>
+          <div class="badge-desc">Improve Math by 50+ pts</div>
+          <div class="badge-condition">+50 Math pts needed</div>
+        </div>
+
+        <div class="achievement-badge locked">
+          <div class="badge-icon">📖</div>
+          <div class="badge-name">RW Climber</div>
+          <div class="badge-desc">Improve RW by 50+ pts</div>
+          <div class="badge-condition">+50 RW pts needed</div>
+        </div>
+
+        <div class="achievement-badge locked">
+          <div class="badge-icon">6️⃣</div>
+          <div class="badge-name">600 Math</div>
+          <div class="badge-desc">Reach 600+ on Math</div>
+          <div class="badge-condition">Math ≥ 600</div>
+        </div>
+
+        <div class="achievement-badge locked">
+          <div class="badge-icon">7️⃣</div>
+          <div class="badge-name">700 Math</div>
+          <div class="badge-desc">Reach 700+ on Math</div>
+          <div class="badge-condition">Math ≥ 700</div>
+        </div>
+
+        <div class="achievement-badge locked">
+          <div class="badge-icon">🎯</div>
+          <div class="badge-name">750 Math</div>
+          <div class="badge-desc">Hit the Math target!</div>
+          <div class="badge-condition">Math ≥ 750</div>
+        </div>
+
+        <div class="achievement-badge locked">
+          <div class="badge-icon">🥇</div>
+          <div class="badge-name">600 RW</div>
+          <div class="badge-desc">Reach 600+ on RW</div>
+          <div class="badge-condition">RW ≥ 600</div>
+        </div>
+
+        <div class="achievement-badge locked">
+          <div class="badge-icon">🎯</div>
+          <div class="badge-name">Target 650 RW</div>
+          <div class="badge-desc">Hit the RW target!</div>
+          <div class="badge-condition">RW ≥ 650</div>
+        </div>
+
+        <div class="achievement-badge locked">
+          <div class="badge-icon">🔢</div>
+          <div class="badge-name">1400 Club</div>
+          <div class="badge-desc">Total score 1400+</div>
+          <div class="badge-condition">Total ≥ 1400</div>
+        </div>
+
+        <div class="achievement-badge locked">
+          <div class="badge-icon">👑</div>
+          <div class="badge-name">Final Boss</div>
+          <div class="badge-desc">Conquer SAT with 1500+!</div>
+          <div class="badge-condition">Total ≥ 1500</div>
+        </div>
+
+        <div class="achievement-badge locked">
+          <div class="badge-icon">✨</div>
+          <div class="badge-name">Topic Master</div>
+          <div class="badge-desc">Any topic to Strong status</div>
+          <div class="badge-condition">1 topic at Strong</div>
+        </div>
+
+        <div class="achievement-badge locked">
+          <div class="badge-icon">🧮</div>
+          <div class="badge-name">All Algebra</div>
+          <div class="badge-desc">All Algebra topics Steady+</div>
+          <div class="badge-condition">3 algebra topics steady+</div>
+        </div>
+
+        <div class="achievement-badge locked">
+          <div class="badge-icon">⏰</div>
+          <div class="badge-name">Speed Demon</div>
+          <div class="badge-desc">Morning session (5:45–6:45 AM)</div>
+          <div class="badge-condition">Morning study logged</div>
+        </div>
+
+      </div><!-- end .achievements-grid -->
+    </section><!-- end #achievements -->
+
+  </main>
+
+  <!-- ===================== BOTTOM NAV ===================== -->
+  <nav class="bottom-nav">
+    <button class="nav-tab active" data-panel="dashboard" onclick="switchTab('dashboard', this)">
+      <span class="nav-icon">🏠</span>
+      <span class="nav-label">Dashboard</span>
+    </button>
+    <button class="nav-tab" data-panel="skill-tree" onclick="switchTab('skill-tree', this)">
+      <span class="nav-icon">🌳</span>
+      <span class="nav-label">Skills</span>
+    </button>
+    <button class="nav-tab" data-panel="papers" onclick="switchTab('papers', this)">
+      <span class="nav-icon">📜</span>
+      <span class="nav-label">Papers</span>
+    </button>
+    <button class="nav-tab" data-panel="progress" onclick="switchTab('progress', this)">
+      <span class="nav-icon">📈</span>
+      <span class="nav-label">Progress</span>
+    </button>
+    <button class="nav-tab" data-panel="achievements" onclick="switchTab('achievements', this)">
+      <span class="nav-icon">🏆</span>
+      <span class="nav-label">Trophies</span>
+    </button>
+  </nav>
+
+  <!-- ===================== MODALS ===================== -->
+
+  <!-- Add Paper Modal -->
+  <div class="modal-overlay" id="add-paper-modal" onclick="closeModalOutside(event, 'add-paper-modal')">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 class="modal-title">📋 Add Paper Result</h3>
+        <button class="modal-close" onclick="closeModal('add-paper-modal')">✕</button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label class="form-label">Paper Type</label>
+          <div class="type-selector" id="paper-type-selector">
+            <button class="type-btn active" data-type="mock" onclick="selectType(this)">Mock Test</button>
+            <button class="type-btn" data-type="full" onclick="selectType(this)">Full Practice Paper</button>
+            <button class="type-btn" data-type="practice" onclick="selectType(this)">Section Practice</button>
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="paper-date">Date</label>
+          <input type="date" class="form-input" id="paper-date" />
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label" for="math-score">Math Score (200–800)</label>
+            <input type="number" class="form-input" id="math-score" min="200" max="800" step="10" placeholder="e.g. 570" oninput="calcTotal()" />
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="rw-score">RW Score (200–800)</label>
+            <input type="number" class="form-input" id="rw-score" min="200" max="800" step="10" placeholder="e.g. 610" oninput="calcTotal()" />
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Total Score</label>
+          <div class="total-score-display" id="total-score-display">—</div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Wrong Answers</label>
+          <div id="wrong-answers-list">
+            <div class="wrong-answer-entry">
+              <select class="form-input form-select wa-topic-select">
+                <option value="">Select Topic</option>
+                <optgroup label="Math — Algebra">
+                  <option>Linear Equations</option>
+                  <option>Systems of Equations</option>
+                  <option>Inequalities</option>
+                </optgroup>
+                <optgroup label="Math — Advanced Math">
+                  <option>Quadratics</option>
+                  <option>Polynomials</option>
+                  <option>Exponential</option>
+                  <option>Radical Equations</option>
+                </optgroup>
+                <optgroup label="Math — Problem Solving">
+                  <option>Ratios &amp; Proportions</option>
+                  <option>Percentages</option>
+                  <option>Statistics</option>
+                  <option>Probability</option>
+                </optgroup>
+                <optgroup label="Math — Geometry">
+                  <option>Area &amp; Volume</option>
+                  <option>Circles</option>
+                  <option>Right Triangles</option>
+                  <option>Trigonometry</option>
+                </optgroup>
+                <optgroup label="RW — Information &amp; Ideas">
+                  <option>Central Ideas</option>
+                  <option>Command of Evidence</option>
+                  <option>Inferences</option>
+                </optgroup>
+                <optgroup label="RW — Craft &amp; Structure">
+                  <option>Vocabulary in Context</option>
+                  <option>Text Structure</option>
+                  <option>Cross-Text Connections</option>
+                </optgroup>
+                <optgroup label="RW — Expression of Ideas">
+                  <option>Rhetorical Synthesis</option>
+                  <option>Transitions</option>
+                </optgroup>
+                <optgroup label="RW — Standard English">
+                  <option>Grammar</option>
+                  <option>Punctuation</option>
+                  <option>Sentence Structure</option>
+                </optgroup>
+              </select>
+              <select class="form-input form-select wa-error-select">
+                <option value="">Error Type</option>
+                <option value="concept">Concept Gap</option>
+                <option value="careless">Careless Mistake</option>
+                <option value="time">Time Pressure</option>
+              </select>
+              <input type="number" class="form-input wa-count-input" min="1" max="20" placeholder="#" />
+            </div>
+          </div>
+          <button class="btn btn-ghost btn-sm" onclick="addWrongAnswerRow()" style="margin-top:8px">+ Add Row</button>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="paper-notes">Notes</label>
+          <textarea class="form-input form-textarea" id="paper-notes" placeholder="Key observations, areas to improve..."></textarea>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-ghost" onclick="closeModal('add-paper-modal')">Cancel</button>
+        <button class="btn btn-secondary" onclick="submitPaper()">💾 Save Paper</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Log Session Modal -->
+  <div class="modal-overlay" id="log-session-modal" onclick="closeModalOutside(event, 'log-session-modal')">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 class="modal-title">⚡ Log Study Session</h3>
+        <button class="modal-close" onclick="closeModal('log-session-modal')">✕</button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label class="form-label" for="session-topic">Topic</label>
+          <select class="form-input form-select" id="session-topic">
+            <option value="">Select Topic</option>
+            <optgroup label="Math — Algebra">
+              <option>Linear Equations</option>
+              <option>Systems of Equations</option>
+              <option>Inequalities</option>
+            </optgroup>
+            <optgroup label="Math — Advanced Math">
+              <option>Quadratics</option>
+              <option>Polynomials</option>
+              <option>Exponential</option>
+              <option>Radical Equations</option>
+            </optgroup>
+            <optgroup label="Math — Problem Solving">
+              <option>Ratios &amp; Proportions</option>
+              <option>Percentages</option>
+              <option>Statistics</option>
+              <option>Probability</option>
+            </optgroup>
+            <optgroup label="Math — Geometry">
+              <option>Area &amp; Volume</option>
+              <option>Circles</option>
+              <option>Right Triangles</option>
+              <option>Trigonometry</option>
+            </optgroup>
+            <optgroup label="RW — Information &amp; Ideas">
+              <option>Central Ideas</option>
+              <option>Command of Evidence</option>
+              <option>Inferences</option>
+            </optgroup>
+            <optgroup label="RW — Craft &amp; Structure">
+              <option>Vocabulary in Context</option>
+              <option>Text Structure</option>
+              <option>Cross-Text Connections</option>
+            </optgroup>
+            <optgroup label="RW — Expression of Ideas">
+              <option>Rhetorical Synthesis</option>
+              <option>Transitions</option>
+            </optgroup>
+            <optgroup label="RW — Standard English">
+              <option>Grammar</option>
+              <option>Punctuation</option>
+              <option>Sentence Structure</option>
+            </optgroup>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Duration: <span id="duration-val">45</span> min</label>
+          <input type="range" class="form-range" id="session-duration" min="15" max="120" step="5" value="45" oninput="updateDuration(this.value)" />
+          <div class="range-labels">
+            <span>15 min</span>
+            <span>120 min</span>
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Study Type</label>
+          <div class="type-selector">
+            <button class="type-btn active" onclick="selectType(this)">New Concept</button>
+            <button class="type-btn" onclick="selectType(this)">Timed Practice</button>
+            <button class="type-btn" onclick="selectType(this)">Review</button>
+            <button class="type-btn" onclick="selectType(this)">Problem Set</button>
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="session-notes">Notes</label>
+          <textarea class="form-input form-textarea" id="session-notes" placeholder="What did you cover? Key concepts? Areas of confusion?"></textarea>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-ghost" onclick="closeModal('log-session-modal')">Cancel</button>
+        <button class="btn btn-primary" onclick="submitSession()">⚡ Log Session (+120 XP)</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Level Up Modal -->
+  <div class="modal-overlay levelup-overlay" id="levelup-modal">
+    <div class="modal-content levelup-content">
+      <div class="levelup-stars" aria-hidden="true">
+        <span class="star s1">⭐</span>
+        <span class="star s2">✨</span>
+        <span class="star s3">⭐</span>
+        <span class="star s4">✨</span>
+        <span class="star s5">⭐</span>
+        <span class="star s6">🌟</span>
+        <span class="star s7">✨</span>
+        <span class="star s8">⭐</span>
+      </div>
+      <div class="levelup-header">LEVEL UP!</div>
+      <div class="levelup-level" id="levelup-new-level">5</div>
+      <div class="levelup-class" id="levelup-new-class">Adept</div>
+      <div class="levelup-xp-bonus">+200 Bonus XP Awarded!</div>
+      <div class="levelup-message">You're getting stronger — the Final Boss won't know what hit it!</div>
+      <button class="btn btn-secondary btn-lg" onclick="closeModal('levelup-modal')">Continue ⚔️</button>
+    </div>
+  </div>
+
+  <!-- Achievement Toast (slides in from top) -->
+  <div class="achievement-toast" id="achievement-toast">
+    <div class="toast-icon" id="toast-icon">🏆</div>
+    <div class="toast-text">
+      <div class="toast-title" id="toast-title">Achievement Unlocked!</div>
+      <div class="toast-name" id="toast-name">First Steps</div>
+      <div class="toast-desc" id="toast-desc">Complete your first study session</div>
+    </div>
+  </div>
+
+  <!-- Chart.js CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+
+  <script>
+    // ============================================================
+    // TAB NAVIGATION
+    // ============================================================
+    function switchTab(panelId, btn) {
+      document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+      document.querySelectorAll('.nav-tab').forEach(b => b.classList.remove('active'));
+      document.getElementById(panelId).classList.add('active');
+      btn.classList.add('active');
+      if (panelId === 'progress') {
+        setTimeout(initScoreChart, 150);
+      }
+      window.scrollTo(0, 0);
+    }
+
+    function switchSubTab(panelId, btn) {
+      const container = btn.closest('section');
+      container.querySelectorAll('.subtab-panel').forEach(p => p.classList.remove('active'));
+      container.querySelectorAll('.sub-tab').forEach(b => b.classList.remove('active'));
+      document.getElementById(panelId).classList.add('active');
+      btn.classList.add('active');
+    }
+
+    // ============================================================
+    // MODALS
+    // ============================================================
+    function openModal(id) {
+      document.getElementById(id).classList.add('open');
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closeModal(id) {
+      document.getElementById(id).classList.remove('open');
+      document.body.style.overflow = '';
+    }
+
+    function closeModalOutside(event, id) {
+      if (event.target === document.getElementById(id)) {
+        closeModal(id);
+      }
+    }
+
+    function openSessionModal(topic) {
+      const select = document.getElementById('session-topic');
+      if (select && topic) {
+        for (let i = 0; i < select.options.length; i++) {
+          if (select.options[i].text === topic) {
+            select.selectedIndex = i;
+            break;
+          }
+        }
+      }
+      openModal('log-session-modal');
+    }
+
+    // ============================================================
+    // FORM HELPERS
+    // ============================================================
+    function calcTotal() {
+      const m = parseInt(document.getElementById('math-score').value) || 0;
+      const r = parseInt(document.getElementById('rw-score').value) || 0;
+      const display = document.getElementById('total-score-display');
+      if (m >= 200 && r >= 200) {
+        const total = m + r;
+        display.textContent = total;
+        if (total >= 1500) display.style.color = 'var(--accent)';
+        else if (total >= 1400) display.style.color = 'var(--success)';
+        else if (total >= 1200) display.style.color = 'var(--warning)';
+        else display.style.color = 'var(--danger)';
+      } else {
+        display.textContent = '—';
+        display.style.color = '';
+      }
+    }
+
+    function updateDuration(val) {
+      document.getElementById('duration-val').textContent = val;
+    }
+
+    function selectType(btn) {
+      const group = btn.closest('.type-selector');
+      group.querySelectorAll('.type-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+    }
+
+    function addWrongAnswerRow() {
+      const list = document.getElementById('wrong-answers-list');
+      const first = list.querySelector('.wrong-answer-entry');
+      const clone = first.cloneNode(true);
+      clone.querySelectorAll('select, input').forEach(el => { el.value = ''; el.selectedIndex = 0; });
+      list.appendChild(clone);
+    }
+
+    function submitPaper() {
+      showToast('📋', 'Paper Logged!', 'Paper results saved successfully.');
+      closeModal('add-paper-modal');
+    }
+
+    function submitSession() {
+      const topic = document.getElementById('session-topic').value;
+      if (!topic) {
+        document.getElementById('session-topic').focus();
+        return;
+      }
+      showToast('⚡', 'Session Logged!', '+120 XP earned · Topic: ' + topic);
+      closeModal('log-session-modal');
+    }
+
+    // ============================================================
+    // FILTER PAPERS
+    // ============================================================
+    function filterPapers(type, btn) {
+      document.querySelectorAll('.filter-tab').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      document.querySelectorAll('.paper-card').forEach(card => {
+        card.style.display = (type === 'all' || card.dataset.type === type) ? '' : 'none';
+      });
+    }
+
+    // ============================================================
+    // PAPER DETAIL TOGGLE
+    // ============================================================
+    function togglePaperDetail(header) {
+      const card = header.closest('.paper-card');
+      const detail = card.querySelector('.paper-detail');
+      const toggle = header.querySelector('.paper-toggle');
+      detail.classList.toggle('hidden');
+      toggle.textContent = detail.classList.contains('hidden') ? '▼' : '▲';
+    }
+
+    // ============================================================
+    // TOAST NOTIFICATION
+    // ============================================================
+    function showToast(icon, title, desc) {
+      const toast = document.getElementById('achievement-toast');
+      document.getElementById('toast-icon').textContent = icon;
+      document.getElementById('toast-title').textContent = title;
+      document.getElementById('toast-name').textContent = '';
+      document.getElementById('toast-desc').textContent = desc;
+      toast.classList.add('visible');
+      setTimeout(() => toast.classList.remove('visible'), 3500);
+    }
+
+    function showAchievementToast(icon, name, desc) {
+      const toast = document.getElementById('achievement-toast');
+      document.getElementById('toast-icon').textContent = icon;
+      document.getElementById('toast-title').textContent = 'Achievement Unlocked!';
+      document.getElementById('toast-name').textContent = name;
+      document.getElementById('toast-desc').textContent = desc;
+      toast.classList.add('visible');
+      setTimeout(() => toast.classList.remove('visible'), 4000);
+    }
+
+    // ============================================================
+    // SCORE CHART (Chart.js)
+    // ============================================================
+    let scoreChartInstance = null;
+    function initScoreChart() {
+      const canvas = document.getElementById('scoreChart');
+      if (!canvas || scoreChartInstance) return;
+      const ctx = canvas.getContext('2d');
+      scoreChartInstance = new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels: ['May 18', 'May 25'],
+          datasets: [
+            {
+              label: 'Math',
+              data: [550, 570],
+              borderColor: '#7c3aed',
+              backgroundColor: 'rgba(124,58,237,0.12)',
+              pointBackgroundColor: '#7c3aed',
+              pointBorderColor: '#fff',
+              pointBorderWidth: 2,
+              pointRadius: 6,
+              tension: 0.35,
+              fill: true,
+            },
+            {
+              label: 'RW',
+              data: [600, 610],
+              borderColor: '#f59e0b',
+              backgroundColor: 'rgba(245,158,11,0.12)',
+              pointBackgroundColor: '#f59e0b',
+              pointBorderColor: '#fff',
+              pointBorderWidth: 2,
+              pointRadius: 6,
+              tension: 0.35,
+              fill: true,
+            },
+            {
+              label: 'Math Target',
+              data: [750, 750],
+              borderColor: 'rgba(124,58,237,0.5)',
+              borderDash: [7, 4],
+              borderWidth: 1.5,
+              pointRadius: 0,
+              fill: false,
+            },
+            {
+              label: 'RW Target',
+              data: [650, 650],
+              borderColor: 'rgba(245,158,11,0.5)',
+              borderDash: [7, 4],
+              borderWidth: 1.5,
+              pointRadius: 0,
+              fill: false,
+            }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { display: false },
+            tooltip: {
+              backgroundColor: '#141428',
+              borderColor: '#2a2a4a',
+              borderWidth: 1,
+              titleColor: '#e2e8f0',
+              bodyColor: '#94a3b8',
+              padding: 10,
+            }
+          },
+          scales: {
+            x: {
+              grid: { color: 'rgba(42,42,74,0.8)' },
+              ticks: { color: '#94a3b8', font: { family: 'Inter' } },
+            },
+            y: {
+              min: 400,
+              max: 800,
+              grid: { color: 'rgba(42,42,74,0.8)' },
+              ticks: { color: '#94a3b8', font: { family: 'Inter' } },
+            }
+          }
+        }
+      });
+    }
+
+    // ============================================================
+    // COUNTDOWN TIMER (to next Saturday Jun 7 boss)
+    // ============================================================
+    function updateCountdown() {
+      const bossDate = new Date('2026-06-07T09:00:00');
+      const now = new Date();
+      const diff = bossDate - now;
+      if (diff <= 0) {
+        document.getElementById('cd-days').textContent = '00';
+        document.getElementById('cd-hours').textContent = '00';
+        document.getElementById('cd-mins').textContent = '00';
+        return;
+      }
+      const days = Math.floor(diff / 86400000);
+      const hours = Math.floor((diff % 86400000) / 3600000);
+      const mins = Math.floor((diff % 3600000) / 60000);
+      document.getElementById('cd-days').textContent = String(days).padStart(2, '0');
+      document.getElementById('cd-hours').textContent = String(hours).padStart(2, '0');
+      document.getElementById('cd-mins').textContent = String(mins).padStart(2, '0');
+    }
+    updateCountdown();
+    setInterval(updateCountdown, 60000);
+
+    // ============================================================
+    // SET TODAY'S DATE ON QUEST CARD
+    // ============================================================
+    (function() {
+      const el = document.getElementById('quest-date');
+      if (!el) return;
+      const d = new Date();
+      const dows = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+      const mons = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+      el.textContent = dows[d.getDay()] + ', ' + mons[d.getMonth()] + ' ' + d.getDate();
+    })();
+
+    // ============================================================
+    // DEFAULT DATE IN PAPER FORM
+    // ============================================================
+    (function() {
+      const inp = document.getElementById('paper-date');
+      if (!inp) return;
+      inp.value = new Date().toISOString().split('T')[0];
+    })();
+
+    // ============================================================
+    // DEMO: Trigger Level Up modal on double-click of hero card
+    // ============================================================
+    document.querySelector('.hero-card').addEventListener('dblclick', function() {
+      openModal('levelup-modal');
+    });
+
+  </script>
+</body>
+</html>
