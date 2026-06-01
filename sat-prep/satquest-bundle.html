@@ -1,0 +1,4278 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SAT Quest — RPG Prep Tracker</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+  <style>
+/* ================================================================
+   SAT QUEST — RPG Prep Tracker
+   Comprehensive Dark RPG Stylesheet
+   ================================================================ */
+
+/* ----------------------------------------------------------------
+   1. CSS CUSTOM PROPERTIES
+   ---------------------------------------------------------------- */
+:root {
+  /* Core palette */
+  --bg:           #0a0a1a;
+  --card:         #141428;
+  --card-hover:   #1a1a38;
+  --border:       #2a2a4a;
+  --border-glow:  #3a3a6a;
+
+  /* Accents */
+  --accent:       #7c3aed;   /* purple */
+  --accent-light: #9d5cf7;
+  --accent-dark:  #5b21b6;
+  --gold:         #f59e0b;   /* amber/gold */
+  --gold-light:   #fbbf24;
+  --gold-dark:    #d97706;
+  --success:      #10b981;
+  --success-dark: #059669;
+  --danger:       #ef4444;
+  --danger-dark:  #dc2626;
+  --warning:      #f97316;
+  --warning-dark: #ea580c;
+
+  /* Text */
+  --text:         #e2e8f0;
+  --text-muted:   #94a3b8;
+  --text-dim:     #4a5568;
+
+  /* Glow values */
+  --glow-accent:  0 0 12px rgba(124,58,237,0.6), 0 0 24px rgba(124,58,237,0.3);
+  --glow-gold:    0 0 12px rgba(245,158,11,0.6), 0 0 24px rgba(245,158,11,0.3);
+  --glow-success: 0 0 10px rgba(16,185,129,0.5), 0 0 20px rgba(16,185,129,0.2);
+  --glow-danger:  0 0 12px rgba(239,68,68,0.6), 0 0 24px rgba(239,68,68,0.3);
+
+  /* Spacing */
+  --header-h:     56px;
+  --nav-h:        64px;
+  --radius:       12px;
+  --radius-sm:    8px;
+  --radius-lg:    16px;
+  --gap:          16px;
+}
+
+/* ----------------------------------------------------------------
+   2. RESET & BASE
+   ---------------------------------------------------------------- */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  scroll-behavior: smooth;
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  background-color: var(--bg);
+  color: var(--text);
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  font-size: 14px;
+  line-height: 1.5;
+  min-height: 100vh;
+  overflow-x: hidden;
+  /* Subtle hexagon/grid background pattern */
+  background-image:
+    linear-gradient(rgba(42,42,74,0.15) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(42,42,74,0.15) 1px, transparent 1px);
+  background-size: 32px 32px;
+}
+
+h1, h2, h3, h4 {
+  font-family: 'Rajdhani', 'Inter', sans-serif;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  line-height: 1.2;
+}
+
+button {
+  cursor: pointer;
+  font-family: inherit;
+  border: none;
+  background: none;
+}
+
+input, select, textarea {
+  font-family: inherit;
+  font-size: inherit;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+img {
+  max-width: 100%;
+}
+
+/* ----------------------------------------------------------------
+   3. SCROLLBAR STYLING (webkit)
+   ---------------------------------------------------------------- */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: var(--bg);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--border-glow);
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--accent);
+}
+
+/* ----------------------------------------------------------------
+   4. LAYOUT: FIXED HEADER, BOTTOM NAV, MAIN CONTENT
+   ---------------------------------------------------------------- */
+.top-header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: var(--header-h);
+  z-index: 100;
+  background: rgba(20, 20, 40, 0.95);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 16px;
+  box-shadow: 0 2px 20px rgba(0,0,0,0.4);
+}
+
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.header-avatar {
+  font-size: 24px;
+  line-height: 1;
+  filter: drop-shadow(0 0 6px rgba(124,58,237,0.6));
+}
+
+.header-info {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.header-name {
+  font-family: 'Rajdhani', sans-serif;
+  font-weight: 700;
+  font-size: 16px;
+  color: var(--text);
+  letter-spacing: 0.04em;
+}
+
+.header-level-badge {
+  font-size: 11px;
+  color: var(--accent-light);
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.header-right {
+  display: flex;
+  align-items: center;
+}
+
+.header-streak {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  background: rgba(245,158,11,0.12);
+  border: 1px solid rgba(245,158,11,0.3);
+  border-radius: 20px;
+  padding: 4px 12px;
+}
+
+.fire-icon {
+  font-size: 16px;
+  animation: flicker 2s infinite alternate;
+}
+
+.streak-count {
+  font-family: 'Rajdhani', sans-serif;
+  font-weight: 700;
+  font-size: 18px;
+  color: var(--gold);
+  text-shadow: 0 0 8px rgba(245,158,11,0.6);
+}
+
+.main-content {
+  padding-top: calc(var(--header-h) + 12px);
+  padding-bottom: calc(var(--nav-h) + 16px);
+  padding-left: 12px;
+  padding-right: 12px;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.bottom-nav {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: var(--nav-h);
+  z-index: 100;
+  background: rgba(20,20,40,0.97);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-top: 1px solid var(--border);
+  display: flex;
+  align-items: stretch;
+  box-shadow: 0 -4px 20px rgba(0,0,0,0.5);
+}
+
+/* ----------------------------------------------------------------
+   5. NAVIGATION TABS
+   ---------------------------------------------------------------- */
+.nav-tab {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  padding: 6px 4px;
+  color: var(--text-muted);
+  transition: color 0.2s, background 0.2s;
+  border-top: 2px solid transparent;
+  position: relative;
+  overflow: hidden;
+}
+
+.nav-tab:hover {
+  color: var(--text);
+  background: rgba(124,58,237,0.05);
+}
+
+.nav-tab.active {
+  color: var(--accent-light);
+  border-top-color: var(--accent);
+  background: rgba(124,58,237,0.08);
+}
+
+.nav-tab.active::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 32px;
+  height: 2px;
+  background: var(--accent);
+  box-shadow: var(--glow-accent);
+  border-radius: 0 0 2px 2px;
+}
+
+.nav-icon {
+  font-size: 18px;
+  line-height: 1;
+}
+
+.nav-label {
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+/* ----------------------------------------------------------------
+   6. TAB PANELS
+   ---------------------------------------------------------------- */
+.tab-panel {
+  display: none;
+  animation: fadeIn 0.25s ease;
+}
+
+.tab-panel.active {
+  display: block;
+}
+
+/* ----------------------------------------------------------------
+   7. CARD BASE STYLES
+   ---------------------------------------------------------------- */
+.card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 16px;
+  margin-bottom: 12px;
+  transition: border-color 0.25s, box-shadow 0.25s, transform 0.2s;
+  position: relative;
+  overflow: hidden;
+}
+
+.card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: var(--radius);
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.25s;
+  background: linear-gradient(135deg, rgba(124,58,237,0.04), transparent 60%);
+}
+
+.card:hover {
+  border-color: var(--border-glow);
+  transform: translateY(-1px);
+}
+
+.card:hover::before {
+  opacity: 1;
+}
+
+.card-title {
+  font-family: 'Rajdhani', sans-serif;
+  font-weight: 700;
+  font-size: 15px;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  margin-bottom: 12px;
+}
+
+.card-subtitle {
+  font-family: 'Inter', sans-serif;
+  font-size: 11px;
+  font-weight: 400;
+  text-transform: none;
+  letter-spacing: 0;
+  color: var(--text-dim);
+}
+
+.card-title-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+
+/* ----------------------------------------------------------------
+   8. HERO CHARACTER CARD
+   ---------------------------------------------------------------- */
+.hero-card {
+  background: linear-gradient(135deg, #1a1240 0%, #141428 50%, #1a2840 100%);
+  border-color: var(--accent-dark);
+  box-shadow: 0 4px 24px rgba(124,58,237,0.2);
+}
+
+.hero-top {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.hero-avatar-wrap {
+  position: relative;
+  flex-shrink: 0;
+}
+
+.hero-avatar {
+  font-size: 48px;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 72px;
+  height: 72px;
+  background: rgba(124,58,237,0.15);
+  border-radius: 50%;
+  border: 2px solid var(--accent);
+  box-shadow: var(--glow-accent), inset 0 0 20px rgba(124,58,237,0.1);
+  animation: pulse-glow 3s ease-in-out infinite;
+}
+
+.hero-avatar-ring {
+  position: absolute;
+  inset: -4px;
+  border-radius: 50%;
+  border: 1px solid rgba(124,58,237,0.3);
+  animation: spin-slow 8s linear infinite;
+}
+
+@keyframes spin-slow {
+  to { transform: rotate(360deg); }
+}
+
+.hero-meta {
+  flex: 1;
+  min-width: 0;
+}
+
+.hero-name {
+  font-size: 20px;
+  color: var(--text);
+  margin-bottom: 4px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.hero-level-row {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  margin-bottom: 4px;
+}
+
+.hero-level-big {
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 48px;
+  font-weight: 700;
+  line-height: 1;
+  color: var(--accent-light);
+  text-shadow: var(--glow-accent);
+}
+
+.hero-class {
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--gold);
+  text-shadow: var(--glow-gold);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.hero-target-label {
+  font-size: 11px;
+  color: var(--text-muted);
+  letter-spacing: 0.04em;
+}
+
+/* XP Bars */
+.xp-bars-row {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.xp-bar-group {
+  flex: 1;
+}
+
+.xp-bar-label {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 5px;
+}
+
+.xp-bar-subject {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.math-label { color: var(--accent-light); }
+.rw-label   { color: var(--gold); }
+
+.xp-bar-value {
+  font-size: 11px;
+  color: var(--text-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.xp-bar-track {
+  height: 8px;
+  background: rgba(255,255,255,0.06);
+  border-radius: 4px;
+  overflow: hidden;
+  border: 1px solid var(--border);
+}
+
+.xp-bar-fill {
+  height: 100%;
+  border-radius: 4px;
+  width: var(--xp-pct, 0%);
+  animation: xp-fill 1.2s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+  position: relative;
+}
+
+.xp-bar-fill::after {
+  content: '';
+  position: absolute;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  width: 4px;
+  border-radius: 2px;
+  animation: xp-tip-glow 2s ease-in-out infinite;
+}
+
+.math-bar {
+  background: linear-gradient(90deg, var(--accent-dark), var(--accent), var(--accent-light));
+  box-shadow: 0 0 8px rgba(124,58,237,0.5);
+}
+
+.math-bar::after {
+  background: rgba(255,255,255,0.7);
+  box-shadow: 0 0 6px var(--accent-light);
+}
+
+.rw-bar {
+  background: linear-gradient(90deg, var(--gold-dark), var(--gold), var(--gold-light));
+  box-shadow: 0 0 8px rgba(245,158,11,0.5);
+}
+
+.rw-bar::after {
+  background: rgba(255,255,255,0.7);
+  box-shadow: 0 0 6px var(--gold-light);
+}
+
+/* ----------------------------------------------------------------
+   9. DASHBOARD ROW (2-column grid)
+   ---------------------------------------------------------------- */
+.dashboard-row {
+  display: grid;
+  grid-template-columns: 1fr 1.6fr;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+/* ----------------------------------------------------------------
+   10. STREAK CARD
+   ---------------------------------------------------------------- */
+.streak-card {
+  text-align: center;
+  background: linear-gradient(135deg, #1a1410 0%, #141428 100%);
+  border-color: rgba(245,158,11,0.3);
+}
+
+.streak-fire {
+  font-size: 32px;
+  line-height: 1;
+  margin-bottom: 4px;
+  display: block;
+  animation: flicker 1.8s ease-in-out infinite alternate;
+  filter: drop-shadow(0 0 8px rgba(245,158,11,0.7));
+}
+
+.streak-number {
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 48px;
+  font-weight: 700;
+  color: var(--gold);
+  text-shadow: var(--glow-gold);
+  line-height: 1;
+}
+
+.streak-label {
+  font-size: 11px;
+  color: var(--gold-dark);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin-top: 2px;
+}
+
+.streak-last {
+  font-size: 10px;
+  color: var(--text-dim);
+  margin-top: 6px;
+}
+
+/* ----------------------------------------------------------------
+   11. PREDICTED SCORE CARD
+   ---------------------------------------------------------------- */
+.predicted-card {
+  padding: 14px;
+}
+
+.predicted-total {
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 40px;
+  font-weight: 700;
+  color: var(--text);
+  line-height: 1;
+  margin-bottom: 10px;
+  text-shadow: 0 0 10px rgba(226,232,240,0.2);
+}
+
+.predicted-breakdown {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  margin-bottom: 10px;
+}
+
+.pred-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+}
+
+.pred-label {
+  font-weight: 600;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  min-width: 32px;
+}
+
+.pred-score {
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.pred-target {
+  font-size: 11px;
+  margin-left: 2px;
+}
+
+.pred-target.on-track { color: var(--success); }
+.pred-target.behind   { color: var(--danger); }
+
+.pred-status {
+  font-size: 11px;
+  font-weight: 600;
+  padding: 4px 8px;
+  border-radius: 4px;
+  display: inline-block;
+  letter-spacing: 0.03em;
+}
+
+.status-on-track {
+  background: rgba(16,185,129,0.15);
+  color: var(--success);
+  border: 1px solid rgba(16,185,129,0.3);
+}
+
+.status-behind {
+  background: rgba(239,68,68,0.1);
+  color: var(--danger);
+  border: 1px solid rgba(239,68,68,0.25);
+}
+
+/* ----------------------------------------------------------------
+   12. QUEST CARD
+   ---------------------------------------------------------------- */
+.quests-card {
+  background: linear-gradient(135deg, #141428 0%, #161630 100%);
+}
+
+.quest-date {
+  font-size: 12px;
+  color: var(--text-muted);
+  font-style: italic;
+}
+
+.quest-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.quest-item {
+  display: flex;
+  align-items: center;
+}
+
+.quest-checkbox {
+  appearance: none;
+  -webkit-appearance: none;
+  width: 18px;
+  height: 18px;
+  border: 2px solid var(--border-glow);
+  border-radius: 4px;
+  cursor: pointer;
+  flex-shrink: 0;
+  position: relative;
+  transition: border-color 0.2s, background 0.2s;
+}
+
+.quest-checkbox:checked {
+  background: var(--accent);
+  border-color: var(--accent);
+  box-shadow: 0 0 6px rgba(124,58,237,0.5);
+}
+
+.quest-checkbox:checked::after {
+  content: '✓';
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.quest-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: 1;
+  padding: 8px 10px;
+  margin-left: 10px;
+  background: rgba(255,255,255,0.03);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: background 0.2s, border-color 0.2s;
+  flex-wrap: wrap;
+}
+
+.quest-label:hover {
+  background: rgba(255,255,255,0.05);
+  border-color: var(--border-glow);
+}
+
+.quest-checkbox:checked + .quest-label {
+  opacity: 0.55;
+  text-decoration: line-through;
+  text-decoration-color: rgba(255,255,255,0.3);
+}
+
+.quest-topic {
+  flex: 1;
+  font-size: 13px;
+  font-weight: 500;
+  min-width: 120px;
+}
+
+.quest-badge {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  padding: 2px 7px;
+  border-radius: 3px;
+}
+
+.badge-math {
+  background: rgba(124,58,237,0.2);
+  color: var(--accent-light);
+  border: 1px solid rgba(124,58,237,0.4);
+}
+
+.badge-rw {
+  background: rgba(245,158,11,0.15);
+  color: var(--gold);
+  border: 1px solid rgba(245,158,11,0.35);
+}
+
+.badge-review {
+  background: rgba(16,185,129,0.15);
+  color: var(--success);
+  border: 1px solid rgba(16,185,129,0.3);
+}
+
+.quest-xp {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--gold);
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+}
+
+/* ----------------------------------------------------------------
+   13. BOSS BATTLE CARD
+   ---------------------------------------------------------------- */
+.boss-card {
+  background: linear-gradient(135deg, #200a0a 0%, #141428 60%);
+  border-color: rgba(239,68,68,0.4);
+  box-shadow: 0 0 20px rgba(239,68,68,0.12), inset 0 0 40px rgba(239,68,68,0.04);
+  animation: boss-pulse 3s ease-in-out infinite;
+}
+
+.boss-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 6px;
+}
+
+.boss-title {
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--danger);
+  text-shadow: var(--glow-danger);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.boss-type-badge {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  padding: 3px 8px;
+  border-radius: 3px;
+  background: rgba(239,68,68,0.2);
+  color: var(--danger);
+  border: 1px solid rgba(239,68,68,0.4);
+}
+
+.boss-name {
+  font-size: 14px;
+  color: var(--text-muted);
+  margin-bottom: 14px;
+  font-style: italic;
+}
+
+.boss-countdown {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-bottom: 10px;
+}
+
+.countdown-block {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background: rgba(0,0,0,0.3);
+  border: 1px solid rgba(239,68,68,0.3);
+  border-radius: var(--radius-sm);
+  padding: 8px 14px;
+  min-width: 60px;
+}
+
+.cd-val {
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--danger);
+  text-shadow: var(--glow-danger);
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+
+.cd-unit {
+  font-size: 9px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-dim);
+  margin-top: 2px;
+}
+
+.countdown-sep {
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 22px;
+  font-weight: 700;
+  color: rgba(239,68,68,0.5);
+  margin-bottom: 12px;
+}
+
+.boss-subtitle {
+  font-size: 11px;
+  color: var(--text-muted);
+  font-style: italic;
+}
+
+/* ----------------------------------------------------------------
+   14. WEAKEST TOPIC CARD
+   ---------------------------------------------------------------- */
+.weak-card {
+  border-color: rgba(249,115,22,0.3);
+  background: linear-gradient(135deg, #1a1005 0%, #141428 100%);
+}
+
+.weak-topic-name {
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--warning);
+  text-shadow: 0 0 10px rgba(249,115,22,0.5);
+  margin-bottom: 8px;
+}
+
+.weak-meta {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-bottom: 10px;
+}
+
+.weak-category {
+  font-size: 11px;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 3px;
+}
+
+.weak-accuracy {
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+.weak-accuracy strong {
+  color: var(--danger);
+  font-size: 14px;
+}
+
+.focus-badge {
+  display: inline-block;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  padding: 4px 12px;
+  border-radius: 4px;
+  background: rgba(249,115,22,0.15);
+  color: var(--warning);
+  border: 1px solid rgba(249,115,22,0.35);
+  animation: pulse-subtle 2.5s ease-in-out infinite;
+}
+
+/* ----------------------------------------------------------------
+   15. QUICK ACTIONS
+   ---------------------------------------------------------------- */
+.quick-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-top: 4px;
+  margin-bottom: 0;
+}
+
+/* ----------------------------------------------------------------
+   16. BUTTONS
+   ---------------------------------------------------------------- */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 10px 18px;
+  border-radius: var(--radius-sm);
+  font-weight: 600;
+  font-size: 13px;
+  letter-spacing: 0.03em;
+  transition: all 0.2s;
+  border: 1px solid transparent;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.btn-primary {
+  background: var(--accent);
+  color: #fff;
+  border-color: var(--accent);
+  box-shadow: 0 0 10px rgba(124,58,237,0.35);
+}
+
+.btn-primary:hover {
+  background: var(--accent-light);
+  box-shadow: var(--glow-accent);
+  transform: translateY(-1px);
+}
+
+.btn-primary:active {
+  transform: translateY(0);
+}
+
+.btn-secondary {
+  background: rgba(245,158,11,0.15);
+  color: var(--gold);
+  border-color: rgba(245,158,11,0.4);
+}
+
+.btn-secondary:hover {
+  background: rgba(245,158,11,0.25);
+  box-shadow: var(--glow-gold);
+  border-color: var(--gold);
+  transform: translateY(-1px);
+}
+
+.btn-danger {
+  background: rgba(239,68,68,0.15);
+  color: var(--danger);
+  border-color: rgba(239,68,68,0.35);
+}
+
+.btn-danger:hover {
+  background: rgba(239,68,68,0.25);
+  box-shadow: var(--glow-danger);
+}
+
+.btn-ghost {
+  background: transparent;
+  color: var(--text-muted);
+  border-color: var(--border);
+}
+
+.btn-ghost:hover {
+  background: rgba(255,255,255,0.05);
+  color: var(--text);
+  border-color: var(--border-glow);
+}
+
+.btn-lg {
+  padding: 13px 20px;
+  font-size: 14px;
+  width: 100%;
+  border-radius: var(--radius);
+}
+
+.btn-sm {
+  padding: 5px 12px;
+  font-size: 11px;
+}
+
+/* ----------------------------------------------------------------
+   17. SECTION HEADERS
+   ---------------------------------------------------------------- */
+.section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 0 8px;
+}
+
+.section-title {
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--text);
+  letter-spacing: 0.04em;
+}
+
+/* ----------------------------------------------------------------
+   18. SUB TABS (skill tree)
+   ---------------------------------------------------------------- */
+.sub-tabs {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 14px;
+  background: rgba(0,0,0,0.2);
+  border-radius: var(--radius);
+  padding: 4px;
+  border: 1px solid var(--border);
+}
+
+.sub-tab {
+  flex: 1;
+  padding: 9px 14px;
+  border-radius: var(--radius-sm);
+  font-weight: 600;
+  font-size: 13px;
+  color: var(--text-muted);
+  transition: all 0.2s;
+  text-align: center;
+}
+
+.sub-tab:hover {
+  color: var(--text);
+  background: rgba(255,255,255,0.04);
+}
+
+.sub-tab.active {
+  background: var(--accent);
+  color: #fff;
+  box-shadow: var(--glow-accent);
+}
+
+.subtab-panel {
+  display: none;
+  animation: fadeIn 0.2s ease;
+}
+
+.subtab-panel.active {
+  display: block;
+}
+
+/* ----------------------------------------------------------------
+   19. SKILL TREE NODES
+   ---------------------------------------------------------------- */
+.skill-category {
+  margin-bottom: 18px;
+}
+
+.skill-cat-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  background: rgba(0,0,0,0.25);
+  border-radius: var(--radius-sm);
+  margin-bottom: 10px;
+  border-left: 3px solid var(--accent);
+}
+
+.skill-cat-icon {
+  font-size: 16px;
+}
+
+.skill-cat-name {
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--text);
+  letter-spacing: 0.04em;
+  flex: 1;
+}
+
+.skill-cat-level {
+  font-size: 11px;
+  color: var(--accent-light);
+  font-weight: 600;
+  padding: 2px 8px;
+  background: rgba(124,58,237,0.15);
+  border-radius: 10px;
+  border: 1px solid rgba(124,58,237,0.3);
+}
+
+.skill-nodes-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: 8px;
+}
+
+/* Base skill node */
+.skill-node {
+  background: rgba(0,0,0,0.2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 12px 10px;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.2s;
+  position: relative;
+  overflow: hidden;
+}
+
+.skill-node::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: var(--radius);
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+
+.skill-node:hover {
+  transform: translateY(-2px);
+}
+
+.node-icon {
+  font-size: 22px;
+  line-height: 1;
+  margin-bottom: 5px;
+}
+
+.node-name {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text);
+  margin-bottom: 4px;
+  line-height: 1.3;
+}
+
+.node-acc {
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 15px;
+  font-weight: 700;
+  margin-bottom: 2px;
+}
+
+.node-sessions {
+  font-size: 9px;
+  color: var(--text-dim);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+/* Status-specific node styles */
+.skill-node[data-status="locked"] {
+  opacity: 0.45;
+  cursor: not-allowed;
+  filter: grayscale(0.5);
+}
+
+.skill-node[data-status="locked"] .node-acc {
+  color: var(--text-dim);
+}
+
+.skill-node[data-status="in_progress"] {
+  border-color: rgba(124,58,237,0.45);
+  background: rgba(124,58,237,0.06);
+}
+
+.skill-node[data-status="in_progress"] .node-acc {
+  color: var(--accent-light);
+}
+
+.skill-node[data-status="in_progress"]:hover {
+  border-color: var(--accent);
+  box-shadow: 0 0 12px rgba(124,58,237,0.3);
+}
+
+.skill-node[data-status="weak"] {
+  border-color: rgba(249,115,22,0.45);
+  background: rgba(249,115,22,0.06);
+}
+
+.skill-node[data-status="weak"] .node-acc {
+  color: var(--warning);
+}
+
+.skill-node[data-status="weak"]:hover {
+  border-color: var(--warning);
+  box-shadow: 0 0 12px rgba(249,115,22,0.3);
+}
+
+.skill-node[data-status="steady"] {
+  border-color: rgba(16,185,129,0.35);
+  background: rgba(16,185,129,0.06);
+}
+
+.skill-node[data-status="steady"] .node-acc {
+  color: var(--success);
+}
+
+.skill-node[data-status="steady"]:hover {
+  border-color: var(--success);
+  box-shadow: 0 0 12px rgba(16,185,129,0.3);
+}
+
+.skill-node[data-status="strong"] {
+  border-color: rgba(245,158,11,0.5);
+  background: rgba(245,158,11,0.08);
+  box-shadow: 0 0 14px rgba(245,158,11,0.2);
+}
+
+.skill-node[data-status="strong"] .node-acc {
+  color: var(--gold);
+}
+
+.skill-node[data-status="strong"]:hover {
+  border-color: var(--gold);
+  box-shadow: var(--glow-gold);
+}
+
+.skill-node[data-status="strong"] .node-icon {
+  filter: drop-shadow(0 0 6px rgba(245,158,11,0.7));
+  animation: twinkle 2s ease-in-out infinite;
+}
+
+/* ----------------------------------------------------------------
+   20. PAPERS SECTION
+   ---------------------------------------------------------------- */
+.filter-tabs {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 12px;
+  flex-wrap: wrap;
+}
+
+.filter-tab {
+  padding: 6px 14px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-muted);
+  border: 1px solid var(--border);
+  transition: all 0.2s;
+  background: transparent;
+}
+
+.filter-tab:hover {
+  color: var(--text);
+  border-color: var(--border-glow);
+  background: rgba(255,255,255,0.04);
+}
+
+.filter-tab.active {
+  background: rgba(124,58,237,0.15);
+  color: var(--accent-light);
+  border-color: rgba(124,58,237,0.4);
+}
+
+/* Paper cards */
+.paper-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.paper-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+  transition: border-color 0.2s;
+}
+
+.paper-card:hover {
+  border-color: var(--border-glow);
+}
+
+.paper-card-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 14px;
+  cursor: pointer;
+  transition: background 0.2s;
+  flex-wrap: wrap;
+}
+
+.paper-card-header:hover {
+  background: rgba(255,255,255,0.03);
+}
+
+.paper-meta-col {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 100px;
+}
+
+.paper-date {
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+.paper-type-badge {
+  display: inline-block;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  padding: 2px 7px;
+  border-radius: 3px;
+}
+
+.badge-mock {
+  background: rgba(124,58,237,0.2);
+  color: var(--accent-light);
+  border: 1px solid rgba(124,58,237,0.35);
+}
+
+.badge-full {
+  background: rgba(245,158,11,0.15);
+  color: var(--gold);
+  border: 1px solid rgba(245,158,11,0.3);
+}
+
+.badge-practice {
+  background: rgba(16,185,129,0.12);
+  color: var(--success);
+  border: 1px solid rgba(16,185,129,0.25);
+}
+
+.paper-scores {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex: 1;
+  flex-wrap: wrap;
+}
+
+.paper-score-item {
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+.paper-score-item strong {
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.paper-total-score {
+  font-size: 12px;
+  color: var(--text-muted);
+  padding-left: 8px;
+  border-left: 1px solid var(--border);
+}
+
+.paper-total-score strong {
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.paper-improvement {
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 14px;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 4px;
+}
+
+.paper-improvement.positive {
+  color: var(--success);
+  background: rgba(16,185,129,0.1);
+}
+
+.paper-improvement.negative {
+  color: var(--danger);
+  background: rgba(239,68,68,0.1);
+}
+
+.paper-improvement.neutral {
+  color: var(--text-muted);
+  background: rgba(255,255,255,0.05);
+}
+
+.paper-toggle {
+  color: var(--text-muted);
+  font-size: 12px;
+  padding: 4px;
+  transition: transform 0.2s;
+}
+
+/* Paper detail expand */
+.paper-detail {
+  overflow: hidden;
+  transition: max-height 0.35s ease;
+  max-height: 600px;
+}
+
+.paper-detail.hidden {
+  max-height: 0;
+}
+
+.paper-detail-inner {
+  padding: 0 14px 14px;
+  border-top: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding-top: 14px;
+  animation: slideUp 0.25s ease;
+}
+
+.detail-section {
+  /* spacing from parent gap */
+}
+
+.detail-title {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  color: var(--text-muted);
+  margin-bottom: 8px;
+}
+
+.wrong-answer-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 0;
+  border-bottom: 1px solid rgba(42,42,74,0.5);
+  flex-wrap: wrap;
+}
+
+.wrong-answer-row:last-child {
+  border-bottom: none;
+}
+
+.wa-topic {
+  flex: 1;
+  font-size: 12px;
+  min-width: 100px;
+}
+
+.wa-error {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  padding: 2px 7px;
+  border-radius: 3px;
+}
+
+.error-concept {
+  background: rgba(239,68,68,0.15);
+  color: var(--danger);
+  border: 1px solid rgba(239,68,68,0.3);
+}
+
+.error-careless {
+  background: rgba(249,115,22,0.15);
+  color: var(--warning);
+  border: 1px solid rgba(249,115,22,0.3);
+}
+
+.error-time {
+  background: rgba(245,158,11,0.15);
+  color: var(--gold);
+  border: 1px solid rgba(245,158,11,0.3);
+}
+
+.wa-count {
+  font-size: 11px;
+  color: var(--text-muted);
+  white-space: nowrap;
+}
+
+/* Error distribution */
+.error-dist {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.error-dist-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.error-dist-label {
+  font-size: 11px;
+  color: var(--text-muted);
+  min-width: 90px;
+}
+
+.error-dist-bar {
+  flex: 1;
+  height: 6px;
+  background: rgba(255,255,255,0.06);
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.error-dist-fill {
+  height: 100%;
+  border-radius: 3px;
+  transition: width 0.6s ease;
+}
+
+.error-concept-fill { background: var(--danger); }
+.error-careless-fill { background: var(--warning); }
+.error-time-fill     { background: var(--gold); }
+
+.error-dist-pct {
+  font-size: 11px;
+  color: var(--text-muted);
+  min-width: 30px;
+  text-align: right;
+}
+
+.paper-insight {
+  font-size: 12px;
+  color: var(--text-muted);
+  line-height: 1.6;
+  font-style: italic;
+}
+
+/* ----------------------------------------------------------------
+   21. PROGRESS SECTION
+   ---------------------------------------------------------------- */
+.chart-container {
+  height: 220px;
+  position: relative;
+  margin-bottom: 12px;
+}
+
+.chart-legend {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 11px;
+  color: var(--text-muted);
+}
+
+.legend-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+.math-dot { background: #7c3aed; box-shadow: 0 0 5px rgba(124,58,237,0.6); }
+.rw-dot   { background: #f59e0b; box-shadow: 0 0 5px rgba(245,158,11,0.6); }
+
+.legend-dash {
+  width: 18px;
+  height: 2px;
+  border-radius: 1px;
+  display: inline-block;
+  background: repeating-linear-gradient(90deg, transparent, transparent 3px, currentColor 3px, currentColor 6px);
+}
+
+.math-dash { color: rgba(124,58,237,0.6); }
+.rw-dash   { color: rgba(245,158,11,0.6); }
+
+/* Topic performance grid */
+.topic-perf-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.topic-perf-item {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.topic-perf-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.topic-perf-name {
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+.topic-perf-pct {
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.danger-text  { color: var(--danger); }
+.warning-text { color: var(--warning); }
+.success-text { color: var(--success); }
+
+.topic-perf-bar-track {
+  height: 5px;
+  background: rgba(255,255,255,0.05);
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.topic-perf-fill {
+  height: 100%;
+  border-radius: 3px;
+  transition: width 1s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* ----------------------------------------------------------------
+   22. 10-WEEK DUNGEON MAP
+   ---------------------------------------------------------------- */
+.dungeon-subtitle {
+  font-size: 11px;
+  color: var(--text-muted);
+  font-style: italic;
+  margin-bottom: 14px;
+}
+
+.dungeon-map {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  position: relative;
+}
+
+.dungeon-map::before {
+  content: '';
+  position: absolute;
+  left: 18px;
+  top: 0;
+  bottom: 80px;
+  width: 2px;
+  background: linear-gradient(to bottom, var(--accent), var(--gold), var(--danger));
+  opacity: 0.3;
+  border-radius: 1px;
+}
+
+.dungeon-week {
+  border-radius: var(--radius);
+  padding: 12px 12px 10px 14px;
+  border: 1px solid var(--border);
+  background: rgba(0,0,0,0.2);
+  transition: all 0.2s;
+  position: relative;
+}
+
+.dungeon-week[data-status="completed"] {
+  border-color: rgba(16,185,129,0.4);
+  background: rgba(16,185,129,0.05);
+  box-shadow: 0 0 12px rgba(16,185,129,0.1);
+}
+
+.dungeon-week[data-status="current"] {
+  border-color: rgba(245,158,11,0.6);
+  background: rgba(245,158,11,0.06);
+  box-shadow: 0 0 20px rgba(245,158,11,0.2);
+  animation: current-week-pulse 2.5s ease-in-out infinite;
+}
+
+.dungeon-week[data-status="upcoming"] {
+  opacity: 0.55;
+}
+
+.dungeon-week-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 5px;
+}
+
+.dungeon-week-num {
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.dungeon-week-dates {
+  font-size: 11px;
+  color: var(--text-dim);
+}
+
+.dungeon-zone-name {
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 17px;
+  font-weight: 700;
+  color: var(--text);
+  margin-bottom: 3px;
+}
+
+.dungeon-week[data-status="current"] .dungeon-zone-name {
+  color: var(--gold);
+  text-shadow: var(--glow-gold);
+}
+
+.dungeon-week[data-status="completed"] .dungeon-zone-name {
+  color: var(--success);
+}
+
+.dungeon-topics {
+  font-size: 11px;
+  color: var(--text-dim);
+  margin-bottom: 6px;
+  line-height: 1.4;
+}
+
+.dungeon-boss-row {
+  margin-bottom: 6px;
+}
+
+.dungeon-boss-indicator {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--danger);
+  letter-spacing: 0.04em;
+}
+
+.dungeon-status-badge {
+  display: inline-block;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.09em;
+  padding: 2px 8px;
+  border-radius: 3px;
+  text-transform: uppercase;
+}
+
+.current-badge {
+  background: rgba(245,158,11,0.2);
+  color: var(--gold);
+  border: 1px solid rgba(245,158,11,0.5);
+  box-shadow: 0 0 8px rgba(245,158,11,0.3);
+}
+
+.upcoming-badge {
+  background: rgba(255,255,255,0.04);
+  color: var(--text-dim);
+  border: 1px solid var(--border);
+}
+
+.completed-badge {
+  background: rgba(16,185,129,0.15);
+  color: var(--success);
+  border: 1px solid rgba(16,185,129,0.35);
+}
+
+/* Final Boss */
+.dungeon-final-boss {
+  background: linear-gradient(135deg, #1a0505 0%, #0a0a1a 100%);
+  border: 2px solid var(--danger);
+  border-radius: var(--radius);
+  padding: 16px;
+  text-align: center;
+  box-shadow: var(--glow-danger), inset 0 0 30px rgba(239,68,68,0.05);
+  animation: boss-pulse 2.5s ease-in-out infinite;
+}
+
+.final-boss-header {
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--danger);
+  text-shadow: var(--glow-danger);
+  letter-spacing: 0.1em;
+  margin-bottom: 4px;
+}
+
+.final-boss-name {
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 28px;
+  font-weight: 700;
+  color: #fff;
+  text-shadow: 0 0 20px rgba(239,68,68,0.6);
+  margin-bottom: 4px;
+}
+
+.final-boss-date {
+  font-size: 14px;
+  color: var(--danger);
+  margin-bottom: 6px;
+  font-weight: 600;
+}
+
+.final-boss-target {
+  font-size: 12px;
+  color: var(--text-muted);
+  font-style: italic;
+}
+
+/* Weekly stats */
+.weekly-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+}
+
+.weekly-stat {
+  text-align: center;
+  padding: 10px 6px;
+  background: rgba(0,0,0,0.2);
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+}
+
+.weekly-stat.positive .weekly-stat-val {
+  color: var(--success);
+}
+
+.weekly-stat-val {
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--text);
+  line-height: 1;
+  margin-bottom: 3px;
+}
+
+.weekly-stat-label {
+  font-size: 9px;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  color: var(--text-dim);
+}
+
+/* ----------------------------------------------------------------
+   23. ACHIEVEMENTS SECTION
+   ---------------------------------------------------------------- */
+.achievement-counter {
+  font-size: 13px;
+  color: var(--gold);
+  font-weight: 600;
+}
+
+.achievements-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+}
+
+.achievement-badge {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 14px 10px;
+  text-align: center;
+  transition: all 0.25s;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Unlocked badge */
+.achievement-badge.unlocked {
+  border-color: rgba(245,158,11,0.5);
+  background: linear-gradient(135deg, #1a1408 0%, #141428 100%);
+  box-shadow: 0 0 16px rgba(245,158,11,0.15);
+  animation: unlocked-glow 3s ease-in-out infinite;
+}
+
+.achievement-badge.unlocked::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, rgba(245,158,11,0.06) 0%, transparent 60%);
+  pointer-events: none;
+}
+
+.achievement-badge.unlocked::after {
+  content: '✓';
+  position: absolute;
+  top: 6px;
+  right: 8px;
+  font-size: 10px;
+  color: var(--gold);
+  font-weight: 700;
+  background: rgba(245,158,11,0.2);
+  border: 1px solid rgba(245,158,11,0.4);
+  border-radius: 50%;
+  width: 16px;
+  height: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Locked badge */
+.achievement-badge.locked {
+  opacity: 0.4;
+  filter: grayscale(0.6);
+}
+
+.achievement-badge.locked:hover {
+  opacity: 0.65;
+  filter: grayscale(0.3);
+}
+
+.achievement-badge:hover {
+  transform: translateY(-2px);
+  border-color: rgba(245,158,11,0.6);
+}
+
+.badge-icon {
+  font-size: 28px;
+  line-height: 1;
+  margin-bottom: 6px;
+  display: block;
+}
+
+.achievement-badge.unlocked .badge-icon {
+  filter: drop-shadow(0 0 8px rgba(245,158,11,0.7));
+  animation: twinkle 2.5s ease-in-out infinite;
+}
+
+.badge-name {
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text);
+  letter-spacing: 0.04em;
+  margin-bottom: 3px;
+  line-height: 1.2;
+}
+
+.achievement-badge.unlocked .badge-name {
+  color: var(--gold);
+  text-shadow: 0 0 8px rgba(245,158,11,0.4);
+}
+
+.badge-desc {
+  font-size: 10px;
+  color: var(--text-muted);
+  line-height: 1.35;
+  margin-bottom: 5px;
+}
+
+.badge-date {
+  font-size: 9px;
+  color: var(--gold-dark);
+  font-style: italic;
+  font-weight: 600;
+}
+
+.badge-condition {
+  font-size: 9px;
+  color: var(--text-dim);
+  font-style: italic;
+}
+
+/* ----------------------------------------------------------------
+   24. FORMS & INPUTS
+   ---------------------------------------------------------------- */
+.form-group {
+  margin-bottom: 14px;
+}
+
+.form-label {
+  display: block;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin-bottom: 6px;
+}
+
+.form-input {
+  width: 100%;
+  background: rgba(0,0,0,0.3);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  color: var(--text);
+  padding: 9px 12px;
+  font-size: 13px;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  outline: none;
+}
+
+.form-input:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 2px rgba(124,58,237,0.15);
+}
+
+.form-input::placeholder {
+  color: var(--text-dim);
+}
+
+.form-select {
+  cursor: pointer;
+  appearance: none;
+  -webkit-appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%2394a3b8'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 10px center;
+  padding-right: 28px;
+}
+
+.form-select option,
+.form-select optgroup {
+  background: #141428;
+  color: var(--text);
+}
+
+.form-textarea {
+  min-height: 70px;
+  resize: vertical;
+  line-height: 1.5;
+}
+
+.form-range {
+  width: 100%;
+  -webkit-appearance: none;
+  appearance: none;
+  height: 4px;
+  background: var(--border);
+  border-radius: 2px;
+  outline: none;
+  cursor: pointer;
+}
+
+.form-range::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--accent);
+  box-shadow: 0 0 6px rgba(124,58,237,0.5);
+  cursor: pointer;
+  transition: box-shadow 0.2s;
+}
+
+.form-range::-webkit-slider-thumb:hover {
+  box-shadow: 0 0 10px rgba(124,58,237,0.8);
+}
+
+.range-labels {
+  display: flex;
+  justify-content: space-between;
+  font-size: 10px;
+  color: var(--text-dim);
+  margin-top: 4px;
+}
+
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.type-selector {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.type-btn {
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-muted);
+  border: 1px solid var(--border);
+  background: transparent;
+  transition: all 0.2s;
+}
+
+.type-btn:hover {
+  border-color: var(--accent);
+  color: var(--accent-light);
+  background: rgba(124,58,237,0.07);
+}
+
+.type-btn.active {
+  background: rgba(124,58,237,0.2);
+  color: var(--accent-light);
+  border-color: var(--accent);
+  box-shadow: 0 0 8px rgba(124,58,237,0.25);
+}
+
+.total-score-display {
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 32px;
+  font-weight: 700;
+  color: var(--text);
+  padding: 8px 12px;
+  background: rgba(0,0,0,0.3);
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+  text-align: center;
+  transition: color 0.3s;
+}
+
+.wrong-answer-entry {
+  display: grid;
+  grid-template-columns: 2fr 1.5fr 60px;
+  gap: 6px;
+  margin-bottom: 6px;
+}
+
+.wa-topic-select { font-size: 12px; padding: 7px 8px; }
+.wa-error-select  { font-size: 12px; padding: 7px 8px; }
+.wa-count-input   { font-size: 13px; text-align: center; }
+
+/* ----------------------------------------------------------------
+   25. MODALS
+   ---------------------------------------------------------------- */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  background: rgba(0,0,0,0.75);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  overflow-y: auto;
+}
+
+.modal-overlay.open {
+  display: flex;
+  animation: fadeIn 0.2s ease;
+}
+
+.modal-content {
+  background: #141428;
+  border: 1px solid var(--accent);
+  border-radius: var(--radius-lg);
+  width: 100%;
+  max-width: 540px;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: var(--glow-accent), 0 20px 60px rgba(0,0,0,0.7);
+  animation: slideUp 0.25s ease;
+  position: relative;
+  margin: auto;
+}
+
+.modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 18px;
+  border-bottom: 1px solid var(--border);
+  position: sticky;
+  top: 0;
+  background: #141428;
+  z-index: 1;
+  border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+}
+
+.modal-title {
+  font-size: 17px;
+  color: var(--text);
+}
+
+.modal-close {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  color: var(--text-muted);
+  border: 1px solid var(--border);
+  transition: all 0.2s;
+  flex-shrink: 0;
+}
+
+.modal-close:hover {
+  color: var(--text);
+  background: rgba(255,255,255,0.08);
+  border-color: var(--border-glow);
+}
+
+.modal-body {
+  padding: 18px;
+}
+
+.modal-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  padding: 14px 18px;
+  border-top: 1px solid var(--border);
+  position: sticky;
+  bottom: 0;
+  background: #141428;
+  border-radius: 0 0 var(--radius-lg) var(--radius-lg);
+}
+
+/* Level Up modal special styles */
+.levelup-overlay {
+  background: rgba(0,0,0,0.9);
+}
+
+.levelup-content {
+  border-color: var(--gold) !important;
+  box-shadow: var(--glow-gold), 0 20px 60px rgba(0,0,0,0.8) !important;
+  text-align: center;
+  background: linear-gradient(135deg, #1a1408 0%, #141428 50%, #1a1408 100%) !important;
+  padding-bottom: 24px;
+}
+
+.levelup-stars {
+  position: relative;
+  height: 60px;
+  margin-bottom: 8px;
+}
+
+.star {
+  position: absolute;
+  font-size: 20px;
+  animation: star-float 3s ease-in-out infinite;
+}
+
+.s1 { left: 10%; animation-delay: 0s; }
+.s2 { left: 25%; animation-delay: 0.3s; }
+.s3 { left: 45%; animation-delay: 0.6s; top: 5px; }
+.s4 { left: 65%; animation-delay: 0.9s; }
+.s5 { left: 80%; animation-delay: 0.2s; top: 10px; }
+.s6 { left: 5%; animation-delay: 1.1s; top: 15px; }
+.s7 { left: 55%; animation-delay: 0.7s; top: 20px; }
+.s8 { left: 90%; animation-delay: 0.4s; top: 8px; }
+
+.levelup-header {
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: var(--gold);
+  text-shadow: var(--glow-gold);
+  margin-bottom: 8px;
+}
+
+.levelup-level {
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 80px;
+  font-weight: 700;
+  color: var(--gold);
+  text-shadow: var(--glow-gold);
+  line-height: 1;
+  margin-bottom: 4px;
+}
+
+.levelup-class {
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--text);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  margin-bottom: 12px;
+}
+
+.levelup-xp-bonus {
+  font-size: 13px;
+  color: var(--success);
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+
+.levelup-message {
+  font-size: 12px;
+  color: var(--text-muted);
+  font-style: italic;
+  margin-bottom: 20px;
+  padding: 0 20px;
+  line-height: 1.5;
+}
+
+/* ----------------------------------------------------------------
+   26. ACHIEVEMENT TOAST
+   ---------------------------------------------------------------- */
+.achievement-toast {
+  position: fixed;
+  top: calc(var(--header-h) + 10px);
+  right: 12px;
+  left: 12px;
+  max-width: 380px;
+  margin: 0 auto;
+  background: linear-gradient(135deg, #1a1408 0%, #141428 100%);
+  border: 1px solid var(--gold);
+  border-radius: var(--radius);
+  padding: 12px 14px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  z-index: 300;
+  box-shadow: var(--glow-gold), 0 8px 30px rgba(0,0,0,0.6);
+  transform: translateY(-120%);
+  opacity: 0;
+  transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.3s;
+  pointer-events: none;
+}
+
+.achievement-toast.visible {
+  transform: translateY(0);
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.toast-icon {
+  font-size: 28px;
+  flex-shrink: 0;
+  filter: drop-shadow(0 0 6px rgba(245,158,11,0.7));
+}
+
+.toast-text {
+  flex: 1;
+  min-width: 0;
+}
+
+.toast-title {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--gold);
+  margin-bottom: 2px;
+}
+
+.toast-name {
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--text);
+  margin-bottom: 2px;
+}
+
+.toast-desc {
+  font-size: 11px;
+  color: var(--text-muted);
+}
+
+/* ----------------------------------------------------------------
+   27. EMPTY STATES & LOADING
+   ---------------------------------------------------------------- */
+.empty-state {
+  text-align: center;
+  padding: 40px 20px;
+  color: var(--text-muted);
+}
+
+.empty-icon {
+  font-size: 40px;
+  margin-bottom: 12px;
+  opacity: 0.4;
+}
+
+.empty-text {
+  font-size: 14px;
+  margin-bottom: 14px;
+  color: var(--text-dim);
+}
+
+/* ----------------------------------------------------------------
+   28. ANIMATIONS & KEYFRAMES
+   ---------------------------------------------------------------- */
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes xp-fill {
+  from { width: 0; }
+  to   { width: var(--xp-pct, 0%); }
+}
+
+@keyframes xp-tip-glow {
+  0%, 100% { opacity: 0.4; }
+  50%       { opacity: 1; }
+}
+
+@keyframes pulse-glow {
+  0%, 100% { box-shadow: var(--glow-accent), inset 0 0 20px rgba(124,58,237,0.1); }
+  50%       { box-shadow: 0 0 18px rgba(124,58,237,0.9), 0 0 36px rgba(124,58,237,0.4), inset 0 0 25px rgba(124,58,237,0.15); }
+}
+
+@keyframes pulse-subtle {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.7; }
+}
+
+@keyframes boss-pulse {
+  0%, 100% { box-shadow: 0 0 20px rgba(239,68,68,0.12), inset 0 0 40px rgba(239,68,68,0.04); }
+  50%       { box-shadow: 0 0 30px rgba(239,68,68,0.2), inset 0 0 50px rgba(239,68,68,0.06); }
+}
+
+@keyframes current-week-pulse {
+  0%, 100% {
+    border-color: rgba(245,158,11,0.5);
+    box-shadow: 0 0 14px rgba(245,158,11,0.15);
+  }
+  50% {
+    border-color: rgba(245,158,11,0.9);
+    box-shadow: 0 0 24px rgba(245,158,11,0.35);
+  }
+}
+
+@keyframes unlocked-glow {
+  0%, 100% { box-shadow: 0 0 12px rgba(245,158,11,0.12); }
+  50%       { box-shadow: 0 0 22px rgba(245,158,11,0.28); }
+}
+
+@keyframes flicker {
+  0%   { transform: scale(1) rotate(-2deg); }
+  25%  { transform: scale(1.05) rotate(1deg); }
+  50%  { transform: scale(0.97) rotate(-1deg); }
+  75%  { transform: scale(1.03) rotate(2deg); }
+  100% { transform: scale(1) rotate(0deg); }
+}
+
+@keyframes twinkle {
+  0%, 100% { filter: drop-shadow(0 0 6px rgba(245,158,11,0.6)); transform: scale(1); }
+  50%       { filter: drop-shadow(0 0 12px rgba(245,158,11,1)); transform: scale(1.1); }
+}
+
+@keyframes star-float {
+  0%   { transform: translateY(0) rotate(0deg); opacity: 0.7; }
+  50%  { transform: translateY(-12px) rotate(15deg); opacity: 1; }
+  100% { transform: translateY(0) rotate(0deg); opacity: 0.7; }
+}
+
+/* ----------------------------------------------------------------
+   29. RESPONSIVE — TABLET (640px+)
+   ---------------------------------------------------------------- */
+@media (min-width: 640px) {
+  .main-content {
+    padding-left: 20px;
+    padding-right: 20px;
+  }
+
+  .xp-bars-row {
+    flex-direction: row;
+    gap: 16px;
+  }
+
+  .xp-bar-group {
+    flex: 1;
+  }
+
+  .achievements-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+
+  .dashboard-row {
+    grid-template-columns: 140px 1fr;
+  }
+
+  .skill-nodes-row {
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  }
+
+  .chart-container {
+    height: 280px;
+  }
+
+  .weekly-stats-grid {
+    gap: 12px;
+  }
+
+  .wrong-answer-entry {
+    grid-template-columns: 2.5fr 1.5fr 60px;
+  }
+}
+
+/* ----------------------------------------------------------------
+   30. RESPONSIVE — DESKTOP (1024px+)
+   ---------------------------------------------------------------- */
+@media (min-width: 1024px) {
+  .main-content {
+    padding-top: calc(var(--header-h) + 20px);
+    padding-left: 28px;
+    padding-right: 28px;
+  }
+
+  .card {
+    padding: 20px;
+  }
+
+  .achievements-grid {
+    grid-template-columns: repeat(6, 1fr);
+  }
+
+  .skill-nodes-row {
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  }
+
+  .chart-container {
+    height: 320px;
+  }
+
+  .hero-avatar {
+    width: 88px;
+    height: 88px;
+    font-size: 56px;
+  }
+
+  .hero-name {
+    font-size: 24px;
+  }
+
+  .hero-level-big {
+    font-size: 60px;
+  }
+
+  .hero-class {
+    font-size: 24px;
+  }
+
+  .bottom-nav {
+    max-width: 600px;
+    left: 50%;
+    transform: translateX(-50%);
+    border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+    border-left: 1px solid var(--border);
+    border-right: 1px solid var(--border);
+  }
+}
+
+/* ----------------------------------------------------------------
+   31. MOBILE FINE-TUNING (< 400px)
+   ---------------------------------------------------------------- */
+@media (max-width: 400px) {
+  .quick-actions {
+    grid-template-columns: 1fr;
+  }
+
+  .dashboard-row {
+    grid-template-columns: 1fr;
+  }
+
+  .hero-level-big {
+    font-size: 38px;
+  }
+
+  .weekly-stats-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .countdown-block {
+    padding: 6px 10px;
+    min-width: 50px;
+  }
+
+  .cd-val {
+    font-size: 22px;
+  }
+
+  .predicted-total {
+    font-size: 32px;
+  }
+
+  .wrong-answer-entry {
+    grid-template-columns: 1fr;
+  }
+
+  .form-row {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ----------------------------------------------------------------
+   32. SAFE AREA INSETS (iPhone notch / home bar)
+   ---------------------------------------------------------------- */
+@supports (padding-bottom: env(safe-area-inset-bottom)) {
+  .bottom-nav {
+    padding-bottom: env(safe-area-inset-bottom);
+    height: calc(var(--nav-h) + env(safe-area-inset-bottom));
+  }
+
+  .main-content {
+    padding-bottom: calc(var(--nav-h) + env(safe-area-inset-bottom) + 16px);
+  }
+}
+
+/* ----------------------------------------------------------------
+   33. UTILITY CLASSES
+   ---------------------------------------------------------------- */
+.hidden { display: none !important; }
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0,0,0,0);
+  border: 0;
+}
+
+.text-center { text-align: center; }
+.text-muted  { color: var(--text-muted); }
+.positive    { color: var(--success); }
+.negative    { color: var(--danger); }
+
+/* ----------------------------------------------------------------
+   EOF
+   ---------------------------------------------------------------- */
+
+</style>
+</head>
+<body>
+
+  <!-- ===================== FIXED TOP HEADER ===================== -->
+  <header class="top-header">
+    <div class="header-left">
+      <div class="header-avatar">⚔️</div>
+      <div class="header-info">
+        <span class="header-name" id="header-name">Arjun Sharma</span>
+        <span class="header-level-badge" id="header-level">Lv. 4 Scholar</span>
+      </div>
+    </div>
+    <div class="header-right">
+      <div class="header-streak">
+        <span class="fire-icon">🔥</span>
+        <span class="streak-count" id="header-streak-count">7</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- ===================== MAIN CONTENT ===================== -->
+  <main class="main-content">
+
+    <!-- =========== SECTION 1: DASHBOARD =========== -->
+    <section id="dashboard" class="tab-panel active">
+
+      <!-- Hero Character Card -->
+      <div class="card hero-card">
+        <div class="hero-top">
+          <div class="hero-avatar-wrap">
+            <div class="hero-avatar">⚔️</div>
+            <div class="hero-avatar-ring"></div>
+          </div>
+          <div class="hero-meta">
+            <h2 class="hero-name" id="hero-name">Arjun Sharma</h2>
+            <div class="hero-level-row">
+              <div class="hero-level-big" id="hero-level-num">4</div>
+              <div class="hero-class" id="hero-class">Scholar</div>
+            </div>
+            <div class="hero-target-label">Target: Aug 15 · 1500+ SAT</div>
+          </div>
+        </div>
+        <div class="xp-bars-row">
+          <div class="xp-bar-group">
+            <div class="xp-bar-label">
+              <span class="xp-bar-subject math-label">⚡ Math XP</span>
+              <span class="xp-bar-value" id="math-xp-val">1240 / 2000</span>
+            </div>
+            <div class="xp-bar-track">
+              <div class="xp-bar-fill math-bar" id="math-xp-bar" style="--xp-pct: 62%"></div>
+            </div>
+          </div>
+          <div class="xp-bar-group">
+            <div class="xp-bar-label">
+              <span class="xp-bar-subject rw-label">📖 RW XP</span>
+              <span class="xp-bar-value" id="rw-xp-val">890 / 2000</span>
+            </div>
+            <div class="xp-bar-track">
+              <div class="xp-bar-fill rw-bar" id="rw-xp-bar" style="--xp-pct: 44.5%"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Streak + Predicted Row -->
+      <div class="dashboard-row">
+
+        <!-- Streak Counter Card -->
+        <div class="card streak-card">
+          <div class="streak-fire">🔥</div>
+          <div class="streak-number" id="dash-streak">7</div>
+          <div class="streak-label">day streak</div>
+          <div class="streak-last">Last: May 30</div>
+        </div>
+
+        <!-- Predicted Score Card -->
+        <div class="card predicted-card">
+          <div class="card-title">🎯 Predicted Score</div>
+          <div class="predicted-total" id="pred-total">1220</div>
+          <div class="predicted-breakdown">
+            <div class="pred-item">
+              <span class="pred-label math-label">Math</span>
+              <span class="pred-score" id="pred-math">590</span>
+              <span class="pred-target behind">/ 750 ▼</span>
+            </div>
+            <div class="pred-item">
+              <span class="pred-label rw-label">RW</span>
+              <span class="pred-score" id="pred-rw">630</span>
+              <span class="pred-target behind">/ 650 ▼</span>
+            </div>
+          </div>
+          <div class="pred-status status-behind">📊 Behind — push harder!</div>
+        </div>
+      </div>
+
+      <!-- Today's Study Plan Card -->
+      <div class="card quests-card">
+        <div class="card-title-row">
+          <div class="card-title">📜 Today's Quests</div>
+          <div class="quest-date" id="quest-date">Sunday, Jun 1</div>
+        </div>
+        <div class="quest-list" id="quest-list">
+          <div class="quest-item">
+            <input type="checkbox" class="quest-checkbox" id="q1" />
+            <label for="q1" class="quest-label">
+              <span class="quest-topic">Linear Equations</span>
+              <span class="quest-badge badge-math">Math</span>
+              <span class="quest-xp">+120 XP</span>
+            </label>
+          </div>
+          <div class="quest-item">
+            <input type="checkbox" class="quest-checkbox" id="q2" />
+            <label for="q2" class="quest-label">
+              <span class="quest-topic">Vocabulary in Context</span>
+              <span class="quest-badge badge-rw">RW</span>
+              <span class="quest-xp">+100 XP</span>
+            </label>
+          </div>
+          <div class="quest-item">
+            <input type="checkbox" class="quest-checkbox" id="q3" />
+            <label for="q3" class="quest-label">
+              <span class="quest-topic">Mock Test Review</span>
+              <span class="quest-badge badge-review">Review</span>
+              <span class="quest-xp">+200 XP</span>
+            </label>
+          </div>
+        </div>
+      </div>
+
+      <!-- Boss Battle Card -->
+      <div class="card boss-card">
+        <div class="boss-header">
+          <span class="boss-title">⚔️ BOSS BATTLE</span>
+          <span class="boss-type-badge">MOCK TEST</span>
+        </div>
+        <div class="boss-name">Saturday Mock — Week 1</div>
+        <div class="boss-countdown" id="boss-countdown">
+          <div class="countdown-block">
+            <span class="cd-val" id="cd-days">06</span>
+            <span class="cd-unit">days</span>
+          </div>
+          <div class="countdown-sep">:</div>
+          <div class="countdown-block">
+            <span class="cd-val" id="cd-hours">14</span>
+            <span class="cd-unit">hours</span>
+          </div>
+          <div class="countdown-sep">:</div>
+          <div class="countdown-block">
+            <span class="cd-val" id="cd-mins">32</span>
+            <span class="cd-unit">mins</span>
+          </div>
+        </div>
+        <div class="boss-subtitle">Prepare: Full Math + RW timed session</div>
+      </div>
+
+      <!-- Weakest Topic Card -->
+      <div class="card weak-card">
+        <div class="card-title">⚠️ Weakest Topic</div>
+        <div class="weak-topic-name" id="weak-topic-name">Quadratics</div>
+        <div class="weak-meta">
+          <span class="weak-category badge-math">Math — Advanced Math</span>
+          <span class="weak-accuracy">Accuracy: <strong id="weak-acc">38%</strong></span>
+        </div>
+        <div class="focus-badge">🎯 Focus Today</div>
+      </div>
+
+      <!-- Quick Action Buttons -->
+      <div class="quick-actions">
+        <button class="btn btn-primary btn-lg" onclick="openModal('log-session-modal')">
+          ⚡ Log Study Session
+        </button>
+        <button class="btn btn-secondary btn-lg" onclick="openModal('add-paper-modal')">
+          📋 Enter Paper Scores
+        </button>
+      </div>
+
+    </section><!-- end #dashboard -->
+
+    <!-- =========== SECTION 2: SKILL TREE =========== -->
+    <section id="skill-tree" class="tab-panel">
+
+      <div class="section-header">
+        <h2 class="section-title">🌳 Skill Tree</h2>
+      </div>
+
+      <!-- Sub tabs -->
+      <div class="sub-tabs">
+        <button class="sub-tab active" data-subtab="math-tree" onclick="switchSubTab('math-tree', this)">⚡ Math Skills</button>
+        <button class="sub-tab" data-subtab="rw-tree" onclick="switchSubTab('rw-tree', this)">📖 Reading &amp; Writing</button>
+      </div>
+
+      <!-- Math Skill Tree -->
+      <div id="math-tree" class="subtab-panel active">
+
+        <!-- Algebra -->
+        <div class="skill-category">
+          <div class="skill-cat-header">
+            <span class="skill-cat-icon">📐</span>
+            <span class="skill-cat-name">Algebra</span>
+            <span class="skill-cat-level">Lv 2</span>
+          </div>
+          <div class="skill-nodes-row">
+            <div class="skill-node" data-status="steady" data-topic="linear_equations" onclick="openSessionModal('Linear Equations')">
+              <div class="node-icon">📈</div>
+              <div class="node-name">Linear Equations</div>
+              <div class="node-acc">72%</div>
+              <div class="node-sessions">8 sessions</div>
+            </div>
+            <div class="skill-node" data-status="weak" data-topic="systems_of_equations" onclick="openSessionModal('Systems of Equations')">
+              <div class="node-icon">⚠️</div>
+              <div class="node-name">Systems of Equations</div>
+              <div class="node-acc">45%</div>
+              <div class="node-sessions">4 sessions</div>
+            </div>
+            <div class="skill-node" data-status="in_progress" data-topic="inequalities" onclick="openSessionModal('Inequalities')">
+              <div class="node-icon">⚡</div>
+              <div class="node-name">Inequalities</div>
+              <div class="node-acc">58%</div>
+              <div class="node-sessions">3 sessions</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Advanced Math -->
+        <div class="skill-category">
+          <div class="skill-cat-header">
+            <span class="skill-cat-icon">🔢</span>
+            <span class="skill-cat-name">Advanced Math</span>
+            <span class="skill-cat-level">Lv 1</span>
+          </div>
+          <div class="skill-nodes-row">
+            <div class="skill-node" data-status="weak" data-topic="quadratics" onclick="openSessionModal('Quadratics')">
+              <div class="node-icon">⚠️</div>
+              <div class="node-name">Quadratics</div>
+              <div class="node-acc">38%</div>
+              <div class="node-sessions">3 sessions</div>
+            </div>
+            <div class="skill-node" data-status="locked" data-topic="polynomials" onclick="openSessionModal('Polynomials')">
+              <div class="node-icon">🔒</div>
+              <div class="node-name">Polynomials</div>
+              <div class="node-acc">—</div>
+              <div class="node-sessions">0 sessions</div>
+            </div>
+            <div class="skill-node" data-status="locked" data-topic="exponential" onclick="openSessionModal('Exponential')">
+              <div class="node-icon">🔒</div>
+              <div class="node-name">Exponential</div>
+              <div class="node-acc">—</div>
+              <div class="node-sessions">0 sessions</div>
+            </div>
+            <div class="skill-node" data-status="locked" data-topic="radical_equations" onclick="openSessionModal('Radical Equations')">
+              <div class="node-icon">🔒</div>
+              <div class="node-name">Radical Equations</div>
+              <div class="node-acc">—</div>
+              <div class="node-sessions">0 sessions</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Problem Solving & Data Analysis -->
+        <div class="skill-category">
+          <div class="skill-cat-header">
+            <span class="skill-cat-icon">📊</span>
+            <span class="skill-cat-name">Problem Solving &amp; Data Analysis</span>
+            <span class="skill-cat-level">Lv 1</span>
+          </div>
+          <div class="skill-nodes-row">
+            <div class="skill-node" data-status="in_progress" data-topic="ratios" onclick="openSessionModal('Ratios & Proportions')">
+              <div class="node-icon">⚡</div>
+              <div class="node-name">Ratios &amp; Proportions</div>
+              <div class="node-acc">61%</div>
+              <div class="node-sessions">2 sessions</div>
+            </div>
+            <div class="skill-node" data-status="steady" data-topic="percentages" onclick="openSessionModal('Percentages')">
+              <div class="node-icon">📈</div>
+              <div class="node-name">Percentages</div>
+              <div class="node-acc">75%</div>
+              <div class="node-sessions">5 sessions</div>
+            </div>
+            <div class="skill-node" data-status="locked" data-topic="statistics" onclick="openSessionModal('Statistics')">
+              <div class="node-icon">🔒</div>
+              <div class="node-name">Statistics</div>
+              <div class="node-acc">—</div>
+              <div class="node-sessions">0 sessions</div>
+            </div>
+            <div class="skill-node" data-status="locked" data-topic="probability" onclick="openSessionModal('Probability')">
+              <div class="node-icon">🔒</div>
+              <div class="node-name">Probability</div>
+              <div class="node-acc">—</div>
+              <div class="node-sessions">0 sessions</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Geometry & Trigonometry -->
+        <div class="skill-category">
+          <div class="skill-cat-header">
+            <span class="skill-cat-icon">📏</span>
+            <span class="skill-cat-name">Geometry &amp; Trigonometry</span>
+            <span class="skill-cat-level">Lv 0</span>
+          </div>
+          <div class="skill-nodes-row">
+            <div class="skill-node" data-status="locked" data-topic="area_volume" onclick="openSessionModal('Area & Volume')">
+              <div class="node-icon">🔒</div>
+              <div class="node-name">Area &amp; Volume</div>
+              <div class="node-acc">—</div>
+              <div class="node-sessions">0 sessions</div>
+            </div>
+            <div class="skill-node" data-status="locked" data-topic="circles" onclick="openSessionModal('Circles')">
+              <div class="node-icon">🔒</div>
+              <div class="node-name">Circles</div>
+              <div class="node-acc">—</div>
+              <div class="node-sessions">0 sessions</div>
+            </div>
+            <div class="skill-node" data-status="locked" data-topic="right_triangles" onclick="openSessionModal('Right Triangles')">
+              <div class="node-icon">🔒</div>
+              <div class="node-name">Right Triangles</div>
+              <div class="node-acc">—</div>
+              <div class="node-sessions">0 sessions</div>
+            </div>
+            <div class="skill-node" data-status="locked" data-topic="trig" onclick="openSessionModal('Trigonometry')">
+              <div class="node-icon">🔒</div>
+              <div class="node-name">Trigonometry</div>
+              <div class="node-acc">—</div>
+              <div class="node-sessions">0 sessions</div>
+            </div>
+          </div>
+        </div>
+
+      </div><!-- end #math-tree -->
+
+      <!-- RW Skill Tree -->
+      <div id="rw-tree" class="subtab-panel">
+
+        <!-- Information & Ideas -->
+        <div class="skill-category">
+          <div class="skill-cat-header">
+            <span class="skill-cat-icon">💡</span>
+            <span class="skill-cat-name">Information &amp; Ideas</span>
+            <span class="skill-cat-level">Lv 2</span>
+          </div>
+          <div class="skill-nodes-row">
+            <div class="skill-node" data-status="steady" data-topic="central_ideas" onclick="openSessionModal('Central Ideas')">
+              <div class="node-icon">📈</div>
+              <div class="node-name">Central Ideas</div>
+              <div class="node-acc">70%</div>
+              <div class="node-sessions">6 sessions</div>
+            </div>
+            <div class="skill-node" data-status="in_progress" data-topic="command_of_evidence" onclick="openSessionModal('Command of Evidence')">
+              <div class="node-icon">⚡</div>
+              <div class="node-name">Command of Evidence</div>
+              <div class="node-acc">55%</div>
+              <div class="node-sessions">4 sessions</div>
+            </div>
+            <div class="skill-node" data-status="weak" data-topic="inferences" onclick="openSessionModal('Inferences')">
+              <div class="node-icon">⚠️</div>
+              <div class="node-name">Inferences</div>
+              <div class="node-acc">42%</div>
+              <div class="node-sessions">3 sessions</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Craft & Structure -->
+        <div class="skill-category">
+          <div class="skill-cat-header">
+            <span class="skill-cat-icon">✍️</span>
+            <span class="skill-cat-name">Craft &amp; Structure</span>
+            <span class="skill-cat-level">Lv 2</span>
+          </div>
+          <div class="skill-nodes-row">
+            <div class="skill-node" data-status="strong" data-topic="vocabulary_in_context" onclick="openSessionModal('Vocabulary in Context')">
+              <div class="node-icon">✨</div>
+              <div class="node-name">Vocabulary in Context</div>
+              <div class="node-acc">82%</div>
+              <div class="node-sessions">9 sessions</div>
+            </div>
+            <div class="skill-node" data-status="in_progress" data-topic="text_structure" onclick="openSessionModal('Text Structure')">
+              <div class="node-icon">⚡</div>
+              <div class="node-name">Text Structure</div>
+              <div class="node-acc">60%</div>
+              <div class="node-sessions">3 sessions</div>
+            </div>
+            <div class="skill-node" data-status="locked" data-topic="cross_text_connections" onclick="openSessionModal('Cross-Text Connections')">
+              <div class="node-icon">🔒</div>
+              <div class="node-name">Cross-Text Connections</div>
+              <div class="node-acc">—</div>
+              <div class="node-sessions">0 sessions</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Expression of Ideas -->
+        <div class="skill-category">
+          <div class="skill-cat-header">
+            <span class="skill-cat-icon">🗣️</span>
+            <span class="skill-cat-name">Expression of Ideas</span>
+            <span class="skill-cat-level">Lv 1</span>
+          </div>
+          <div class="skill-nodes-row">
+            <div class="skill-node" data-status="in_progress" data-topic="rhetorical_synthesis" onclick="openSessionModal('Rhetorical Synthesis')">
+              <div class="node-icon">⚡</div>
+              <div class="node-name">Rhetorical Synthesis</div>
+              <div class="node-acc">53%</div>
+              <div class="node-sessions">2 sessions</div>
+            </div>
+            <div class="skill-node" data-status="steady" data-topic="transitions" onclick="openSessionModal('Transitions')">
+              <div class="node-icon">📈</div>
+              <div class="node-name">Transitions</div>
+              <div class="node-acc">68%</div>
+              <div class="node-sessions">4 sessions</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Standard English Conventions -->
+        <div class="skill-category">
+          <div class="skill-cat-header">
+            <span class="skill-cat-icon">📝</span>
+            <span class="skill-cat-name">Standard English Conventions</span>
+            <span class="skill-cat-level">Lv 2</span>
+          </div>
+          <div class="skill-nodes-row">
+            <div class="skill-node" data-status="steady" data-topic="grammar" onclick="openSessionModal('Grammar')">
+              <div class="node-icon">📈</div>
+              <div class="node-name">Grammar</div>
+              <div class="node-acc">74%</div>
+              <div class="node-sessions">7 sessions</div>
+            </div>
+            <div class="skill-node" data-status="in_progress" data-topic="punctuation" onclick="openSessionModal('Punctuation')">
+              <div class="node-icon">⚡</div>
+              <div class="node-name">Punctuation</div>
+              <div class="node-acc">63%</div>
+              <div class="node-sessions">5 sessions</div>
+            </div>
+            <div class="skill-node" data-status="weak" data-topic="sentence_structure" onclick="openSessionModal('Sentence Structure')">
+              <div class="node-icon">⚠️</div>
+              <div class="node-name">Sentence Structure</div>
+              <div class="node-acc">47%</div>
+              <div class="node-sessions">3 sessions</div>
+            </div>
+          </div>
+        </div>
+
+      </div><!-- end #rw-tree -->
+
+    </section><!-- end #skill-tree -->
+
+    <!-- =========== SECTION 3: PAPERS =========== -->
+    <section id="papers" class="tab-panel">
+
+      <div class="section-header">
+        <h2 class="section-title">📋 Paper Log</h2>
+        <button class="btn btn-secondary" onclick="openModal('add-paper-modal')">+ Add Paper</button>
+      </div>
+
+      <!-- Filter tabs -->
+      <div class="filter-tabs">
+        <button class="filter-tab active" onclick="filterPapers('all', this)">All</button>
+        <button class="filter-tab" onclick="filterPapers('mock', this)">Mock Tests</button>
+        <button class="filter-tab" onclick="filterPapers('full', this)">Full Papers</button>
+        <button class="filter-tab" onclick="filterPapers('practice', this)">Practice Sets</button>
+      </div>
+
+      <!-- Paper List -->
+      <div class="paper-list" id="paper-list">
+
+        <div class="paper-card" data-type="mock">
+          <div class="paper-card-header" onclick="togglePaperDetail(this)">
+            <div class="paper-meta-col">
+              <span class="paper-date">May 25, 2026</span>
+              <span class="paper-type-badge badge-mock">Mock Test</span>
+            </div>
+            <div class="paper-scores">
+              <div class="paper-score-item math-label">Math <strong>570</strong></div>
+              <div class="paper-score-item rw-label">RW <strong>610</strong></div>
+              <div class="paper-total-score">Total <strong>1180</strong></div>
+            </div>
+            <div class="paper-improvement positive">▲ +30</div>
+            <div class="paper-toggle">▼</div>
+          </div>
+          <div class="paper-detail hidden">
+            <div class="paper-detail-inner">
+              <div class="detail-section">
+                <div class="detail-title">Wrong Answers by Topic</div>
+                <div class="wrong-answer-row">
+                  <span class="wa-topic">Quadratics</span>
+                  <span class="wa-error error-concept">Concept Gap</span>
+                  <span class="wa-count">4 wrong</span>
+                </div>
+                <div class="wrong-answer-row">
+                  <span class="wa-topic">Systems of Equations</span>
+                  <span class="wa-error error-careless">Careless</span>
+                  <span class="wa-count">2 wrong</span>
+                </div>
+                <div class="wrong-answer-row">
+                  <span class="wa-topic">Inferences</span>
+                  <span class="wa-error error-concept">Concept Gap</span>
+                  <span class="wa-count">3 wrong</span>
+                </div>
+              </div>
+              <div class="detail-section">
+                <div class="detail-title">Error Type Distribution</div>
+                <div class="error-dist">
+                  <div class="error-dist-item">
+                    <span class="error-dist-label">Concept Gap</span>
+                    <div class="error-dist-bar"><div class="error-dist-fill error-concept-fill" style="width:60%"></div></div>
+                    <span class="error-dist-pct">60%</span>
+                  </div>
+                  <div class="error-dist-item">
+                    <span class="error-dist-label">Careless</span>
+                    <div class="error-dist-bar"><div class="error-dist-fill error-careless-fill" style="width:25%"></div></div>
+                    <span class="error-dist-pct">25%</span>
+                  </div>
+                  <div class="error-dist-item">
+                    <span class="error-dist-label">Time Pressure</span>
+                    <div class="error-dist-bar"><div class="error-dist-fill error-time-fill" style="width:15%"></div></div>
+                    <span class="error-dist-pct">15%</span>
+                  </div>
+                </div>
+              </div>
+              <div class="detail-section">
+                <div class="detail-title">Insights</div>
+                <p class="paper-insight">Strong on grammar and vocabulary. Focus on quadratics and inference questions for the next mock. Time management on Module 2 Math needs work.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="paper-card" data-type="full">
+          <div class="paper-card-header" onclick="togglePaperDetail(this)">
+            <div class="paper-meta-col">
+              <span class="paper-date">May 18, 2026</span>
+              <span class="paper-type-badge badge-full">Full Paper</span>
+            </div>
+            <div class="paper-scores">
+              <div class="paper-score-item math-label">Math <strong>550</strong></div>
+              <div class="paper-score-item rw-label">RW <strong>600</strong></div>
+              <div class="paper-total-score">Total <strong>1150</strong></div>
+            </div>
+            <div class="paper-improvement neutral">— baseline</div>
+            <div class="paper-toggle">▼</div>
+          </div>
+          <div class="paper-detail hidden">
+            <div class="paper-detail-inner">
+              <div class="detail-section">
+                <div class="detail-title">Wrong Answers by Topic</div>
+                <div class="wrong-answer-row">
+                  <span class="wa-topic">Quadratics</span>
+                  <span class="wa-error error-concept">Concept Gap</span>
+                  <span class="wa-count">5 wrong</span>
+                </div>
+                <div class="wrong-answer-row">
+                  <span class="wa-topic">Statistics</span>
+                  <span class="wa-error error-time">Time Pressure</span>
+                  <span class="wa-count">3 wrong</span>
+                </div>
+              </div>
+              <div class="detail-section">
+                <div class="detail-title">Insights</div>
+                <p class="paper-insight">Baseline established. Math Module 1 was manageable but Module 2 proved challenging. RW Section was solid overall.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div><!-- end #paper-list -->
+
+    </section><!-- end #papers -->
+
+    <!-- =========== SECTION 4: PROGRESS =========== -->
+    <section id="progress" class="tab-panel">
+
+      <div class="section-header">
+        <h2 class="section-title">📊 Progress</h2>
+      </div>
+
+      <!-- Score History Chart -->
+      <div class="card">
+        <div class="card-title">Score History</div>
+        <div class="chart-container">
+          <canvas id="scoreChart"></canvas>
+        </div>
+        <div class="chart-legend">
+          <span class="legend-item"><span class="legend-dot math-dot"></span>Math</span>
+          <span class="legend-item"><span class="legend-dot rw-dot"></span>RW</span>
+          <span class="legend-item"><span class="legend-dash math-dash"></span>Math Target</span>
+          <span class="legend-item"><span class="legend-dash rw-dash"></span>RW Target</span>
+        </div>
+      </div>
+
+      <!-- Topic Performance -->
+      <div class="card">
+        <div class="card-title">Topic Performance <span class="card-subtitle">(weakest first)</span></div>
+        <div class="topic-perf-grid" id="topic-perf-grid">
+          <div class="topic-perf-item">
+            <div class="topic-perf-header">
+              <span class="topic-perf-name">Quadratics</span>
+              <span class="topic-perf-pct danger-text">38%</span>
+            </div>
+            <div class="topic-perf-bar-track">
+              <div class="topic-perf-fill" style="width:38%; background: var(--danger)"></div>
+            </div>
+          </div>
+          <div class="topic-perf-item">
+            <div class="topic-perf-header">
+              <span class="topic-perf-name">Inferences</span>
+              <span class="topic-perf-pct danger-text">42%</span>
+            </div>
+            <div class="topic-perf-bar-track">
+              <div class="topic-perf-fill" style="width:42%; background: var(--danger)"></div>
+            </div>
+          </div>
+          <div class="topic-perf-item">
+            <div class="topic-perf-header">
+              <span class="topic-perf-name">Systems of Equations</span>
+              <span class="topic-perf-pct warning-text">45%</span>
+            </div>
+            <div class="topic-perf-bar-track">
+              <div class="topic-perf-fill" style="width:45%; background: var(--warning)"></div>
+            </div>
+          </div>
+          <div class="topic-perf-item">
+            <div class="topic-perf-header">
+              <span class="topic-perf-name">Sentence Structure</span>
+              <span class="topic-perf-pct warning-text">47%</span>
+            </div>
+            <div class="topic-perf-bar-track">
+              <div class="topic-perf-fill" style="width:47%; background: var(--warning)"></div>
+            </div>
+          </div>
+          <div class="topic-perf-item">
+            <div class="topic-perf-header">
+              <span class="topic-perf-name">Rhetorical Synthesis</span>
+              <span class="topic-perf-pct warning-text">53%</span>
+            </div>
+            <div class="topic-perf-bar-track">
+              <div class="topic-perf-fill" style="width:53%; background: var(--warning)"></div>
+            </div>
+          </div>
+          <div class="topic-perf-item">
+            <div class="topic-perf-header">
+              <span class="topic-perf-name">Command of Evidence</span>
+              <span class="topic-perf-pct warning-text">55%</span>
+            </div>
+            <div class="topic-perf-bar-track">
+              <div class="topic-perf-fill" style="width:55%; background: var(--warning)"></div>
+            </div>
+          </div>
+          <div class="topic-perf-item">
+            <div class="topic-perf-header">
+              <span class="topic-perf-name">Inequalities</span>
+              <span class="topic-perf-pct warning-text">58%</span>
+            </div>
+            <div class="topic-perf-bar-track">
+              <div class="topic-perf-fill" style="width:58%; background: var(--warning)"></div>
+            </div>
+          </div>
+          <div class="topic-perf-item">
+            <div class="topic-perf-header">
+              <span class="topic-perf-name">Text Structure</span>
+              <span class="topic-perf-pct warning-text">60%</span>
+            </div>
+            <div class="topic-perf-bar-track">
+              <div class="topic-perf-fill" style="width:60%; background: var(--warning)"></div>
+            </div>
+          </div>
+          <div class="topic-perf-item">
+            <div class="topic-perf-header">
+              <span class="topic-perf-name">Ratios &amp; Proportions</span>
+              <span class="topic-perf-pct success-text">61%</span>
+            </div>
+            <div class="topic-perf-bar-track">
+              <div class="topic-perf-fill" style="width:61%; background: var(--success)"></div>
+            </div>
+          </div>
+          <div class="topic-perf-item">
+            <div class="topic-perf-header">
+              <span class="topic-perf-name">Punctuation</span>
+              <span class="topic-perf-pct success-text">63%</span>
+            </div>
+            <div class="topic-perf-bar-track">
+              <div class="topic-perf-fill" style="width:63%; background: var(--success)"></div>
+            </div>
+          </div>
+          <div class="topic-perf-item">
+            <div class="topic-perf-header">
+              <span class="topic-perf-name">Transitions</span>
+              <span class="topic-perf-pct success-text">68%</span>
+            </div>
+            <div class="topic-perf-bar-track">
+              <div class="topic-perf-fill" style="width:68%; background: var(--success)"></div>
+            </div>
+          </div>
+          <div class="topic-perf-item">
+            <div class="topic-perf-header">
+              <span class="topic-perf-name">Central Ideas</span>
+              <span class="topic-perf-pct success-text">70%</span>
+            </div>
+            <div class="topic-perf-bar-track">
+              <div class="topic-perf-fill" style="width:70%; background: var(--success)"></div>
+            </div>
+          </div>
+          <div class="topic-perf-item">
+            <div class="topic-perf-header">
+              <span class="topic-perf-name">Linear Equations</span>
+              <span class="topic-perf-pct success-text">72%</span>
+            </div>
+            <div class="topic-perf-bar-track">
+              <div class="topic-perf-fill" style="width:72%; background: var(--success)"></div>
+            </div>
+          </div>
+          <div class="topic-perf-item">
+            <div class="topic-perf-header">
+              <span class="topic-perf-name">Grammar</span>
+              <span class="topic-perf-pct success-text">74%</span>
+            </div>
+            <div class="topic-perf-bar-track">
+              <div class="topic-perf-fill" style="width:74%; background: var(--success)"></div>
+            </div>
+          </div>
+          <div class="topic-perf-item">
+            <div class="topic-perf-header">
+              <span class="topic-perf-name">Percentages</span>
+              <span class="topic-perf-pct success-text">75%</span>
+            </div>
+            <div class="topic-perf-bar-track">
+              <div class="topic-perf-fill" style="width:75%; background: var(--success)"></div>
+            </div>
+          </div>
+          <div class="topic-perf-item">
+            <div class="topic-perf-header">
+              <span class="topic-perf-name">Vocabulary in Context</span>
+              <span class="topic-perf-pct success-text">82%</span>
+            </div>
+            <div class="topic-perf-bar-track">
+              <div class="topic-perf-fill" style="width:82%; background: var(--accent)"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 10-Week Dungeon Map -->
+      <div class="card">
+        <div class="card-title">🗺️ 10-Week Dungeon Map</div>
+        <div class="dungeon-subtitle">June 1 → August 15, 2026 — Final Boss</div>
+        <div class="dungeon-map" id="dungeon-map">
+
+          <div class="dungeon-week" data-status="current">
+            <div class="dungeon-week-header">
+              <span class="dungeon-week-num">Week 1</span>
+              <span class="dungeon-week-dates">Jun 1–7</span>
+            </div>
+            <div class="dungeon-zone-name">⚔️ Tutorial Ruins</div>
+            <div class="dungeon-topics">Linear Equations · Systems · Inequalities</div>
+            <div class="dungeon-boss-row">
+              <span class="dungeon-boss-indicator">⚔️ Boss: Sat Jun 7</span>
+            </div>
+            <div class="dungeon-status-badge current-badge">CURRENT</div>
+          </div>
+
+          <div class="dungeon-week" data-status="upcoming">
+            <div class="dungeon-week-header">
+              <span class="dungeon-week-num">Week 2</span>
+              <span class="dungeon-week-dates">Jun 8–14</span>
+            </div>
+            <div class="dungeon-zone-name">🔮 Algebra Caverns</div>
+            <div class="dungeon-topics">Quadratics · Polynomials · Exponential</div>
+            <div class="dungeon-boss-row">
+              <span class="dungeon-boss-indicator">⚔️ Boss: Sat Jun 14</span>
+            </div>
+            <div class="dungeon-status-badge upcoming-badge">UPCOMING</div>
+          </div>
+
+          <div class="dungeon-week" data-status="upcoming">
+            <div class="dungeon-week-header">
+              <span class="dungeon-week-num">Week 3</span>
+              <span class="dungeon-week-dates">Jun 15–21</span>
+            </div>
+            <div class="dungeon-zone-name">📊 Data Swamps</div>
+            <div class="dungeon-topics">Ratios · Statistics · Probability</div>
+            <div class="dungeon-boss-row">
+              <span class="dungeon-boss-indicator">⚔️ Boss: Sat Jun 21</span>
+            </div>
+            <div class="dungeon-status-badge upcoming-badge">UPCOMING</div>
+          </div>
+
+          <div class="dungeon-week" data-status="upcoming">
+            <div class="dungeon-week-header">
+              <span class="dungeon-week-num">Week 4</span>
+              <span class="dungeon-week-dates">Jun 22–28</span>
+            </div>
+            <div class="dungeon-zone-name">📐 Geometry Fortress</div>
+            <div class="dungeon-topics">Area · Circles · Trigonometry</div>
+            <div class="dungeon-boss-row">
+              <span class="dungeon-boss-indicator">⚔️ Boss: Sat Jun 28</span>
+            </div>
+            <div class="dungeon-status-badge upcoming-badge">UPCOMING</div>
+          </div>
+
+          <div class="dungeon-week" data-status="upcoming">
+            <div class="dungeon-week-header">
+              <span class="dungeon-week-num">Week 5</span>
+              <span class="dungeon-week-dates">Jun 29–Jul 5</span>
+            </div>
+            <div class="dungeon-zone-name">💡 Evidence Labyrinth</div>
+            <div class="dungeon-topics">Central Ideas · Evidence · Inferences</div>
+            <div class="dungeon-boss-row">
+              <span class="dungeon-boss-indicator">⚔️ Boss: Sat Jul 5</span>
+            </div>
+            <div class="dungeon-status-badge upcoming-badge">UPCOMING</div>
+          </div>
+
+          <div class="dungeon-week" data-status="upcoming">
+            <div class="dungeon-week-header">
+              <span class="dungeon-week-num">Week 6</span>
+              <span class="dungeon-week-dates">Jul 6–12</span>
+            </div>
+            <div class="dungeon-zone-name">✍️ Craft Citadel</div>
+            <div class="dungeon-topics">Vocabulary · Structure · Cross-Text</div>
+            <div class="dungeon-boss-row">
+              <span class="dungeon-boss-indicator">⚔️ Boss: Sat Jul 12</span>
+            </div>
+            <div class="dungeon-status-badge upcoming-badge">UPCOMING</div>
+          </div>
+
+          <div class="dungeon-week" data-status="upcoming">
+            <div class="dungeon-week-header">
+              <span class="dungeon-week-num">Week 7</span>
+              <span class="dungeon-week-dates">Jul 13–19</span>
+            </div>
+            <div class="dungeon-zone-name">🗣️ Expression Tower</div>
+            <div class="dungeon-topics">Rhetoric · Transitions · Grammar</div>
+            <div class="dungeon-boss-row">
+              <span class="dungeon-boss-indicator">⚔️ Boss: Sat Jul 19</span>
+            </div>
+            <div class="dungeon-status-badge upcoming-badge">UPCOMING</div>
+          </div>
+
+          <div class="dungeon-week" data-status="upcoming">
+            <div class="dungeon-week-header">
+              <span class="dungeon-week-num">Week 8</span>
+              <span class="dungeon-week-dates">Jul 20–26</span>
+            </div>
+            <div class="dungeon-zone-name">🔥 Full Mock Gauntlet</div>
+            <div class="dungeon-topics">Full Paper × 2 · All Sections</div>
+            <div class="dungeon-boss-row">
+              <span class="dungeon-boss-indicator">⚔️ Boss: Sun Jul 27</span>
+            </div>
+            <div class="dungeon-status-badge upcoming-badge">UPCOMING</div>
+          </div>
+
+          <div class="dungeon-week" data-status="upcoming">
+            <div class="dungeon-week-header">
+              <span class="dungeon-week-num">Week 9</span>
+              <span class="dungeon-week-dates">Jul 27–Aug 2</span>
+            </div>
+            <div class="dungeon-zone-name">⚡ Weakness Purge</div>
+            <div class="dungeon-topics">Weak Topics Deep Dive · Review</div>
+            <div class="dungeon-boss-row">
+              <span class="dungeon-boss-indicator">⚔️ Boss: Sat Aug 2</span>
+            </div>
+            <div class="dungeon-status-badge upcoming-badge">UPCOMING</div>
+          </div>
+
+          <div class="dungeon-week" data-status="upcoming">
+            <div class="dungeon-week-header">
+              <span class="dungeon-week-num">Week 10</span>
+              <span class="dungeon-week-dates">Aug 3–10</span>
+            </div>
+            <div class="dungeon-zone-name">🛡️ Final Preparation</div>
+            <div class="dungeon-topics">Light Review · Strategy · Rest</div>
+            <div class="dungeon-boss-row">
+              <span class="dungeon-boss-indicator">⚔️ Boss: Sat Aug 10</span>
+            </div>
+            <div class="dungeon-status-badge upcoming-badge">UPCOMING</div>
+          </div>
+
+          <div class="dungeon-final-boss">
+            <div class="final-boss-header">💀 FINAL BOSS</div>
+            <div class="final-boss-name">SAT EXAM DAY</div>
+            <div class="final-boss-date">August 15, 2026</div>
+            <div class="final-boss-target">Target: 1500+ · 750 Math / 650 RW</div>
+          </div>
+
+        </div><!-- end dungeon-map -->
+      </div>
+
+      <!-- Weekly Performance Summary -->
+      <div class="card">
+        <div class="card-title">📅 Last Week's Performance</div>
+        <div class="weekly-stats-grid">
+          <div class="weekly-stat">
+            <div class="weekly-stat-val">12</div>
+            <div class="weekly-stat-label">Sessions</div>
+          </div>
+          <div class="weekly-stat">
+            <div class="weekly-stat-val">1,840</div>
+            <div class="weekly-stat-label">XP Gained</div>
+          </div>
+          <div class="weekly-stat">
+            <div class="weekly-stat-val">2</div>
+            <div class="weekly-stat-label">Papers Done</div>
+          </div>
+          <div class="weekly-stat positive">
+            <div class="weekly-stat-val">+30</div>
+            <div class="weekly-stat-label">Score Change</div>
+          </div>
+        </div>
+      </div>
+
+    </section><!-- end #progress -->
+
+    <!-- =========== SECTION 5: ACHIEVEMENTS =========== -->
+    <section id="achievements" class="tab-panel">
+
+      <div class="section-header">
+        <h2 class="section-title">🏆 Achievements</h2>
+        <div class="achievement-counter"><span id="ach-unlocked">3</span> / 18 unlocked</div>
+      </div>
+
+      <div class="achievements-grid">
+
+        <div class="achievement-badge unlocked">
+          <div class="badge-icon">👣</div>
+          <div class="badge-name">First Steps</div>
+          <div class="badge-desc">Complete first study session</div>
+          <div class="badge-date">May 20, 2026</div>
+        </div>
+
+        <div class="achievement-badge unlocked">
+          <div class="badge-icon">📋</div>
+          <div class="badge-name">Paper Slayer</div>
+          <div class="badge-desc">Complete first practice paper</div>
+          <div class="badge-date">May 18, 2026</div>
+        </div>
+
+        <div class="achievement-badge unlocked">
+          <div class="badge-icon">⚔️</div>
+          <div class="badge-name">Boss Slayer</div>
+          <div class="badge-desc">Complete first boss battle</div>
+          <div class="badge-date">May 25, 2026</div>
+        </div>
+
+        <div class="achievement-badge locked">
+          <div class="badge-icon">🔥</div>
+          <div class="badge-name">Week Warrior</div>
+          <div class="badge-desc">Maintain 7-day streak</div>
+          <div class="badge-condition">7-day streak needed</div>
+        </div>
+
+        <div class="achievement-badge locked">
+          <div class="badge-icon">📅</div>
+          <div class="badge-name">Perfect Week</div>
+          <div class="badge-desc">Study all 7 days in a week</div>
+          <div class="badge-condition">7 days in one week</div>
+        </div>
+
+        <div class="achievement-badge locked">
+          <div class="badge-icon">💪</div>
+          <div class="badge-name">Month Master</div>
+          <div class="badge-desc">Achieve 30-day streak</div>
+          <div class="badge-condition">30-day streak needed</div>
+        </div>
+
+        <div class="achievement-badge locked">
+          <div class="badge-icon">📈</div>
+          <div class="badge-name">Math Climber</div>
+          <div class="badge-desc">Improve Math by 50+ pts</div>
+          <div class="badge-condition">+50 Math pts needed</div>
+        </div>
+
+        <div class="achievement-badge locked">
+          <div class="badge-icon">📖</div>
+          <div class="badge-name">RW Climber</div>
+          <div class="badge-desc">Improve RW by 50+ pts</div>
+          <div class="badge-condition">+50 RW pts needed</div>
+        </div>
+
+        <div class="achievement-badge locked">
+          <div class="badge-icon">6️⃣</div>
+          <div class="badge-name">600 Math</div>
+          <div class="badge-desc">Reach 600+ on Math</div>
+          <div class="badge-condition">Math ≥ 600</div>
+        </div>
+
+        <div class="achievement-badge locked">
+          <div class="badge-icon">7️⃣</div>
+          <div class="badge-name">700 Math</div>
+          <div class="badge-desc">Reach 700+ on Math</div>
+          <div class="badge-condition">Math ≥ 700</div>
+        </div>
+
+        <div class="achievement-badge locked">
+          <div class="badge-icon">🎯</div>
+          <div class="badge-name">750 Math</div>
+          <div class="badge-desc">Hit the Math target!</div>
+          <div class="badge-condition">Math ≥ 750</div>
+        </div>
+
+        <div class="achievement-badge locked">
+          <div class="badge-icon">🥇</div>
+          <div class="badge-name">600 RW</div>
+          <div class="badge-desc">Reach 600+ on RW</div>
+          <div class="badge-condition">RW ≥ 600</div>
+        </div>
+
+        <div class="achievement-badge locked">
+          <div class="badge-icon">🎯</div>
+          <div class="badge-name">Target 650 RW</div>
+          <div class="badge-desc">Hit the RW target!</div>
+          <div class="badge-condition">RW ≥ 650</div>
+        </div>
+
+        <div class="achievement-badge locked">
+          <div class="badge-icon">🔢</div>
+          <div class="badge-name">1400 Club</div>
+          <div class="badge-desc">Total score 1400+</div>
+          <div class="badge-condition">Total ≥ 1400</div>
+        </div>
+
+        <div class="achievement-badge locked">
+          <div class="badge-icon">👑</div>
+          <div class="badge-name">Final Boss</div>
+          <div class="badge-desc">Conquer SAT with 1500+!</div>
+          <div class="badge-condition">Total ≥ 1500</div>
+        </div>
+
+        <div class="achievement-badge locked">
+          <div class="badge-icon">✨</div>
+          <div class="badge-name">Topic Master</div>
+          <div class="badge-desc">Any topic to Strong status</div>
+          <div class="badge-condition">1 topic at Strong</div>
+        </div>
+
+        <div class="achievement-badge locked">
+          <div class="badge-icon">🧮</div>
+          <div class="badge-name">All Algebra</div>
+          <div class="badge-desc">All Algebra topics Steady+</div>
+          <div class="badge-condition">3 algebra topics steady+</div>
+        </div>
+
+        <div class="achievement-badge locked">
+          <div class="badge-icon">⏰</div>
+          <div class="badge-name">Speed Demon</div>
+          <div class="badge-desc">Morning session (5:45–6:45 AM)</div>
+          <div class="badge-condition">Morning study logged</div>
+        </div>
+
+      </div><!-- end .achievements-grid -->
+    </section><!-- end #achievements -->
+
+  </main>
+
+  <!-- ===================== BOTTOM NAV ===================== -->
+  <nav class="bottom-nav">
+    <button class="nav-tab active" data-panel="dashboard" onclick="switchTab('dashboard', this)">
+      <span class="nav-icon">🏠</span>
+      <span class="nav-label">Dashboard</span>
+    </button>
+    <button class="nav-tab" data-panel="skill-tree" onclick="switchTab('skill-tree', this)">
+      <span class="nav-icon">🌳</span>
+      <span class="nav-label">Skills</span>
+    </button>
+    <button class="nav-tab" data-panel="papers" onclick="switchTab('papers', this)">
+      <span class="nav-icon">📜</span>
+      <span class="nav-label">Papers</span>
+    </button>
+    <button class="nav-tab" data-panel="progress" onclick="switchTab('progress', this)">
+      <span class="nav-icon">📈</span>
+      <span class="nav-label">Progress</span>
+    </button>
+    <button class="nav-tab" data-panel="achievements" onclick="switchTab('achievements', this)">
+      <span class="nav-icon">🏆</span>
+      <span class="nav-label">Trophies</span>
+    </button>
+  </nav>
+
+  <!-- ===================== MODALS ===================== -->
+
+  <!-- Add Paper Modal -->
+  <div class="modal-overlay" id="add-paper-modal" onclick="closeModalOutside(event, 'add-paper-modal')">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 class="modal-title">📋 Add Paper Result</h3>
+        <button class="modal-close" onclick="closeModal('add-paper-modal')">✕</button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label class="form-label">Paper Type</label>
+          <div class="type-selector" id="paper-type-selector">
+            <button class="type-btn active" data-type="mock" onclick="selectType(this)">Mock Test</button>
+            <button class="type-btn" data-type="full" onclick="selectType(this)">Full Practice Paper</button>
+            <button class="type-btn" data-type="practice" onclick="selectType(this)">Section Practice</button>
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="paper-date">Date</label>
+          <input type="date" class="form-input" id="paper-date" />
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label" for="math-score">Math Score (200–800)</label>
+            <input type="number" class="form-input" id="math-score" min="200" max="800" step="10" placeholder="e.g. 570" oninput="calcTotal()" />
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="rw-score">RW Score (200–800)</label>
+            <input type="number" class="form-input" id="rw-score" min="200" max="800" step="10" placeholder="e.g. 610" oninput="calcTotal()" />
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Total Score</label>
+          <div class="total-score-display" id="total-score-display">—</div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Wrong Answers</label>
+          <div id="wrong-answers-list">
+            <div class="wrong-answer-entry">
+              <select class="form-input form-select wa-topic-select">
+                <option value="">Select Topic</option>
+                <optgroup label="Math — Algebra">
+                  <option>Linear Equations</option>
+                  <option>Systems of Equations</option>
+                  <option>Inequalities</option>
+                </optgroup>
+                <optgroup label="Math — Advanced Math">
+                  <option>Quadratics</option>
+                  <option>Polynomials</option>
+                  <option>Exponential</option>
+                  <option>Radical Equations</option>
+                </optgroup>
+                <optgroup label="Math — Problem Solving">
+                  <option>Ratios &amp; Proportions</option>
+                  <option>Percentages</option>
+                  <option>Statistics</option>
+                  <option>Probability</option>
+                </optgroup>
+                <optgroup label="Math — Geometry">
+                  <option>Area &amp; Volume</option>
+                  <option>Circles</option>
+                  <option>Right Triangles</option>
+                  <option>Trigonometry</option>
+                </optgroup>
+                <optgroup label="RW — Information &amp; Ideas">
+                  <option>Central Ideas</option>
+                  <option>Command of Evidence</option>
+                  <option>Inferences</option>
+                </optgroup>
+                <optgroup label="RW — Craft &amp; Structure">
+                  <option>Vocabulary in Context</option>
+                  <option>Text Structure</option>
+                  <option>Cross-Text Connections</option>
+                </optgroup>
+                <optgroup label="RW — Expression of Ideas">
+                  <option>Rhetorical Synthesis</option>
+                  <option>Transitions</option>
+                </optgroup>
+                <optgroup label="RW — Standard English">
+                  <option>Grammar</option>
+                  <option>Punctuation</option>
+                  <option>Sentence Structure</option>
+                </optgroup>
+              </select>
+              <select class="form-input form-select wa-error-select">
+                <option value="">Error Type</option>
+                <option value="concept">Concept Gap</option>
+                <option value="careless">Careless Mistake</option>
+                <option value="time">Time Pressure</option>
+              </select>
+              <input type="number" class="form-input wa-count-input" min="1" max="20" placeholder="#" />
+            </div>
+          </div>
+          <button class="btn btn-ghost btn-sm" onclick="addWrongAnswerRow()" style="margin-top:8px">+ Add Row</button>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="paper-notes">Notes</label>
+          <textarea class="form-input form-textarea" id="paper-notes" placeholder="Key observations, areas to improve..."></textarea>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-ghost" onclick="closeModal('add-paper-modal')">Cancel</button>
+        <button class="btn btn-secondary" onclick="submitPaperForm()">💾 Save Paper</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Log Session Modal -->
+  <div class="modal-overlay" id="log-session-modal" onclick="closeModalOutside(event, 'log-session-modal')">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 class="modal-title">⚡ Log Study Session</h3>
+        <button class="modal-close" onclick="closeModal('log-session-modal')">✕</button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label class="form-label" for="session-topic">Topic</label>
+          <select class="form-input form-select" id="session-topic">
+            <option value="">Select Topic</option>
+            <optgroup label="Math — Algebra">
+              <option>Linear Equations</option>
+              <option>Systems of Equations</option>
+              <option>Inequalities</option>
+            </optgroup>
+            <optgroup label="Math — Advanced Math">
+              <option>Quadratics</option>
+              <option>Polynomials</option>
+              <option>Exponential</option>
+              <option>Radical Equations</option>
+            </optgroup>
+            <optgroup label="Math — Problem Solving">
+              <option>Ratios &amp; Proportions</option>
+              <option>Percentages</option>
+              <option>Statistics</option>
+              <option>Probability</option>
+            </optgroup>
+            <optgroup label="Math — Geometry">
+              <option>Area &amp; Volume</option>
+              <option>Circles</option>
+              <option>Right Triangles</option>
+              <option>Trigonometry</option>
+            </optgroup>
+            <optgroup label="RW — Information &amp; Ideas">
+              <option>Central Ideas</option>
+              <option>Command of Evidence</option>
+              <option>Inferences</option>
+            </optgroup>
+            <optgroup label="RW — Craft &amp; Structure">
+              <option>Vocabulary in Context</option>
+              <option>Text Structure</option>
+              <option>Cross-Text Connections</option>
+            </optgroup>
+            <optgroup label="RW — Expression of Ideas">
+              <option>Rhetorical Synthesis</option>
+              <option>Transitions</option>
+            </optgroup>
+            <optgroup label="RW — Standard English">
+              <option>Grammar</option>
+              <option>Punctuation</option>
+              <option>Sentence Structure</option>
+            </optgroup>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Duration: <span id="duration-display">45 min</span></label>
+          <input type="range" class="form-range" id="session-minutes" min="15" max="120" step="5" value="45" oninput="updateDurationDisplay()" />
+          <div class="range-labels">
+            <span>15 min</span>
+            <span>120 min</span>
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Study Type</label>
+          <div class="type-selector">
+            <button class="type-btn active" onclick="selectType(this)">New Concept</button>
+            <button class="type-btn" onclick="selectType(this)">Timed Practice</button>
+            <button class="type-btn" onclick="selectType(this)">Review</button>
+            <button class="type-btn" onclick="selectType(this)">Problem Set</button>
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="session-notes">Notes</label>
+          <textarea class="form-input form-textarea" id="session-notes" placeholder="What did you cover? Key concepts? Areas of confusion?"></textarea>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-ghost" onclick="closeModal('log-session-modal')">Cancel</button>
+        <button class="btn btn-primary" onclick="submitSessionForm()">⚡ Log Session</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Level Up Modal -->
+  <div class="modal-overlay levelup-overlay" id="levelup-modal">
+    <div class="modal-content levelup-content">
+      <div class="levelup-stars" aria-hidden="true">
+        <span class="star s1">⭐</span>
+        <span class="star s2">✨</span>
+        <span class="star s3">⭐</span>
+        <span class="star s4">✨</span>
+        <span class="star s5">⭐</span>
+        <span class="star s6">🌟</span>
+        <span class="star s7">✨</span>
+        <span class="star s8">⭐</span>
+      </div>
+      <div class="levelup-header">LEVEL UP!</div>
+      <div class="levelup-level" id="levelup-new-level">5</div>
+      <div class="levelup-class" id="levelup-new-class">Adept</div>
+      <div class="levelup-xp-bonus">+200 Bonus XP Awarded!</div>
+      <div class="levelup-message">You're getting stronger — the Final Boss won't know what hit it!</div>
+      <button class="btn btn-secondary btn-lg" onclick="closeModal('levelup-modal')">Continue ⚔️</button>
+    </div>
+  </div>
+
+  <!-- Achievement Toast (slides in from top) -->
+  <div class="achievement-toast" id="achievement-toast">
+    <div class="toast-icon" id="toast-icon">🏆</div>
+    <div class="toast-text">
+      <div class="toast-title" id="toast-title">Achievement Unlocked!</div>
+      <div class="toast-name" id="toast-name">First Steps</div>
+      <div class="toast-desc" id="toast-desc">Complete your first study session</div>
+    </div>
+  </div>
+
+  <!-- Chart.js CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+
+  <script>
+    // ============================================================
+    // TAB NAVIGATION
+    // ============================================================
+    function switchTab(panelId, btn) {
+      document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+      document.querySelectorAll('.nav-tab').forEach(b => b.classList.remove('active'));
+      document.getElementById(panelId).classList.add('active');
+      btn.classList.add('active');
+      if (panelId === 'progress') {
+        setTimeout(initScoreChart, 150);
+      }
+      window.scrollTo(0, 0);
+    }
+
+    function switchSubTab(panelId, btn) {
+      const container = btn.closest('section');
+      container.querySelectorAll('.subtab-panel').forEach(p => p.classList.remove('active'));
+      container.querySelectorAll('.sub-tab').forEach(b => b.classList.remove('active'));
+      document.getElementById(panelId).classList.add('active');
+      btn.classList.add('active');
+    }
+
+    // ============================================================
+    // MODALS
+    // ============================================================
+    function openModal(id) {
+      document.getElementById(id).classList.add('open');
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closeModal(id) {
+      document.getElementById(id).classList.remove('open');
+      document.body.style.overflow = '';
+    }
+
+    function closeModalOutside(event, id) {
+      if (event.target === document.getElementById(id)) {
+        closeModal(id);
+      }
+    }
+
+    function openSessionModal(topic) {
+      const select = document.getElementById('session-topic');
+      if (select && topic) {
+        for (let i = 0; i < select.options.length; i++) {
+          if (select.options[i].text === topic) {
+            select.selectedIndex = i;
+            break;
+          }
+        }
+      }
+      openModal('log-session-modal');
+    }
+
+    // ============================================================
+    // FORM HELPERS
+    // ============================================================
+    function calcTotal() {
+      const m = parseInt(document.getElementById('math-score').value) || 0;
+      const r = parseInt(document.getElementById('rw-score').value) || 0;
+      const display = document.getElementById('total-score-display');
+      if (m >= 200 && r >= 200) {
+        const total = m + r;
+        display.textContent = total;
+        if (total >= 1500) display.style.color = 'var(--accent)';
+        else if (total >= 1400) display.style.color = 'var(--success)';
+        else if (total >= 1200) display.style.color = 'var(--warning)';
+        else display.style.color = 'var(--danger)';
+      } else {
+        display.textContent = '—';
+        display.style.color = '';
+      }
+    }
+
+    function updateDuration(val) {
+      document.getElementById('duration-val').textContent = val;
+    }
+
+    function selectType(btn) {
+      const group = btn.closest('.type-selector');
+      group.querySelectorAll('.type-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+    }
+
+    function addWrongAnswerRow() {
+      const list = document.getElementById('wrong-answers-list');
+      const first = list.querySelector('.wrong-answer-entry');
+      const clone = first.cloneNode(true);
+      clone.querySelectorAll('select, input').forEach(el => { el.value = ''; el.selectedIndex = 0; });
+      list.appendChild(clone);
+    }
+
+    function submitPaper() {
+      showToast('📋', 'Paper Logged!', 'Paper results saved successfully.');
+      closeModal('add-paper-modal');
+    }
+
+    function submitSession() {
+      const topic = document.getElementById('session-topic').value;
+      if (!topic) {
+        document.getElementById('session-topic').focus();
+        return;
+      }
+      showToast('⚡', 'Session Logged!', '+120 XP earned · Topic: ' + topic);
+      closeModal('log-session-modal');
+    }
+
+    // ============================================================
+    // FILTER PAPERS
+    // ============================================================
+    function filterPapers(type, btn) {
+      document.querySelectorAll('.filter-tab').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      document.querySelectorAll('.paper-card').forEach(card => {
+        card.style.display = (type === 'all' || card.dataset.type === type) ? '' : 'none';
+      });
+    }
+
+    // ============================================================
+    // PAPER DETAIL TOGGLE
+    // ============================================================
+    function togglePaperDetail(header) {
+      const card = header.closest('.paper-card');
+      const detail = card.querySelector('.paper-detail');
+      const toggle = header.querySelector('.paper-toggle');
+      detail.classList.toggle('hidden');
+      toggle.textContent = detail.classList.contains('hidden') ? '▼' : '▲';
+    }
+
+    // ============================================================
+    // TOAST NOTIFICATION
+    // ============================================================
+    function showToast(icon, title, desc) {
+      const toast = document.getElementById('achievement-toast');
+      document.getElementById('toast-icon').textContent = icon;
+      document.getElementById('toast-title').textContent = title;
+      document.getElementById('toast-name').textContent = '';
+      document.getElementById('toast-desc').textContent = desc;
+      toast.classList.add('visible');
+      setTimeout(() => toast.classList.remove('visible'), 3500);
+    }
+
+    function showAchievementToast(icon, name, desc) {
+      const toast = document.getElementById('achievement-toast');
+      document.getElementById('toast-icon').textContent = icon;
+      document.getElementById('toast-title').textContent = 'Achievement Unlocked!';
+      document.getElementById('toast-name').textContent = name;
+      document.getElementById('toast-desc').textContent = desc;
+      toast.classList.add('visible');
+      setTimeout(() => toast.classList.remove('visible'), 4000);
+    }
+
+    // ============================================================
+    // SCORE CHART (Chart.js)
+    // ============================================================
+    let scoreChartInstance = null;
+    function initScoreChart() {
+      const canvas = document.getElementById('scoreChart');
+      if (!canvas || scoreChartInstance) return;
+      const ctx = canvas.getContext('2d');
+      scoreChartInstance = new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels: ['May 18', 'May 25'],
+          datasets: [
+            {
+              label: 'Math',
+              data: [550, 570],
+              borderColor: '#7c3aed',
+              backgroundColor: 'rgba(124,58,237,0.12)',
+              pointBackgroundColor: '#7c3aed',
+              pointBorderColor: '#fff',
+              pointBorderWidth: 2,
+              pointRadius: 6,
+              tension: 0.35,
+              fill: true,
+            },
+            {
+              label: 'RW',
+              data: [600, 610],
+              borderColor: '#f59e0b',
+              backgroundColor: 'rgba(245,158,11,0.12)',
+              pointBackgroundColor: '#f59e0b',
+              pointBorderColor: '#fff',
+              pointBorderWidth: 2,
+              pointRadius: 6,
+              tension: 0.35,
+              fill: true,
+            },
+            {
+              label: 'Math Target',
+              data: [750, 750],
+              borderColor: 'rgba(124,58,237,0.5)',
+              borderDash: [7, 4],
+              borderWidth: 1.5,
+              pointRadius: 0,
+              fill: false,
+            },
+            {
+              label: 'RW Target',
+              data: [650, 650],
+              borderColor: 'rgba(245,158,11,0.5)',
+              borderDash: [7, 4],
+              borderWidth: 1.5,
+              pointRadius: 0,
+              fill: false,
+            }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { display: false },
+            tooltip: {
+              backgroundColor: '#141428',
+              borderColor: '#2a2a4a',
+              borderWidth: 1,
+              titleColor: '#e2e8f0',
+              bodyColor: '#94a3b8',
+              padding: 10,
+            }
+          },
+          scales: {
+            x: {
+              grid: { color: 'rgba(42,42,74,0.8)' },
+              ticks: { color: '#94a3b8', font: { family: 'Inter' } },
+            },
+            y: {
+              min: 400,
+              max: 800,
+              grid: { color: 'rgba(42,42,74,0.8)' },
+              ticks: { color: '#94a3b8', font: { family: 'Inter' } },
+            }
+          }
+        }
+      });
+    }
+
+    // ============================================================
+    // COUNTDOWN TIMER (to next Saturday Jun 7 boss)
+    // ============================================================
+    function updateCountdown() {
+      const bossDate = new Date('2026-06-07T09:00:00');
+      const now = new Date();
+      const diff = bossDate - now;
+      if (diff <= 0) {
+        document.getElementById('cd-days').textContent = '00';
+        document.getElementById('cd-hours').textContent = '00';
+        document.getElementById('cd-mins').textContent = '00';
+        return;
+      }
+      const days = Math.floor(diff / 86400000);
+      const hours = Math.floor((diff % 86400000) / 3600000);
+      const mins = Math.floor((diff % 3600000) / 60000);
+      document.getElementById('cd-days').textContent = String(days).padStart(2, '0');
+      document.getElementById('cd-hours').textContent = String(hours).padStart(2, '0');
+      document.getElementById('cd-mins').textContent = String(mins).padStart(2, '0');
+    }
+    updateCountdown();
+    setInterval(updateCountdown, 60000);
+
+    // ============================================================
+    // SET TODAY'S DATE ON QUEST CARD
+    // ============================================================
+    (function() {
+      const el = document.getElementById('quest-date');
+      if (!el) return;
+      const d = new Date();
+      const dows = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+      const mons = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+      el.textContent = dows[d.getDay()] + ', ' + mons[d.getMonth()] + ' ' + d.getDate();
+    })();
+
+    // ============================================================
+    // DEFAULT DATE IN PAPER FORM
+    // ============================================================
+    (function() {
+      const inp = document.getElementById('paper-date');
+      if (!inp) return;
+      inp.value = new Date().toISOString().split('T')[0];
+    })();
+
+    // ============================================================
+    // DEMO: Trigger Level Up modal on double-click of hero card
+    // ============================================================
+    document.querySelector('.hero-card').addEventListener('dblclick', function() {
+      openModal('levelup-modal');
+    });
+
+  </script>
+</body>
+</html>
