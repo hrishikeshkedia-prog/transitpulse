@@ -16,14 +16,14 @@
     <div class="header-left">
       <div class="header-avatar">⚔️</div>
       <div class="header-info">
-        <span class="header-name" id="header-name">Arjun Sharma</span>
-        <span class="header-level-badge" id="header-level">Lv. 4 Scholar</span>
+        <span class="header-name" id="header-name">SAT Challenger</span>
+        <span class="header-level-badge" id="header-level">Lv. 1 Novice</span>
       </div>
     </div>
     <div class="header-right">
       <div class="header-streak">
         <span class="fire-icon">🔥</span>
-        <span class="streak-count" id="header-streak-count">7</span>
+        <span class="streak-count" id="header-streak-count">0</span>
       </div>
     </div>
   </header>
@@ -42,10 +42,10 @@
             <div class="hero-avatar-ring"></div>
           </div>
           <div class="hero-meta">
-            <h2 class="hero-name" id="hero-name">Arjun Sharma</h2>
+            <h2 class="hero-name" id="hero-name">SAT Challenger</h2>
             <div class="hero-level-row">
-              <div class="hero-level-big" id="hero-level-num">4</div>
-              <div class="hero-class" id="hero-class">Scholar</div>
+              <div class="hero-level-big" id="hero-level-num">1</div>
+              <div class="hero-class" id="hero-class">Novice</div>
             </div>
             <div class="hero-target-label">Target: Aug 15 · 1500+ SAT</div>
           </div>
@@ -54,19 +54,19 @@
           <div class="xp-bar-group">
             <div class="xp-bar-label">
               <span class="xp-bar-subject math-label">⚡ Math XP</span>
-              <span class="xp-bar-value" id="math-xp-val">1240 / 2000</span>
+              <span class="xp-bar-value" id="math-xp-val">0 / 500</span>
             </div>
             <div class="xp-bar-track">
-              <div class="xp-bar-fill math-bar" id="math-xp-bar" style="--xp-pct: 62%"></div>
+              <div class="xp-bar-fill math-bar" id="math-xp-bar" style="--xp-pct: 0%"></div>
             </div>
           </div>
           <div class="xp-bar-group">
             <div class="xp-bar-label">
               <span class="xp-bar-subject rw-label">📖 RW XP</span>
-              <span class="xp-bar-value" id="rw-xp-val">890 / 2000</span>
+              <span class="xp-bar-value" id="rw-xp-val">0 / 500</span>
             </div>
             <div class="xp-bar-track">
-              <div class="xp-bar-fill rw-bar" id="rw-xp-bar" style="--xp-pct: 44.5%"></div>
+              <div class="xp-bar-fill rw-bar" id="rw-xp-bar" style="--xp-pct: 0%"></div>
             </div>
           </div>
         </div>
@@ -78,28 +78,28 @@
         <!-- Streak Counter Card -->
         <div class="card streak-card">
           <div class="streak-fire">🔥</div>
-          <div class="streak-number" id="dash-streak">7</div>
+          <div class="streak-number" id="dash-streak">0</div>
           <div class="streak-label">day streak</div>
-          <div class="streak-last">Last: May 30</div>
+          <div class="streak-last" id="streak-last">Log your first session!</div>
         </div>
 
         <!-- Predicted Score Card -->
         <div class="card predicted-card">
           <div class="card-title">🎯 Predicted Score</div>
-          <div class="predicted-total" id="pred-total">1220</div>
+          <div class="predicted-total" id="pred-total">—</div>
           <div class="predicted-breakdown">
             <div class="pred-item">
               <span class="pred-label math-label">Math</span>
-              <span class="pred-score" id="pred-math">590</span>
-              <span class="pred-target behind">/ 750 ▼</span>
+              <span class="pred-score" id="pred-math">—</span>
+              <span class="pred-target">/ 750</span>
             </div>
             <div class="pred-item">
               <span class="pred-label rw-label">RW</span>
-              <span class="pred-score" id="pred-rw">630</span>
-              <span class="pred-target behind">/ 650 ▼</span>
+              <span class="pred-score" id="pred-rw">—</span>
+              <span class="pred-target">/ 650</span>
             </div>
           </div>
-          <div class="pred-status status-behind">📊 Behind — push harder!</div>
+          <div class="pred-status" id="pred-status">📋 Log a paper to predict</div>
         </div>
       </div>
 
@@ -166,12 +166,12 @@
       <!-- Weakest Topic Card -->
       <div class="card weak-card">
         <div class="card-title">⚠️ Weakest Topic</div>
-        <div class="weak-topic-name" id="weak-topic-name">Quadratics</div>
+        <div class="weak-topic-name" id="weak-topic-name">Start studying!</div>
         <div class="weak-meta">
-          <span class="weak-category badge-math">Math — Advanced Math</span>
-          <span class="weak-accuracy">Accuracy: <strong id="weak-acc">38%</strong></span>
+          <span class="weak-category" id="weak-category">Log sessions to track weak areas</span>
+          <span class="weak-accuracy">Accuracy: <strong id="weak-acc">—</strong></span>
         </div>
-        <div class="focus-badge">🎯 Focus Today</div>
+        <div class="focus-badge" id="weak-focus">🎯 Focus Today</div>
       </div>
 
       <!-- Quick Action Buttons -->
