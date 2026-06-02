@@ -730,8 +730,8 @@ function importData(e){var file=e.target.files[0];if(!file)return;var r=new File
 var fmt=function(v){return '₹'+Math.abs(Math.round(v)).toLocaleString('en-IN')};
 var fN=function(n){return parseFloat(n||0).toFixed(2)};
 var fD=function(d){if(!d)return '';var p=d.split('-');return p.length===3?p[2]+'-'+p[1]+'-'+p[0]:d};
-var dAgo=function(d){if(!d)return 0;return Math.floor((Date.now()-new Date(d))/86400000)};
-var today=function(){return new Date().toISOString().slice(0,10)};
+var dAgo=function(d){if(!d)return 0;return Math.floor((Date.now()-new Date(d+'T00:00:00'))/86400000)};
+var today=function(){var d=new Date();var m=String(d.getMonth()+1).padStart(2,'0');var dy=String(d.getDate()).padStart(2,'0');return d.getFullYear()+'-'+m+'-'+dy;};
 function sumO(o){return Object.values(o).reduce(function(a,b){return a+b},0)}
 function eQ(v){return(v===undefined||v===null)?'':String(v).replace(/"/g,'&quot;')}
 function n2w(n){var a=['','One','Two','Three','Four','Five','Six','Seven','Eight','Nine','Ten','Eleven','Twelve','Thirteen','Fourteen','Fifteen','Sixteen','Seventeen','Eighteen','Nineteen'],b=['','','Twenty','Thirty','Forty','Fifty','Sixty','Seventy','Eighty','Ninety'];function iW(x){if(x<20)return a[x];if(x<100)return b[Math.floor(x/10)]+(x%10?' '+a[x%10]:'');if(x<1000)return a[Math.floor(x/100)]+' Hundred'+(x%100?' '+iW(x%100):'');if(x<100000)return iW(Math.floor(x/1000))+' Thousand'+(x%1000?' '+iW(x%1000):'');if(x<10000000)return iW(Math.floor(x/100000))+' Lakh'+(x%100000?' '+iW(x%100000):'');return iW(Math.floor(x/10000000))+' Crore'+(x%10000000?' '+iW(x%10000000):'');}return 'INR '+iW(Math.floor(n))+' Only';}
