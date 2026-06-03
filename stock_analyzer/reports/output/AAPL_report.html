@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Stock Analysis: AAPL</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Segoe UI', system-ui, sans-serif; background: #0d1117; color: #c9d1d9; line-height: 1.6; }
+  .container { max-width: 1400px; margin: 0 auto; padding: 20px; }
+  .header { text-align: center; padding: 40px 20px; background: linear-gradient(135deg, #1e3a5f, #0d1117); border-radius: 12px; margin-bottom: 24px; border: 1px solid #30363d; }
+  .header h1 { font-size: 2.5em; color: #58a6ff; }
+  .header .subtitle { color: #8b949e; margin-top: 8px; font-size: 1.1em; }
+  .badge { display: inline-block; padding: 8px 20px; border-radius: 20px; font-weight: bold; font-size: 1.2em; margin: 10px 4px; }
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px; }
+  .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px; margin-bottom: 20px; }
+  .card { background: #161b22; border: 1px solid #30363d; border-radius: 12px; padding: 20px; }
+  .card h2 { color: #58a6ff; border-bottom: 1px solid #30363d; padding-bottom: 10px; margin-bottom: 16px; font-size: 1.2em; }
+  .card h3 { color: #79c0ff; margin: 12px 0 6px; font-size: 1em; }
+  table { width: 100%; border-collapse: collapse; font-size: 0.9em; }
+  th { background: #21262d; color: #8b949e; padding: 8px 12px; text-align: left; font-weight: 500; }
+  td { padding: 7px 12px; border-bottom: 1px solid #21262d; }
+  tr:hover td { background: #1c2128; }
+  .metric { display: flex; justify-content: space-between; align-items: center; padding: 6px 0; border-bottom: 1px solid #21262d; }
+  .metric:last-child { border-bottom: none; }
+  .metric .label { color: #8b949e; font-size: 0.9em; }
+  .metric .value { font-weight: 600; }
+  .regime-badge { display: inline-block; padding: 4px 12px; border-radius: 12px; font-size: 0.85em; background: #21262d; }
+  ul { list-style: none; padding: 0; }
+  li { padding: 5px 0; border-bottom: 1px solid #21262d; font-size: 0.9em; }
+  .footer { text-align: center; margin-top: 40px; color: #484f58; font-size: 0.8em; }
+  @media (max-width: 768px) { .grid-2, .grid-3 { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+<div class="container">
+
+<div class="header">
+  <h1>AAPL</h1>
+  <div class="subtitle">Apple Inc. · Technology · Generated 2026-06-03 12:55:29</div>
+  <div>
+    <span class="badge" style="background:#66bb6a22; color:#66bb6a; border:2px solid #66bb6a">BUY</span>
+    <span class="badge" style="background:#21262d; color:#c9d1d9">Score: +0.112</span>
+    <span class="badge" style="background:#21262d; color:#f0e68c">Fundamental Grade: B</span>
+    <span class="badge" style="background:#21262d; color:#79c0ff">Price: $315.20</span>
+  </div>
+  <div style="margin-top:10px; color:#8b949e">
+    Market Regime: <strong style="color:#ffa726">Trending Up</strong> &nbsp;|&nbsp;
+    Annualized Volatility: <strong>21.7%</strong>
+  </div>
+</div>
+
+<div class="grid-3">
+  <!-- Valuation -->
+  <div class="card">
+    <h2>📊 Valuation</h2>
+    <div class='metric'><span class='label'>P/E (TTM)</span><span class='value'>38.16</span></div><div class='metric'><span class='label'>P/E (Fwd)</span><span class='value'>32.81</span></div><div class='metric'><span class='label'>PEG Ratio</span><span class='value'>2.72</span></div><div class='metric'><span class='label'>P/B</span><span class='value'>43.42</span></div><div class='metric'><span class='label'>P/S</span><span class='value'>10.25</span></div><div class='metric'><span class='label'>EV/EBITDA</span><span class='value'>29.04</span></div><div class='metric'><span class='label'>Market Cap</span><span class='value'>4629454651392.00</span></div><div class='metric'><span class='label'>EPS (TTM)</span><span class='value'>8.26</span></div>
+  </div>
+
+  <!-- Financial Health -->
+  <div class="card">
+    <h2>💹 Financial Health</h2>
+    <div class='metric'><span class='label'>ROE</span><span class='value'><span style='color:#66bb6a'>141.47%</span></span></div><div class='metric'><span class='label'>ROA</span><span class='value'><span style='color:#66bb6a'>26.23%</span></span></div><div class='metric'><span class='label'>Net Margin</span><span class='value'><span style='color:#66bb6a'>27.15%</span></span></div><div class='metric'><span class='label'>Revenue Growth</span><span class='value'><span style='color:#66bb6a'>16.60%</span></span></div><div class='metric'><span class='label'>D/E Ratio</span><span class='value'><span style='color:#ffa726'>79.55</span></span></div><div class='metric'><span class='label'>Current Ratio</span><span class='value'><span style='color:#ffa726'>1.07</span></span></div><div class='metric'><span class='label'>Dividend Yield</span><span class='value'>34.00%</span></div><div class='metric'><span class='label'>Beta</span><span class='value'>1.06</span></div>
+  </div>
+
+  <!-- DCF Valuation -->
+  <div class="card">
+    <h2>🎯 DCF & Analyst Targets</h2>
+    <div class='metric'><span class='label'>Current Price</span><span class='value'>$315.20</span></div><div class='metric'><span class='label'>DCF Intrinsic Value</span><span class='value'>$238.87</span></div><div class='metric'><span class='label'>DCF Upside</span><span class='value'><span style='color:#ef5350'>-24.22%</span></span></div><div class='metric'><span class='label'>Margin of Safety</span><span class='value'><span style='color:#ef5350'>-31.95%</span></span></div><div class='metric'><span class='label'>Analyst Target</span><span class='value'>$310.51</span></div><div class='metric'><span class='label'>Analyst Range</span><span class='value'>$215.00 – $400.00</span></div><div class='metric'><span class='label'>Recommendation</span><span class='value'>Buy</span></div><div class='metric'><span class='label'>52W High/Low</span><span class='value'>$315.45 / $195.07</span></div>
+  </div>
+</div>
+
+<div class="grid-2">
+  <!-- Risk Metrics -->
+  <div class="card">
+    <h2>⚠️ Risk Metrics</h2>
+    <div class='metric'><span class='label'>Annual Return</span><span class='value'><span style='color:#66bb6a'>55.95%</span></span></div><div class='metric'><span class='label'>Annual Volatility</span><span class='value'>22.33%</span></div><div class='metric'><span class='label'>Max Drawdown</span><span class='value'><span style='color:#ef5350'>-13.80%</span></span></div><div class='metric'><span class='label'>Sharpe Ratio</span><span class='value'><span style='color:#66bb6a'>1.89</span></span></div><div class='metric'><span class='label'>Sortino Ratio</span><span class='value'><span style='color:#66bb6a'>3.07</span></span></div><div class='metric'><span class='label'>Calmar Ratio</span><span class='value'><span style='color:#66bb6a'>4.06</span></span></div><div class='metric'><span class='label'>VaR 95% (daily)</span><span class='value'>-1.885%</span></div><div class='metric'><span class='label'>CVaR 95% (daily)</span><span class='value'>-2.749%</span></div><div class='metric'><span class='label'>Win Rate</span><span class='value'>54.0%</span></div><div class='metric'><span class='label'>Profit Factor</span><span class='value'>1.24</span></div><div class='metric'><span class='label'>Skewness</span><span class='value'>0.319</span></div><div class='metric'><span class='label'>Kurtosis</span><span class='value'>1.578</span></div>
+  </div>
+
+  <!-- Technical Signals -->
+  <div class="card">
+    <h2>📈 Technical Signals</h2>
+    <div class="metric">
+      <span class="label">Composite Signal</span>
+      <span class="value" style="color:#66bb6a">BUY (+0.112)</span>
+    </div>
+    <div class="metric">
+      <span class="label">Trend Score</span>
+      <span class="value">+1.00</span>
+    </div>
+    <div class="metric">
+      <span class="label">Momentum Score</span>
+      <span class="value">-0.62</span>
+    </div>
+    <div class="metric">
+      <span class="label">Volume Score</span>
+      <span class="value">+0.00</span>
+    </div>
+    <div class="metric">
+      <span class="label">Volatility Score</span>
+      <span class="value">+0.00</span>
+    </div>
+    <h3>Detected Patterns</h3>
+    <ul><li style='color:#888'>No significant patterns detected</li></ul>
+  </div>
+</div>
+
+<!-- ML Predictions -->
+<div class="card" style="margin-bottom:20px">
+  <h2>🤖 ML Price Predictions (Ensemble: RF + GBM + Ridge)</h2>
+  <table>
+    <tr><th>Horizon</th><th>Current Price</th><th>Predicted Price</th><th>Expected Return</th><th>Direction</th><th>Confidence</th></tr>
+    <tr><td colspan='6' style='color:#888'>ML predictions not available</td></tr>
+  </table>
+  <p style="color:#484f58; font-size:0.8em; margin-top:8px">⚠️ ML predictions are probabilistic estimates based on historical patterns, not financial advice.</p>
+</div>
+
+<!-- News Sentiment -->
+<div class="card" style="margin-bottom:20px">
+  <h2>📰 News Sentiment Analysis</h2>
+  <div style="margin-bottom:12px">
+    <strong>Overall Sentiment:</strong> Positive &nbsp;
+    (Score: 0.285) &nbsp;|&nbsp;
+    Positive: 4 &nbsp;
+    Negative: 0 &nbsp;
+    Neutral: 6
+  </div>
+  <table>
+    <tr><th>Headline</th><th>Publisher</th><th>Published</th><th>Sentiment</th></tr>
+    
+        <tr>
+            <td style='max-width:400px'>Why Apple’s Next iPhone Upgrade Could Be the End of Venmo</td>
+            <td>24/7 Wall St.</td>
+            <td>2026-06-03 12:24</td>
+            <td style='color:#66bb6a'>Very Positive</td>
+        </tr>
+        <tr>
+            <td style='max-width:400px'>Is It Too Late To Consider Apple (AAPL) After A 55.7% One Year Rally?</td>
+            <td>Simply Wall St.</td>
+            <td>2026-06-03 12:15</td>
+            <td style='color:#66bb6a'>Positive</td>
+        </tr>
+        <tr>
+            <td style='max-width:400px'>Microsoft Moves to Own the AI Stack From Device to Model at Build 2026</td>
+            <td>GuruFocus.com</td>
+            <td>2026-06-03 12:14</td>
+            <td style='color:#888'>Neutral</td>
+        </tr>
+        <tr>
+            <td style='max-width:400px'>Apple Stock, Google And More Lure Investors In Frothy Market. How To Stay Grounded.</td>
+            <td>Investor's Business Daily</td>
+            <td>2026-06-03 12:00</td>
+            <td style='color:#888'>Neutral</td>
+        </tr>
+        <tr>
+            <td style='max-width:400px'>Why Apple Stock Soared 15% in May</td>
+            <td>Motley Fool</td>
+            <td>2026-06-03 10:57</td>
+            <td style='color:#888'>Neutral</td>
+        </tr>
+        <tr>
+            <td style='max-width:400px'>Congressman Looking For Dividends? Taylor Ditches 2 Magnificent Seven Stocks For Blue Chips</td>
+            <td>Benzinga</td>
+            <td>2026-06-03 09:46</td>
+            <td style='color:#888'>Neutral</td>
+        </tr>
+        <tr>
+            <td style='max-width:400px'>Warren Buffett's Successor, Greg Abel, Has More Than 28% of Berkshire Hathaway's $330 Billion Portfolio Invested in 2 AI Titans</td>
+            <td>Motley Fool</td>
+            <td>2026-06-03 09:26</td>
+            <td style='color:#888'>Neutral</td>
+        </tr>
+        <tr>
+            <td style='max-width:400px'>Apple agrees to submit India financials in long-pending antitrust case</td>
+            <td>Reuters</td>
+            <td>2026-06-03 09:20</td>
+            <td style='color:#888'>Neutral</td>
+        </tr>
+  </table>
+</div>
+
+<div class="footer">
+  <p>Generated by Advanced Stock Analyzer | 2026-06-03 12:55:29</p>
+  <p>⚠️ This report is for educational purposes only and does not constitute financial advice.</p>
+</div>
+
+</div>
+</body>
+</html>
