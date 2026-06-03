@@ -211,3 +211,60 @@ class DataFetcher:
             "XLU": "Utilities",
             "XLC": "Communication",
         }
+
+    def get_instant_quote(self, symbol: str) -> Dict:
+        """Ultra-fast quote using fast_info — no caching, always fresh."""
+        ticker = self.get_ticker(symbol)
+        fi = ticker.fast_info
+        price = getattr(fi, "last_price", None)
+        prev_close = getattr(fi, "previous_close", None)
+        change = (price - prev_close) if (price and prev_close) else None
+        change_pct = (change / prev_close * 100) if (change and prev_close) else None
+        return {
+            "symbol": symbol,
+            "price": price,
+            "prev_close": prev_close,
+            "change": change,
+            "change_pct": change_pct,
+            "open": getattr(fi, "open", None),
+            "high": getattr(fi, "day_high", None),
+            "low": getattr(fi, "day_low", None),
+            "volume": getattr(fi, "last_volume", None),
+            "avg_volume": getattr(fi, "three_month_average_volume", None),
+            "market_cap": getattr(fi, "market_cap", None),
+            "currency": getattr(fi, "currency", "USD"),
+            "exchange": getattr(fi, "exchange", ""),
+            "year_high": getattr(fi, "year_high", None),
+            "year_low": getattr(fi, "year_low", None),
+        }
+
+    def search_global(self, query: str, max_results: int = 15) -> List[Dict]:
+        """Search for stocks globally by name or partial symbol."""
+        from core.global_markets import resolve_symbol
+        return resolve_symbol(query, max_results=max_results)
+
+    def get_intraday_history(self, symbol: str, interval: str = "5m", days: int = 2) -> pd.DataFrame:
+        """Fetch intraday OHLCV data. Intervals: 1m/2m/5m/15m/30m/60m/90m."""
+        from core.intraday import get_intraday_data
+        return get_intraday_data(symbol, interval=interval, days=days)
+
+    def get_pre_post_market(self, symbol: str) -> Dict:
+        """Get pre-market and after-hours price data."""
+        ticker = self.get_ticker(symbol)
+        try:
+            info = ticker.info
+            current = info.get("currentPrice") or info.get("regularMarketPrice")
+            prev_close = info.get("previousClose") or info.get("regularMarketPreviousClose")
+            pre = info.get("preMarketPrice")
+            post = info.get("postMarketPrice")
+            return {
+                "current": current,
+                "prev_close": prev_close,
+                "pre_market": pre,
+                "pre_market_change_pct": ((pre / prev_close) - 1) * 100 if pre and prev_close else None,
+                "post_market": post,
+                "post_market_change_pct": ((post / current) - 1) * 100 if post and current else None,
+                "currency": info.get("currency", "USD"),
+            }
+        except Exception:
+            return {}

@@ -32,6 +32,9 @@ from core.patterns import detect_candlestick_patterns, detect_chart_patterns, de
 from core.risk import comprehensive_risk_report, compute_returns
 from core.sentiment import analyze_news
 from core.ml_predictor import engineer_features, multi_horizon_forecast
+from core.global_markets import resolve_symbol, MAJOR_INDICES, INDICES_BY_REGION, detect_asset_type
+from core.realtime import get_instant_quote, get_instant_quote_fast, get_multi_quotes, RealTimeQuote
+from core.intraday import analyze_intraday
 from portfolio.analyzer import build_returns_matrix, individual_metrics, portfolio_performance, correlation_matrix
 from portfolio.optimizer import optimize, compare_strategies as optimizer_compare, efficient_frontier
 from portfolio.backtest import run_all_strategies, compare_strategies as backtest_compare
@@ -44,6 +47,10 @@ from utils.display import (
 from utils.charts import (
     candlestick_with_indicators, correlation_heatmap,
     efficient_frontier_chart, equity_curves, ml_prediction_chart,
+)
+from utils.live_display import (
+    LiveDashboard, display_instant_quote, display_search_results,
+    display_global_overview, display_intraday_analysis,
 )
 from reports.generator import generate_html_report
 
@@ -649,20 +656,25 @@ def interactive_menu():
     while True:
         console.print()
         console.print(Panel(
-            """[bold cyan]1.[/bold cyan] Full Stock Analysis
-[bold cyan]2.[/bold cyan] Portfolio Analysis & Optimization
-[bold cyan]3.[/bold cyan] Compare Multiple Stocks
-[bold cyan]4.[/bold cyan] Stock Screener
-[bold cyan]5.[/bold cyan] Quick Price & Signal Check
-[bold cyan]6.[/bold cyan] Options Chain Analysis
-[bold cyan]7.[/bold cyan] Market Overview (Benchmarks)
-[bold cyan]0.[/bold cyan] [dim]Exit[/dim]""",
+            """[bold cyan]1.[/bold cyan]  Full Stock Analysis (any global symbol)
+[bold cyan]2.[/bold cyan]  Portfolio Analysis & Optimization
+[bold cyan]3.[/bold cyan]  Compare Multiple Stocks
+[bold cyan]4.[/bold cyan]  Stock Screener
+[bold cyan]5.[/bold cyan]  Quick Price & Signal Check
+[bold cyan]6.[/bold cyan]  Options Chain Analysis
+[bold cyan]7.[/bold cyan]  Market Overview (Benchmarks)
+[bold yellow]8.[/bold yellow]  [bold]⚡ Live Market Feed[/bold] [dim](real-time ticker board)[/dim]
+[bold yellow]9.[/bold yellow]  [bold]📡 Instant Global Quote[/bold] [dim](any exchange, any asset)[/dim]
+[bold yellow]10.[/bold yellow] [bold]🔍 Global Symbol Search[/bold] [dim](search by name or ticker)[/dim]
+[bold yellow]11.[/bold yellow] [bold]📊 Intraday Analysis[/bold] [dim](1m/5m/15m live session data)[/dim]
+[bold yellow]12.[/bold yellow] [bold]🌍 Global Markets Dashboard[/bold] [dim](all indices, all regions)[/dim]
+[bold cyan]0.[/bold cyan]  [dim]Exit[/dim]""",
             title="[bold white]Main Menu[/bold white]",
             border_style="cyan",
             expand=False,
         ))
 
-        choice = Prompt.ask("[bold]Select option[/bold]", choices=["0", "1", "2", "3", "4", "5", "6", "7"])
+        choice = Prompt.ask("[bold]Select option[/bold]", choices=["0","1","2","3","4","5","6","7","8","9","10","11","12"])
 
         if choice == "0":
             console.print("[dim]Goodbye![/dim]")
@@ -819,28 +831,137 @@ def interactive_menu():
             except Exception as e:
                 console.print(f"[red]Error: {e}[/red]")
 
+        elif choice == "8":
+            # Live Market Feed
+            symbols_str = Prompt.ask(
+                "[bold]Symbols to watch[/bold] [dim](comma-separated, any exchange)[/dim]",
+                default="AAPL,MSFT,NVDA,BTC-USD,EURUSD=X,GC=F,^GSPC,7203.T",
+            )
+            symbols = [s.strip().upper() for s in symbols_str.split(",") if s.strip()]
+            interval = float(Prompt.ask("Refresh interval (seconds)", default="5"))
+            try:
+                dashboard = LiveDashboard(symbols, refresh_interval=interval)
+                dashboard.run()
+            except Exception as e:
+                console.print(f"[red]Error: {e}[/red]")
+
+        elif choice == "9":
+            # Instant Global Quote
+            symbol = Prompt.ask(
+                "[bold]Enter symbol[/bold] [dim](any exchange: RELIANCE.NS, 0700.HK, BMW.DE, BTC-USD, GC=F, etc.)[/dim]",
+                default="AAPL",
+            ).upper().strip()
+            console.print(f"[dim]Fetching live quote for {symbol}...[/dim]")
+            try:
+                quote = get_instant_quote(symbol)
+                if quote.is_stale:
+                    console.print(f"[red]Could not fetch {symbol}: {quote.error}[/red]")
+                else:
+                    # Optionally fetch intraday
+                    intraday = None
+                    if quote.market_status in ("open", "pre", "post"):
+                        try:
+                            intraday = analyze_intraday(symbol, interval="5m")
+                        except Exception:
+                            pass
+                    display_instant_quote(quote, intraday)
+            except Exception as e:
+                console.print(f"[red]Error: {e}[/red]")
+
+        elif choice == "10":
+            # Global Symbol Search
+            query = Prompt.ask("[bold]Search for company or symbol[/bold]", default="Toyota")
+            console.print(f"[dim]Searching globally for '{query}'...[/dim]")
+            try:
+                results = resolve_symbol(query, max_results=12)
+                display_search_results(results)
+                if results:
+                    console.print()
+                    pick = Prompt.ask(
+                        "Analyze a result? Enter number or press Enter to skip",
+                        default="",
+                    )
+                    if pick.strip().isdigit():
+                        idx = int(pick) - 1
+                        if 0 <= idx < len(results):
+                            sym = results[idx]["symbol"]
+                            period = Prompt.ask("Period", choices=["3mo","6mo","1y","2y"], default="1y")
+                            results_analysis = run_full_analysis(sym, period=period, run_ml=False, run_backtest=False)
+                            display_full_analysis(sym, results_analysis)
+            except Exception as e:
+                console.print(f"[red]Error: {e}[/red]")
+
+        elif choice == "11":
+            # Intraday Analysis
+            symbol = Prompt.ask(
+                "[bold]Symbol[/bold] [dim](supports all global exchanges)[/dim]",
+                default="AAPL",
+            ).upper().strip()
+            interval = Prompt.ask("Interval", choices=["1m","5m","15m","30m","60m"], default="5m")
+            console.print(f"[dim]Fetching intraday data for {symbol} ({interval})...[/dim]")
+            try:
+                analysis = analyze_intraday(symbol, interval=interval)
+                display_intraday_analysis(analysis)
+                # Optionally generate chart
+                if analysis.get("df") is not None and not analysis["df"].empty:
+                    df_intra = analysis["df"]
+                    try:
+                        from utils.charts import candlestick_with_indicators
+                        from core.technical import compute_all as _compute
+                        indicators_intra = _compute(df_intra)
+                        chart = candlestick_with_indicators(
+                            df_intra, indicators_intra, f"{symbol}_intraday_{interval}",
+                        )
+                        console.print(f"[green]Intraday Chart:[/green] {chart}")
+                    except Exception:
+                        pass
+            except Exception as e:
+                console.print(f"[red]Error: {e}[/red]")
+
+        elif choice == "12":
+            # Global Markets Dashboard
+            console.print("[dim]Fetching all global indices... (this may take 15-20s)[/dim]")
+            all_symbols = list(MAJOR_INDICES.values())
+            try:
+                quotes = get_multi_quotes(all_symbols, fast=True)
+                display_global_overview(quotes)
+            except Exception as e:
+                console.print(f"[red]Error: {e}[/red]")
+
 
 # ─── CLI Entry Point ─────────────────────────────────────────────────────────
 
 def main():
     parser = argparse.ArgumentParser(
-        description="Advanced Stock Analyzer — Technical, Fundamental, ML & Portfolio Analysis",
+        description="Advanced Stock Analyzer — Global Real-Time Market Data & Analysis",
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""
 Examples:
-  python main.py                          # Interactive menu
-  python main.py analyze AAPL            # Full analysis of AAPL
-  python main.py analyze AAPL --period 2y --no-ml
+  python main.py                              # Interactive menu
+  python main.py analyze AAPL                 # Full analysis of AAPL
+  python main.py analyze 7203.T --period 2y   # Toyota (Tokyo Stock Exchange)
+  python main.py analyze RELIANCE.NS          # Reliance (NSE India)
+  python main.py analyze 0700.HK              # Tencent (Hong Kong)
+  python main.py analyze BMW.DE               # BMW (Frankfurt)
+  python main.py analyze BTC-USD              # Bitcoin
+  python main.py quote AAPL                   # Instant live quote
+  python main.py quote GC=F                   # Gold futures live quote
+  python main.py live AAPL MSFT 7203.T BTC-USD  # Live ticker board
+  python main.py live AAPL --interval 3       # Refresh every 3s
+  python main.py search Toyota                 # Global symbol search
+  python main.py intraday AAPL --interval 5m  # Intraday analysis
+  python main.py global                        # All global indices
   python main.py compare AAPL MSFT GOOGL
   python main.py portfolio AAPL MSFT NVDA AMZN
   python main.py screen --sector Technology
-  python main.py market                   # Market overview
+  python main.py market                        # Market overview
         """,
     )
     parser.add_argument("command", nargs="?", default="menu",
-                        choices=["menu", "analyze", "compare", "portfolio", "screen", "market"],
+                        choices=["menu","analyze","compare","portfolio","screen","market",
+                                 "quote","live","search","intraday","global"],
                         help="Command to run")
-    parser.add_argument("symbols", nargs="*", help="Stock symbols")
+    parser.add_argument("symbols", nargs="*", help="Stock symbols (supports any global exchange)")
     parser.add_argument("--period", default="1y", help="Data period (default: 1y)")
     parser.add_argument("--no-ml", action="store_true", help="Skip ML predictions")
     parser.add_argument("--no-report", action="store_true", help="Skip HTML report")
@@ -848,6 +969,7 @@ Examples:
     parser.add_argument("--no-backtest", action="store_true", help="Skip backtesting")
     parser.add_argument("--sector", default=None, help="Sector for screener")
     parser.add_argument("--benchmark", default="^GSPC", help="Benchmark symbol (default: ^GSPC)")
+    parser.add_argument("--interval", default="5", help="Refresh interval (live) or bar interval (intraday)")
 
     args = parser.parse_args()
 
@@ -904,6 +1026,75 @@ Examples:
                 ret = (float(df["close"].iloc[-1]) / float(df["close"].iloc[0]) - 1) * 100
                 color = "green" if ret > 0 else "red"
                 console.print(f"  [bold]{name}:[/bold] [{color}]{ret:+.2f}%[/{color}] (1mo)")
+        except Exception as e:
+            console.print(f"[red]Error: {e}[/red]")
+
+    elif args.command == "quote":
+        symbols = args.symbols
+        if not symbols:
+            console.print("[red]Provide at least one symbol: python main.py quote AAPL[/red]")
+            sys.exit(1)
+        for symbol in symbols:
+            sym = symbol.upper()
+            console.print(f"[dim]Fetching live quote for {sym}...[/dim]")
+            try:
+                quote = get_instant_quote(sym)
+                if quote.is_stale:
+                    console.print(f"[red]Failed: {quote.error}[/red]")
+                else:
+                    intraday = None
+                    if quote.market_status in ("open", "pre", "post"):
+                        try:
+                            intraday = analyze_intraday(sym, interval="5m")
+                        except Exception:
+                            pass
+                    display_instant_quote(quote, intraday)
+            except Exception as e:
+                console.print(f"[red]Error: {e}[/red]")
+
+    elif args.command == "live":
+        symbols = args.symbols
+        if not symbols:
+            symbols = ["AAPL", "MSFT", "NVDA", "BTC-USD", "EURUSD=X", "GC=F", "^GSPC", "^N225"]
+        try:
+            interval = float(args.interval) if args.interval else 5.0
+        except ValueError:
+            interval = 5.0
+        console.print(f"[cyan]Starting live feed for: {', '.join(symbols)} (refresh: {interval}s)[/cyan]")
+        try:
+            dashboard = LiveDashboard(symbols, refresh_interval=interval)
+            dashboard.run()
+        except Exception as e:
+            console.print(f"[red]Error: {e}[/red]")
+
+    elif args.command == "search":
+        query = " ".join(args.symbols) if args.symbols else "Apple"
+        console.print(f"[dim]Searching globally for '{query}'...[/dim]")
+        try:
+            results = resolve_symbol(query, max_results=15)
+            display_search_results(results)
+        except Exception as e:
+            console.print(f"[red]Error: {e}[/red]")
+
+    elif args.command == "intraday":
+        symbols = args.symbols or ["AAPL"]
+        intra_interval = args.interval if args.interval in ["1m","2m","5m","15m","30m","60m","90m"] else "5m"
+        for symbol in symbols:
+            sym = symbol.upper()
+            console.print(f"[dim]Fetching intraday data for {sym} ({intra_interval})...[/dim]")
+            try:
+                analysis = analyze_intraday(sym, interval=intra_interval)
+                display_intraday_analysis(analysis)
+            except Exception as e:
+                console.print(f"[red]Error: {e}[/red]")
+
+    elif args.command == "global":
+        print_banner()
+        console.print("[dim]Fetching all global indices... (parallel, ~10s)[/dim]")
+        all_symbols = list(MAJOR_INDICES.values())
+        try:
+            quotes = get_multi_quotes(all_symbols, fast=True)
+            display_global_overview(quotes)
         except Exception as e:
             console.print(f"[red]Error: {e}[/red]")
 
