@@ -270,7 +270,22 @@ tr:hover td{background:#fafafa}
 
 <!-- ── ONBOARDING ── -->
 <div id="onboard">
-  <div class="ob-card">
+  <!-- LOGIN CARD (returning users) -->
+  <div class="ob-card" id="loginCard" style="display:none">
+    <div class="ob-head">
+      <div class="ob-logo">FreightDesk <em>PRO</em></div>
+      <div class="ob-tag">Sign in to continue</div>
+    </div>
+    <div class="ob-body">
+      <div class="ob-f"><label>Username</label><input type="text" id="li_user" autocomplete="username" placeholder="Your username"></div>
+      <div class="ob-f"><label>Password</label><input type="password" id="li_pass" autocomplete="current-password" placeholder="Your password" onkeydown="if(event.key==='Enter')doSignIn()"></div>
+      <div class="ob-err" id="li_err"></div>
+      <button class="ob-btn ob-primary" onclick="doSignIn()" style="width:100%;margin-top:8px">Sign In →</button>
+      <div style="text-align:center;margin-top:14px;font-size:12px;color:var(--tx2)">New device? <a href="#" onclick="showObCard();return false;" style="color:var(--ac);font-weight:500">Create new account</a></div>
+    </div>
+  </div>
+  <!-- ONBOARDING WIZARD (new users) -->
+  <div class="ob-card" id="obCard">
     <div class="ob-head">
       <div class="ob-logo">FreightDesk <em>PRO</em></div>
       <div class="ob-tag">Transport · CFA Billing · Finance · Tally Export</div>
@@ -332,8 +347,8 @@ tr:hover td{background:#fafafa}
         </div>
       </div>
     </div>
-  </div>
-</div>
+  </div><!-- end #obCard -->
+</div><!-- end #onboard -->
 
 <!-- ── SIDEBAR ── -->
 <div class="sidebar" id="sidebar">
@@ -692,7 +707,19 @@ function loginUser(u,obj){
   loadAll();render();nav('dashboard');
   document.getElementById('sbCo').textContent=COMPANY.name||'—';
 }
-function doLogout(){if(!confirm('Sign out? Data stays saved on this device.'))return;CU=null;sessionStorage.removeItem('fdp_session');document.getElementById('onboard').style.display='flex';}
+function doSignIn(){
+  var user=(document.getElementById('li_user').value||'').trim().toLowerCase();
+  var pass=document.getElementById('li_pass').value||'';
+  var e=document.getElementById('li_err');e.textContent='';
+  var users=gU();
+  if(!users[user]){e.textContent='Username not found.';return;}
+  if(users[user].pass!==btoa(unescape(encodeURIComponent(pass)))){e.textContent='Incorrect password.';return;}
+  document.getElementById('onboard').style.display='none';
+  loginUser(user,users[user]);
+}
+function showObCard(){document.getElementById('loginCard').style.display='none';document.getElementById('obCard').style.display='';}
+function showLoginCard(){document.getElementById('obCard').style.display='none';document.getElementById('loginCard').style.display='';}
+function doLogout(){if(!confirm('Sign out? Data stays saved on this device.'))return;CU=null;sessionStorage.removeItem('fdp_session');document.getElementById('onboard').style.display='flex';showLoginCard();}
 function confirmReset(){if(!confirm('This permanently deletes ALL your data. Are you sure?'))return;if(prompt('Type RESET to confirm:')!=='RESET')return;var keys=Object.keys(localStorage).filter(function(k){return k.startsWith('fdp_'+CU)||k==='fdp_users'||k.startsWith('fdp_m')});keys.forEach(function(k){localStorage.removeItem(k)});sessionStorage.clear();location.reload();}
 
 // ══════════ STORAGE ══════════
@@ -1127,8 +1154,9 @@ function renderCliList(){var el=document.getElementById('cliList');if(!el)return
   // Try session auto-login
   var sess=sessionStorage.getItem('fdp_session');
   if(sess){var users=gU();if(users[sess]){COMPANY=defCo();loginUser(sess,users[sess]);return;}}
-  // Show onboarding
+  // Show login if accounts exist, else onboarding wizard
   document.getElementById('onboard').style.display='flex';
+  if(Object.keys(gU()).length>0){showLoginCard();}
 })();
 
 // Set tally default date range
