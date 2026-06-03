@@ -1,18 +1,8 @@
-const CACHE = 'fdp-v2';
-const ASSETS = [
-  './',
-  './index.html',
-  './manifest.json',
-  './icon-192.png',
-  './icon-512.png',
-  'https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap',
-  'https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js'
-];
+const CACHE = 'fdp-v3';
+const SHELL = ['./index.html', './manifest.json', './icon-192.png', './icon-512.png'];
 
 self.addEventListener('install', e => {
-  e.waitUntil(
-    caches.open(CACHE).then(c => c.addAll(ASSETS.filter(a => !a.startsWith('http'))))
-  );
+  e.waitUntil(caches.open(CACHE).then(c => c.addAll(SHELL)));
   self.skipWaiting();
 });
 
@@ -26,7 +16,15 @@ self.addEventListener('activate', e => {
 });
 
 self.addEventListener('fetch', e => {
+  // Navigation (HTML page): network first so updates always show immediately
+  if (e.request.mode === 'navigate') {
+    e.respondWith(
+      fetch(e.request).catch(() => caches.match('./index.html'))
+    );
+    return;
+  }
+  // Everything else: cache first, fallback to network
   e.respondWith(
-    caches.match(e.request).then(r => r || fetch(e.request).catch(() => caches.match('./index.html')))
+    caches.match(e.request).then(r => r || fetch(e.request).catch(() => {}))
   );
 });

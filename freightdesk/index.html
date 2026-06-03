@@ -647,7 +647,7 @@ tr:hover td{background:#fafafa}
 <script>
 // ══════════ SERVICE WORKER (offline) ══════════
 if('serviceWorker' in navigator){
-  navigator.serviceWorker.register('./sw.js').catch(function(){});
+  navigator.serviceWorker.register('./sw.js',{updateViaCache:'none'}).catch(function(){});
 }
 
 // ══════════ INSTALL PROMPT ══════════
