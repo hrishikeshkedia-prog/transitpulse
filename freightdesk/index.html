@@ -887,142 +887,38 @@ function renderCfaTable(){var tb=document.querySelector('#cfaTable tbody');if(!t
 function printCfaInv(id){var inv=(COMPANY.cfaInvoices||[]).find(function(i){return i.id===id;});if(!inv)return;var w=window.open('','_blank');w.document.write(buildCfaHTML(inv));w.document.close();}
 function buildCfaHTML(inv){
 var C=inv.company||COMPANY,loc=inv.loc||{};
-function fA(n){return 'Rs '+(n||0).toLocaleString('en-IN',{minimumFractionDigits:2,maximumFractionDigits:2});}
-function fD(s){return s?s.split('-').reverse().join('-'):'';}
-var B='border:1px solid #000;',P='padding:5px 7px;',V='vertical-align:middle;';
-/* collect line items */
 var items=[];
-if(inv.invoiceType==='itemised'){
-  items=(inv.itemLines||[]).map(function(l){return{desc:l.desc,hsn:l.hsn||'',qty:l.qty||'',unit:l.unit||'',rate:l.rate?parseFloat(l.rate):'',amt:l.amt};});
-}else{
-  items=(inv.lines||[]).map(function(l){return{desc:l.desc+(l.lr?'<br><span style="font-weight:600">LR NO: '+l.lr+'</span>':''),hsn:'',qty:'',unit:'',rate:'',amt:l.amt};});
-}
-var itemRows=items.map(function(l,i){
-  return '<tr style="height:28px">'
-    +'<td style="'+B+P+V+'text-align:center;width:4%">'+(i+1)+'</td>'
-    +'<td style="'+B+P+V+'">'+l.desc+'</td>'
-    +'<td style="'+B+P+V+'text-align:center;width:9%">'+(l.hsn||'')+'</td>'
-    +'<td style="'+B+P+V+'text-align:right;width:6%">'+(l.qty||'')+'</td>'
-    +'<td style="'+B+P+V+'text-align:center;width:6%">'+(l.unit||'')+'</td>'
-    +'<td style="'+B+P+V+'text-align:right;width:10%">'+(l.rate!==''?l.rate:'')+'</td>'
-    +'<td style="'+B+P+V+'text-align:right;width:12%">'+(l.amt?(l.amt).toLocaleString('en-IN',{minimumFractionDigits:2,maximumFractionDigits:2}):'')+'</td>'
-    +'</tr>';
-}).join('');
-/* IGST as table row */
-itemRows+='<tr style="height:28px">'
-  +'<td style="'+B+P+V+'text-align:center">'+(items.length+1)+'</td>'
-  +'<td style="'+B+P+V+'">IGST Output</td>'
-  +'<td style="'+B+P+V+'"></td><td style="'+B+P+V+'"></td><td style="'+B+P+V+'"></td>'
-  +'<td style="'+B+P+V+'text-align:right">'+(inv.igstPct||'')+(inv.igstPct?' %':'')+'</td>'
-  +'<td style="'+B+P+V+'text-align:right">'+((inv.igstAmt||0).toLocaleString('en-IN',{minimumFractionDigits:2,maximumFractionDigits:2}))+'</td>'
-  +'</tr>';
-/* blank padding rows */
+if(inv.invoiceType==='itemised'){items=(inv.itemLines||[]).map(function(l){return{desc:l.desc,hsn:l.hsn||'',qty:l.qty||'',unit:l.unit||'',rate:l.rate!==''&&l.rate!==undefined?parseFloat(l.rate):'',amt:l.amt};});}
+else{items=(inv.lines||[]).map(function(l){return{desc:l.desc+(l.lr?'<br><b>LR NO: '+l.lr+'</b>':''),hsn:'',qty:'',unit:'',rate:'',amt:l.amt};});}
+var rows=items.map(function(l,i){return '<tr><td class="c">'+(i+1)+'</td><td class="l">'+l.desc+'</td><td class="c">'+(l.hsn||'')+'</td><td class="c">'+(l.qty||'')+'</td><td class="c">'+(l.unit||'')+'</td><td class="r">'+(l.rate!==''?l.rate:'')+'</td><td class="r">'+(l.amt?(+l.amt).toLocaleString('en-IN',{minimumFractionDigits:2,maximumFractionDigits:2}):'')+'</td></tr>';}).join('');
+rows+='<tr><td class="c">'+(items.length+1)+'</td><td class="l">IGST Output</td><td class="c"></td><td class="c"></td><td class="c"></td><td class="r">'+(inv.igstPct||'')+(inv.igstPct?' %':'')+'</td><td class="r">'+((inv.igstAmt||0).toLocaleString('en-IN',{minimumFractionDigits:2,maximumFractionDigits:2}))+'</td></tr>';
 var filled=items.length+1,need=Math.max(0,7-filled);
-for(var i=0;i<need;i++)itemRows+='<tr style="height:28px"><td style="'+B+'"></td><td style="'+B+'"></td><td style="'+B+'"></td><td style="'+B+'"></td><td style="'+B+'"></td><td style="'+B+'"></td><td style="'+B+'"></td></tr>';
-/* totals rows */
-var totRows=''
-  +'<tr><td colspan="5" style="border:none"></td>'
-  +'<td style="'+B+P+'text-align:right;font-weight:bold">Total Before Tax</td>'
-  +'<td style="'+B+P+'text-align:right;font-weight:bold">'+(inv.beforeTax||0).toLocaleString('en-IN',{minimumFractionDigits:2,maximumFractionDigits:2})+'</td></tr>'
-  +'<tr><td colspan="5" style="border:none;height:18px"></td><td style="'+B+'"></td><td style="'+B+'"></td></tr>'
-  +'<tr><td colspan="5" style="border:none"></td>'
-  +'<td style="'+B+P+'text-align:right;font-weight:bold">Total After Tax</td>'
-  +'<td style="'+B+P+'text-align:right;font-weight:bold">'+(inv.afterTax||0).toLocaleString('en-IN',{minimumFractionDigits:2,maximumFractionDigits:2})+'</td></tr>';
-/* amount in words */
-var words=n2w(Math.round(inv.afterTax||0));
-/* buyer address */
-var buyerAddr=(loc.warehouseAddr||'').replace(/\n/g,', ');
-var html='<!DOCTYPE html><html><head><meta charset="UTF-8"><title>CFA Invoice '+inv.billno+'</title>'
-+'<style>@page{size:A4;margin:14mm 12mm}*{margin:0;padding:0;box-sizing:border-box}body{font-family:Arial,sans-serif;font-size:11.5px;color:#000;line-height:1.45}'
-+'.wrap{width:100%;max-width:780px;margin:0 auto}'
-+'.pb{display:block;margin:10px auto 14px;padding:8px 28px;background:#1d4ed8;color:#fff;border:none;font-size:13px;cursor:pointer;border-radius:5px;font-family:Arial,sans-serif}'
-+'@media print{.pb{display:none}}'
-+'table{border-collapse:collapse}td,th{vertical-align:top}'
-+'</style></head><body>'
-+'<button class="pb" onclick="window.print()">🖨 Print / Save PDF</button>'
-+'<div class="wrap">'
-/* title */
-+'<div style="text-align:center;font-size:15px;font-weight:bold;border:2px solid #000;padding:6px 0;letter-spacing:1px;margin-bottom:0">TAX INVOICE</div>'
-/* top two-column section */
-+'<table style="width:100%;border-collapse:collapse;border:1px solid #000;border-top:none">'
-+'<tr>'
-/* left: company info */
-+'<td style="width:45%;border-right:1px solid #000;padding:10px 10px 8px;vertical-align:top">'
-+'<div style="font-size:13px;font-weight:bold;margin-bottom:4px">'+C.name+'</div>'
-+'<div>'+C.addr1+(C.addr2?'<br>'+C.addr2:'')+'</div>'
-+'<div>GST NO: '+C.gstin+'</div>'
-+'<div>State: '+C.state+'</div>'
-+(C.email?'<div>Email: '+C.email+'</div>':'')
-+(C.mobile?'<div>Mobile: '+C.mobile+'</div>':'')
-+'</td>'
-/* right: reference table */
-+'<td style="width:55%;padding:0;vertical-align:top">'
-+'<table style="width:100%;border-collapse:collapse;font-size:11px">'
-+'<tr><td style="'+B+P+'font-weight:bold;width:30%">Vendor Code</td><td style="'+B+P+'">'+( C.vendorCode||'')+'</td></tr>'
-+'<tr><td style="'+B+P+'font-weight:bold">Bill No.</td><td style="'+B+P+'">'+(inv.billno||'')+'</td></tr>'
-+'<tr><td style="'+B+P+'font-weight:bold">Bill Date</td><td style="'+B+P+'">'+fD(inv.billdate)+'</td></tr>'
-+'<tr><td style="'+B+P+'font-weight:bold">PO No.</td><td style="'+B+P+'">'+(inv.po||'')+'</td></tr>'
-+'<tr><td style="'+B+P+'font-weight:bold">Bill Month</td><td style="'+B+P+'">'+(inv.billmonth||'')+'</td></tr>'
-+'<tr><td style="'+B+P+'font-weight:bold">Plant Name</td><td style="'+B+P+'">'+(loc.plantName||'')+'</td></tr>'
-+'<tr><td style="'+B+P+'font-weight:bold">Warehouse</td><td style="'+B+P+'">'+(loc.warehouseName||'')+'</td></tr>'
-+'<tr><td style="'+B+P+'font-weight:bold">Buyer GST No.</td><td style="'+B+P+'">'+(loc.buyerGst||'')+'</td></tr>'
-+'<tr><td style="'+B+P+'font-weight:bold">Invoice Type</td><td style="'+B+P+'">'+(inv.invoiceType==='itemised'?'Itemised':'Standard')+'</td></tr>'
-+'</table>'
-+'</td>'
-+'</tr>'
-/* buyer row */
-+'<tr><td colspan="2" style="border-top:1px solid #000;padding:8px 10px;vertical-align:top">'
-+'<div style="font-size:10.5px;font-weight:bold;margin-bottom:3px">BUYER (BILL TO):</div>'
-+'<div style="font-size:12px;font-weight:bold;margin-bottom:2px">'+(loc.warehouseName||loc.label||'')+'</div>'
-+(buyerAddr?'<div>'+buyerAddr+'</div>':'')
-+(loc.buyerGst?'<div>GST NO: '+loc.buyerGst+'</div>':'')
-+(C.state?'<div>State: '+C.state+'</div>':'')
-+'</td></tr>'
-+'</table>'
-/* items table */
-+'<table style="width:100%;border-collapse:collapse;margin-top:0">'
-+'<thead><tr style="background:#f0f0f0">'
-+'<th style="'+B+P+'text-align:center;width:4%">Sl<br>No.</th>'
-+'<th style="'+B+P+'">Description of Services</th>'
-+'<th style="'+B+P+'text-align:center;width:9%">HSN/SAC</th>'
-+'<th style="'+B+P+'text-align:right;width:6%">Qty</th>'
-+'<th style="'+B+P+'text-align:center;width:6%">Unit</th>'
-+'<th style="'+B+P+'text-align:right;width:10%">Rate</th>'
-+'<th style="'+B+P+'text-align:right;width:12%">Amount</th>'
-+'</tr></thead>'
-+'<tbody>'+itemRows+totRows+'</tbody>'
-+'</table>'
-/* amount in words */
-+'<table style="width:100%;border-collapse:collapse">'
-+'<tr><td style="'+B+'padding:6px 9px;font-size:11px;width:75%"><b>Amount Chargeable (in words):</b><br>'+words+'</td>'
-+'<td style="'+B+'padding:6px 9px;font-size:10px;text-align:right;vertical-align:bottom">E. &amp; O.E.</td></tr>'
-+'</table>'
-/* footer */
-+'<table style="width:100%;border-collapse:collapse">'
-+'<tr>'
-+'<td style="'+B+'padding:8px 10px;width:33%;vertical-align:top;font-size:10.5px">'
-+'<div style="font-weight:bold;margin-bottom:4px">Declaration</div>'
-+'<div style="line-height:1.6">We declare that this invoice shows the actual price of the goods described and that all particulars are true and correct.</div>'
-+'<div style="margin-top:28px;border-top:1px solid #000;padding-top:4px;font-size:10px">Customer\'s Seal and Signature</div>'
-+'</td>'
-+'<td style="'+B+'padding:8px 10px;width:34%;vertical-align:top;font-size:10.5px">'
-+'<div style="font-weight:bold;margin-bottom:6px">Company\'s Bank Details</div>'
-+'<div>Bank Name: '+(C.bank||'')+'</div>'
-+'<div>A/c No. '+(C.acc||'')+'</div>'
-+'<div>Branch &amp; IFS Code: '+(C.ifsc||'')+'</div>'
-+(C.vendorCode?'<div>Vendor Code: '+C.vendorCode+'</div>':'')
-+'</td>'
-+'<td style="'+B+'padding:8px 10px;width:33%;vertical-align:top;text-align:center;font-size:11px">'
-+'<div style="font-weight:bold">for '+C.name+'</div>'
-+'<div style="margin-top:52px;border-top:1px solid #000;padding-top:4px">Authorised Signatory</div>'
-+'</td>'
-+'</tr>'
-+'</table>'
-+'<div style="text-align:center;font-size:10px;padding:5px 0;font-style:italic">This is a Computer Generated Invoice</div>'
-+'</div>'
-+'<button class="pb" onclick="window.print()">🖨 Print / Save PDF</button>'
-+'</body></html>';
-return html;}
+for(var i=0;i<need;i++)rows+='<tr style="height:28px"><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>';
+var buyerAddr=(loc.warehouseAddr||'').replace(/\n/g,'<br>');
+return '<!DOCTYPE html><html><head><meta charset="UTF-8"><title>CFA Invoice '+inv.billno+'</title><style>@page{size:A4;margin:10mm}*{margin:0;padding:0;box-sizing:border-box}body{font-family:Arial,sans-serif;padding:10px}.w{max-width:780px;margin:0 auto;border:2px solid #000}.t{text-align:center;font-size:18px;font-weight:bold;padding:10px;border-bottom:2px solid #000;letter-spacing:2px}.up{display:flex;border-bottom:1px solid #000}.lc{width:300px;border-right:1px solid #000}.sb{padding:10px;border-bottom:1px solid #000}.sn{font-weight:bold;font-size:13px;margin-bottom:4px}.ss{font-size:11px;line-height:1.8}.bb{padding:10px}.bh{font-size:10px;font-weight:bold;color:#555;text-transform:uppercase;margin-bottom:3px}.bn{font-weight:bold;font-size:13px;margin-bottom:3px}.bs{font-size:11px;line-height:1.8}.rc{flex:1}.rr{display:flex;border-bottom:1px solid #000;min-height:28px}.rr:last-child{border-bottom:none}.rl{width:110px;padding:5px 7px;font-size:10px;font-weight:bold;background:#fafafa;border-right:1px solid #000;display:flex;align-items:center}.rv{flex:1;padding:5px 8px;font-size:11px;display:flex;align-items:center}.rl2{width:65px;padding:5px 6px;font-size:10px;font-weight:bold;background:#fafafa;border-right:1px solid #000;display:flex;align-items:center}.rh{flex:1;padding:5px 8px;font-size:11px;border-right:1px solid #000;display:flex;align-items:center}.rh:last-child{border-right:none}table{width:100%;border-collapse:collapse}th{background:#ebebeb;border:1px solid #000;padding:5px 7px;font-size:11px;text-align:center}td{border:1px solid #000;padding:5px 7px;font-size:11px;vertical-align:middle}.c{text-align:center}.r{text-align:right}.l{text-align:left}.tr td{font-weight:bold;background:#f0f0f0}.words{padding:8px;border-bottom:1px solid #000;font-size:11px}.foot{display:flex}.decl{flex:1;padding:10px;border-right:1px solid #000;font-size:10px;line-height:1.6}.bank{flex:1;padding:10px;border-right:1px solid #000;font-size:11px;line-height:1.9}.sign{width:180px;padding:10px;font-size:11px;text-align:center}.sl{margin-top:55px;border-top:1px solid #000;padding-top:5px;font-weight:bold}.pb{display:block;margin:12px auto;padding:8px 24px;background:#2563EB;color:#fff;border:none;font-size:13px;cursor:pointer;border-radius:4px}@media print{.pb{display:none}}</style></head><body>'
++'<button class="pb" onclick="window.print()">Print / Save PDF</button>'
++'<div class="w"><div class="t">TAX INVOICE</div>'
++'<div class="up"><div class="lc"><div class="sb"><div class="sn">'+C.name+'</div><div class="ss">'+C.addr1+(C.addr2?'<br>'+C.addr2:'')+'<br>GST: '+C.gstin+'<br>'+C.state+(C.email?'<br>'+C.email:'')+'</div></div>'
++'<div class="bb"><div class="bh" style="color:#059669">BUYER (BILL TO)</div><div class="bn">'+(loc.warehouseName||loc.label||'')+'</div><div class="bs">'+buyerAddr+(loc.buyerGst?'<br>GST: '+loc.buyerGst:'')+'</div></div></div>'
++'<div class="rc"><div class="rr"><div class="rl">Vendor Code</div><div class="rv"><b>'+(C.vendorCode||'—')+'</b></div></div>'
++'<div class="rr"><div class="rl">Bill No.</div><div class="rh"><b>'+(inv.billno||'')+'</b></div><div class="rl2">Bill Date</div><div class="rh"><b>'+fD(inv.billdate)+'</b></div></div>'
++'<div class="rr"><div class="rl">PO No.</div><div class="rv">'+(inv.po||'')+'</div></div>'
++'<div class="rr"><div class="rl">Bill Month</div><div class="rv">'+(inv.billmonth||'')+'</div></div>'
++'<div class="rr"><div class="rl">Plant Name</div><div class="rv">'+(loc.plantName||'')+'</div></div>'
++'<div class="rr"><div class="rl">Warehouse</div><div class="rv">'+(loc.warehouseName||'')+'</div></div>'
++'<div class="rr"><div class="rl">Buyer GST No.</div><div class="rv">'+(loc.buyerGst||'')+'</div></div>'
++'<div class="rr"><div class="rl">Invoice Type</div><div class="rv">'+(inv.invoiceType==='itemised'?'Itemised':'Standard')+'</div></div></div></div>'
++'<table><tr><th style="width:32px">Sl</th><th>Description of Services</th><th>HSN/SAC</th><th>Qty</th><th>Unit</th><th>Rate</th><th>Amount (&#8377;)</th></tr>'
++rows
++'<tr><td colspan="5" style="border:none"></td><td class="r" style="font-weight:bold;background:#f0f0f0">Total Before Tax</td><td class="r" style="font-weight:bold;background:#f0f0f0">'+((inv.beforeTax||0).toLocaleString('en-IN',{minimumFractionDigits:2,maximumFractionDigits:2}))+'</td></tr>'
++'<tr style="height:18px"><td colspan="5" style="border:none"></td><td></td><td></td></tr>'
++'<tr><td colspan="5" style="border:none"></td><td class="r" style="font-weight:bold;background:#f0f0f0">Total After Tax</td><td class="r" style="font-weight:bold;background:#f0f0f0">'+((inv.afterTax||0).toLocaleString('en-IN',{minimumFractionDigits:2,maximumFractionDigits:2}))+'</td></tr></table>'
++'<div class="words"><b>Amount in Words:</b> '+n2w(Math.round(inv.afterTax||0))+'</div>'
++'<div class="foot"><div class="decl"><b>Declaration</b><br>We declare that this invoice shows the actual price of the goods described and all particulars are true and correct.</div>'
++'<div class="bank"><b>Bank Details</b><br>'+C.bank+'<br>A/c: '+C.acc+'<br>IFSC: '+C.ifsc+'</div>'
++'<div class="sign">For <b>'+C.name+'</b><div class="sl">Authorised Signatory</div></div></div>'
++'<div style="text-align:center;padding:6px;font-size:11px;border-top:1px solid #000;font-style:italic">Computer Generated Invoice &#8212; FreightDesk Pro</div>'
++'</div><button class="pb" onclick="window.print()">Print / Save PDF</button></body></html>';}
 
 // PAYMENTS
 function autoFP(){var i=invoices.find(function(iv){return iv.invoice===document.getElementById('p_inv').value.trim()});document.getElementById('p_info').innerHTML=i?'Found: <b>'+i.client+'</b> | Total: <b>'+fmt(i.total)+'</b>':(document.getElementById('p_inv').value?'Not found':'');}
