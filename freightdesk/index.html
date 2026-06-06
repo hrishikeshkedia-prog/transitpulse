@@ -363,6 +363,7 @@ tr:hover td{background:#fafafa}
   <div class="sb-link" onclick="nav('invoice')"><span class="sb-ic">🧾</span>Transport Invoice</div>
   <div class="sb-link" onclick="nav('cfainvoice')"><span class="sb-ic">📋</span>CFA Invoice</div>
   <div class="sb-link" onclick="nav('payments')"><span class="sb-ic">💳</span>Payments</div>
+  <div class="sb-link" onclick="nav('lrs')"><span class="sb-ic">📁</span>LR Documents</div>
   <div class="sb-sec">Reports</div>
   <div class="sb-link" onclick="nav('overdue')"><span class="sb-ic">⚠</span>Overdues<span class="sb-bdg" id="odBdg" style="display:none">0</span></div>
   <div class="sb-link" onclick="nav('mails')"><span class="sb-ic">✉</span>Reminder Mails<span class="sb-bdg" id="mailBdg" style="display:none">0</span></div>
@@ -527,6 +528,21 @@ tr:hover td{background:#fafafa}
     <div id="p_info" style="font-size:12px;color:var(--tx2);margin-top:6px"></div>
   </div></div>
   <div class="card"><div class="ch"><span class="ct">Payment Register</span></div><div class="tw"><table id="payTable"><thead><tr><th>#</th><th>Invoice No</th><th>Amount</th><th>Date</th><th>TDS</th><th>Rate Diff</th><th>Net</th></tr></thead><tbody></tbody></table></div></div>
+</div>
+
+<!-- LR DOCUMENTS -->
+<div id="lrs" class="pg">
+  <div class="ph"><div><div class="ph-title">LR Documents</div><div class="ph-sub">Upload and manage lorry receipts by invoice</div></div></div>
+  <div class="card"><div class="ch"><span class="ct">Upload LR</span></div><div class="cb">
+    <div class="fgr">
+      <div class="fg"><label>Invoice No.</label><input type="text" id="lr_inv" class="w160" placeholder="e.g. INV-001" list="lr_inv_list"><datalist id="lr_inv_list"></datalist></div>
+      <div class="fg"><label>File (PDF / Image)</label><input type="file" id="lr_file" accept=".pdf,.jpg,.jpeg,.png" style="padding:6px 0;width:100%"></div>
+      <div class="fg"><label>&nbsp;</label><button class="btn btn-p" onclick="uploadLR()">Upload</button></div>
+    </div>
+  </div></div>
+  <div class="card"><div class="ch"><span class="ct">LR Register</span></div><div class="tw">
+    <table id="lrTable"><thead><tr><th>#</th><th>Invoice No</th><th>File Name</th><th>Size</th><th>Date</th><th>Actions</th></tr></thead><tbody></tbody></table>
+  </div></div>
 </div>
 
 <!-- OVERDUES -->
@@ -716,7 +732,7 @@ function confirmReset(){if(!confirm('This permanently deletes ALL your data. Are
 function uK(s){return 'fdp_'+CU+'_'+s}
 function defCo(){return{name:'',addr1:'',addr2:'',gstin:'',state:'',email:'',mobile:'',bank:'',acc:'',ifsc:'',vendorCode:'',sgst:9,cgst:9,igst:0,places:[],vehicles:[],cfaLocations:[{id:'l0',label:'Location 1',plantName:'',warehouseName:'',warehouseAddr:'',buyerGst:''},{id:'l1',label:'Location 2',plantName:'',warehouseName:'',warehouseAddr:'',buyerGst:''},{id:'l2',label:'Location 3',plantName:'',warehouseName:'',warehouseAddr:'',buyerGst:''}],cfaInvoices:[]};}
 function defFin(){var m=new Date().toLocaleString('en-US',{month:'short'});var o={};o[m]={income:{'Business Income':0},office:{'Fuel & Maintenance':0,'Office Expenses':0},personal:{Household:0,Utilities:0},emis:[]};return o;}
-var COMPANY=defCo(),trips=[],payments=[],invoices=[],clients=[],savedMails=[];
+var COMPANY=defCo(),trips=[],payments=[],invoices=[],clients=[],savedMails=[],lrMeta=[];
 var finData=defFin(),finM='',finEdit=false,finDeb=null,finDC=null,finLC=null;
 var incM='',incDC=null,incLC=null;
 var _cfaLoc=0,_cfaType='standard';
@@ -730,6 +746,7 @@ function loadAll(){
   try{var c=JSON.parse(localStorage.getItem(uK('co'))||'null');if(c)COMPANY=c;}catch(e){}
   try{finData=JSON.parse(localStorage.getItem(uK('fi'))||'null')||defFin()}catch(e){finData=defFin()}
   try{savedMails=JSON.parse(localStorage.getItem(uK('ml'))||'[]')}catch(e){savedMails=[]}
+  try{lrMeta=JSON.parse(localStorage.getItem(uK('lr'))||'[]')}catch(e){lrMeta=[]}
   var keys=Object.keys(finData);
   finM=keys[keys.length-1]||new Date().toLocaleString('en-US',{month:'short'});
   incM=finM;
@@ -745,6 +762,7 @@ function saveAll(){
     localStorage.setItem(uK('co'),JSON.stringify(COMPANY));
     localStorage.setItem(uK('fi'),JSON.stringify(finData));
     localStorage.setItem(uK('ml'),JSON.stringify(savedMails));
+    localStorage.setItem(uK('lr'),JSON.stringify(lrMeta));
   }catch(e){console.warn('Storage full:',e);}
 }
 function autoSave(){setTimeout(saveAll,350)}
@@ -765,6 +783,79 @@ function n2w(n){var a=['','One','Two','Three','Four','Five','Six','Seven','Eight
 var _moreOpen=false;
 function toggleMoreMenu(){_moreOpen=!_moreOpen;document.getElementById('moreMenu').style.display=_moreOpen?'block':'none';}
 function closeMore(){_moreOpen=false;document.getElementById('moreMenu').style.display='none';}
+// ══════════ LR DOCUMENTS ══════════
+var _lrDB=null;
+function openLRDB(cb){
+  if(_lrDB){cb(_lrDB);return;}
+  var req=indexedDB.open('fdp_lr_'+CU,1);
+  req.onupgradeneeded=function(e){e.target.result.createObjectStore('files',{keyPath:'id'});};
+  req.onsuccess=function(e){_lrDB=e.target.result;cb(_lrDB);};
+  req.onerror=function(){alert('Could not open file storage.');};
+}
+function uploadLR(){
+  var invNo=document.getElementById('lr_inv').value.trim();
+  var fi=document.getElementById('lr_file');
+  var file=fi.files[0];
+  if(!invNo){alert('Enter an invoice number.');return;}
+  if(!file){alert('Select a file to upload.');return;}
+  var id=Date.now();
+  var meta={id:id,invoiceNo:invNo,fileName:file.name,fileType:file.type,fileSize:file.size,date:new Date().toISOString().slice(0,10)};
+  openLRDB(function(db){
+    var tx=db.transaction('files','readwrite');
+    tx.objectStore('files').put({id:id,blob:file});
+    tx.oncomplete=function(){
+      lrMeta.unshift(meta);autoSave();renderLRTable();
+      document.getElementById('lr_inv').value='';fi.value='';
+    };
+    tx.onerror=function(){alert('Failed to save file.');};
+  });
+}
+function viewLR(id){
+  openLRDB(function(db){
+    var req=db.transaction('files').objectStore('files').get(id);
+    req.onsuccess=function(e){
+      if(!e.target.result){alert('File not found in storage.');return;}
+      window.open(URL.createObjectURL(e.target.result.blob),'_blank');
+    };
+  });
+}
+function downloadLR(id){
+  var meta=lrMeta.find(function(m){return m.id===id;});
+  if(!meta)return;
+  openLRDB(function(db){
+    var req=db.transaction('files').objectStore('files').get(id);
+    req.onsuccess=function(e){
+      if(!e.target.result){alert('File not found in storage.');return;}
+      var a=document.createElement('a');
+      a.href=URL.createObjectURL(e.target.result.blob);
+      a.download=meta.fileName;a.click();
+    };
+  });
+}
+function deleteLR(id){
+  if(!confirm('Delete this LR document?'))return;
+  openLRDB(function(db){db.transaction('files','readwrite').objectStore('files').delete(id);});
+  lrMeta=lrMeta.filter(function(m){return m.id!==id;});
+  autoSave();renderLRTable();
+}
+function renderLRTable(){
+  var tb=document.querySelector('#lrTable tbody');
+  if(!tb)return;
+  if(!lrMeta.length){tb.innerHTML='<tr><td colspan="6" style="text-align:center;color:var(--tx3);padding:16px">No LR documents uploaded yet</td></tr>';return;}
+  tb.innerHTML=lrMeta.map(function(m,i){
+    var sz=m.fileSize>1048576?(m.fileSize/1048576).toFixed(1)+' MB':Math.round(m.fileSize/1024)+' KB';
+    return '<tr><td>'+(i+1)+'</td><td class="mono">'+m.invoiceNo+'</td><td>'+m.fileName+'</td><td>'+sz+'</td><td>'+fD(m.date)+'</td>'
+      +'<td style="white-space:nowrap"><button class="btn btn-sm" onclick="viewLR('+m.id+')">View</button> '
+      +'<button class="btn btn-sm" onclick="downloadLR('+m.id+')">Download</button> '
+      +'<button class="btn btn-sm btn-r" onclick="deleteLR('+m.id+')">Del</button></td></tr>';
+  }).join('');
+}
+function populateLRInvList(){
+  var dl=document.getElementById('lr_inv_list');
+  if(!dl)return;
+  dl.innerHTML=invoices.map(function(inv){return '<option value="'+inv.invoice+'">';}).join('');
+}
+
 function nav(pg){
   closeSB();closeMore();
   document.querySelectorAll('.pg').forEach(function(p){p.classList.remove('active')});
@@ -779,6 +870,7 @@ function nav(pg){
   if(pg==='income')renderIncome();
   if(pg==='tally')renderTallyPrev();
   if(pg==='mails'){checkAutoMails();renderMails();}
+  if(pg==='lrs'){renderLRTable();populateLRInvList();}
   window.scrollTo(0,0);
 }
 function toggleSB(){var s=document.getElementById('sidebar'),o=document.getElementById('ov');var op=s.classList.toggle('open');if(op)o.classList.add('open');else o.classList.remove('open');}
