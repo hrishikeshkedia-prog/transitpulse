@@ -906,7 +906,7 @@ var B='border:1px solid #000;',P='padding:5px 7px;',V='vertical-align:middle;';
 /* collect line items */
 var items=[];
 if(inv.invoiceType==='itemised'){items=(inv.itemLines||[]).map(function(l){return{desc:l.desc,hsn:l.hsn||'',qty:l.qty||'',unit:l.unit||'',rate:l.rate!==''&&l.rate!==undefined?parseFloat(l.rate):'',amt:l.amt};});}
-else{items=(inv.lines||[]).map(function(l){return{desc:l.desc+(l.lr?'<br><b>LR NO: '+l.lr.replace(/,/g,', ')+'</b>':''),hsn:'',qty:'',unit:'',rate:'',amt:l.amt};});}
+else{items=(inv.lines||[]).map(function(l){return{desc:l.desc+(l.lr?'<br><span style="display:block;margin-top:5px;line-height:1.8"><b>LR NO:</b> '+l.lr.replace(/,/g,', ')+'</span>':''),hsn:'',qty:'',unit:'',rate:'',amt:l.amt};});}
 var rows=items.map(function(l,i){return '<tr style="height:55px"><td class="c">'+(i+1)+'</td><td class="l">'+l.desc+'</td><td class="c">'+(l.hsn||'')+'</td><td class="c">'+(l.qty||'')+'</td><td class="c">'+(l.unit||'')+'</td><td class="r">'+(l.rate!==''?l.rate:'')+'</td><td class="r">'+(l.amt?(+l.amt).toLocaleString('en-IN',{minimumFractionDigits:2,maximumFractionDigits:2}):'')+'</td></tr>';}).join('');
 rows+='<tr style="height:55px"><td class="c">'+(items.length+1)+'</td><td class="l">IGST Output</td><td class="c"></td><td class="c"></td><td class="c"></td><td class="r">'+(inv.igstPct||'')+(inv.igstPct?'%':'')+'</td><td class="r">'+((inv.igstAmt||0).toLocaleString('en-IN',{minimumFractionDigits:2,maximumFractionDigits:2}))+'</td></tr>';
 var buyerAddr=(loc.warehouseAddr||'').replace(/\n/g,'<br>');
