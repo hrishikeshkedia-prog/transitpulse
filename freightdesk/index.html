@@ -967,7 +967,7 @@ return '<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Invoice '+inv.in
 +'<div class="words"><b>Amount in Words:</b> '+n2w(Math.round(inv.total))+'</div>'
 +'<div style="flex:1"></div>'
 +'<div class="foot"><div class="decl"><b>Declaration</b><br>We declare that this invoice shows the actual price of the goods described and all particulars are true and correct.</div>'
-+'<div class="bank"><b>Bank Details</b><br>'+C.bank+(C.branch?'<br>Branch: '+C.branch:'')+'<br>A/c: '+C.acc+'<br>IFSC: '+C.ifsc+'</div>'
++'<div class="bank"><b>Bank Details</b><br>'+C.bank+'<br>A/c: '+C.acc+(C.branch||C.ifsc?'<br>Branch &amp; IFS Code: '+(C.branch||'')+(C.branch&&C.ifsc?' &amp; ':'')+C.ifsc:'')+'</div>'
 +'<div class="sign">For <b>'+C.name+'</b><div class="sl">Authorised Signatory</div></div></div>'
 +'<div style="text-align:center;padding:6px;font-size:11px;border-top:1px solid #000;font-style:italic">Computer Generated Invoice — FreightDesk Pro</div>'
 +'</div><button class="pb" onclick="window.print()">Print / Save PDF</button></body></html>';}
