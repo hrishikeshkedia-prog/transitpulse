@@ -1007,6 +1007,7 @@ return '<!DOCTYPE html><html><head><meta charset="UTF-8"><title>CFA Invoice '+in
 +'<div class="up"><div class="lc"><div class="sb"><div class="sn">'+C.name+'</div><div class="ss">'+C.addr1+(C.addr2?'<br>'+C.addr2:'')+'<br>GST: '+C.gstin+'<br>'+C.state+(C.email?'<br>'+C.email:'')+'</div></div>'
 +'<div class="bb"><div class="bh" style="color:#059669">BUYER (BILL TO)</div><div class="bn">'+(loc.warehouseName||loc.label||'')+'</div><div class="bs">'+buyerAddr+(loc.buyerGst?'<br>GST: '+loc.buyerGst:'')+'</div></div></div>'
 +'<div class="rc"><div class="rr"><div class="rl">Vendor Code</div><div class="rv"><b>'+(C.vendorCode||'—')+'</b></div></div>'
++'<div class="rr"><div class="rl">Transport Name</div><div class="rv"><b>'+C.name+'</b></div></div>'
 +'<div class="rr"><div class="rl">Bill No.</div><div class="rh"><b>'+(inv.billno||'')+'</b></div><div class="rl2">Bill Date</div><div class="rh"><b>'+fD(inv.billdate)+'</b></div></div>'
 +'<div class="rr"><div class="rl">PO No.</div><div class="rv">'+(inv.po||'')+'</div></div>'
 +'<div class="rr"><div class="rl">Bill Month</div><div class="rv">'+(inv.billmonth||'')+'</div></div>'
