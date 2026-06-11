@@ -134,6 +134,8 @@ app.put('/api/data', auth, async function (req, res) {
   catch (e) { res.status(500).json({ error: e.message }); }
 });
 
+app.use(express.static(path.join(__dirname, '..')));
+
 app.listen(PORT, function () {
   console.log('FreightDesk Pro sync server v' + VERSION + ' on port ' + PORT);
 });
