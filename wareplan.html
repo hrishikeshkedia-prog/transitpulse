@@ -1,0 +1,754 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>WarePlan — Industrial Warehouse Site Planner</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Segoe UI',system-ui,sans-serif;background:#0f172a;color:#e2e8f0;min-height:100vh;display:flex;flex-direction:column}
+header{background:linear-gradient(135deg,#1e3a5f 0%,#0f2d4a 100%);padding:14px 24px;display:flex;align-items:center;gap:16px;border-bottom:2px solid #2563eb;box-shadow:0 2px 12px rgba(0,0,0,.4)}
+header h1{font-size:1.5rem;font-weight:700;color:#fff;letter-spacing:.5px}
+header span{font-size:.8rem;color:#93c5fd;background:#1e40af33;padding:3px 10px;border-radius:20px;border:1px solid #3b82f640}
+.app{display:flex;flex:1;gap:0;overflow:hidden;height:calc(100vh - 60px)}
+/* LEFT PANEL */
+.panel-left{width:340px;min-width:280px;background:#1e293b;border-right:1px solid #334155;overflow-y:auto;padding:20px 16px;display:flex;flex-direction:column;gap:16px}
+.section{background:#0f172a;border:1px solid #1e3a5f;border-radius:10px;padding:14px}
+.section h3{font-size:.75rem;font-weight:700;color:#60a5fa;text-transform:uppercase;letter-spacing:1px;margin-bottom:12px;display:flex;align-items:center;gap:6px}
+.section h3::before{content:'';display:inline-block;width:3px;height:14px;background:#2563eb;border-radius:2px}
+.form-row{display:flex;gap:8px;margin-bottom:10px}
+.form-row:last-child{margin-bottom:0}
+.form-group{flex:1;display:flex;flex-direction:column;gap:4px}
+label{font-size:.72rem;color:#94a3b8;font-weight:500}
+input[type=number],input[type=text],select{background:#1e293b;border:1px solid #334155;color:#e2e8f0;padding:7px 10px;border-radius:6px;font-size:.82rem;width:100%;outline:none;transition:border-color .2s}
+input[type=number]:focus,input[type=text]:focus,select:focus{border-color:#3b82f6}
+input[type=number]::-webkit-inner-spin-button{opacity:.5}
+.checkbox-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.cb-item{display:flex;align-items:center;gap:6px;background:#1e293b;border:1px solid #334155;border-radius:6px;padding:6px 8px;cursor:pointer;transition:border-color .2s}
+.cb-item:hover{border-color:#3b82f6}
+.cb-item input[type=checkbox]{accent-color:#3b82f6;width:14px;height:14px;cursor:pointer}
+.cb-item span{font-size:.75rem;color:#cbd5e1}
+.toilet-count{display:flex;align-items:center;gap:6px;margin-top:4px}
+.toilet-count label{white-space:nowrap;font-size:.72rem;color:#94a3b8}
+.toilet-count input{width:60px}
+.radio-group{display:flex;gap:6px}
+.radio-btn{flex:1;background:#1e293b;border:1px solid #334155;border-radius:6px;padding:7px 4px;text-align:center;cursor:pointer;font-size:.75rem;color:#94a3b8;transition:all .2s;user-select:none}
+.radio-btn.active{background:#1d4ed8;border-color:#3b82f6;color:#fff;font-weight:600}
+.action-btns{display:flex;flex-direction:column;gap:8px;padding:0 2px}
+.btn{padding:10px 16px;border:none;border-radius:8px;font-size:.82rem;font-weight:600;cursor:pointer;transition:all .2s;letter-spacing:.3px}
+.btn-primary{background:linear-gradient(135deg,#2563eb,#1d4ed8);color:#fff;box-shadow:0 2px 8px rgba(37,99,235,.4)}
+.btn-primary:hover{background:linear-gradient(135deg,#3b82f6,#2563eb);transform:translateY(-1px)}
+.btn-secondary{background:#1e293b;color:#93c5fd;border:1px solid #1e40af}
+.btn-secondary:hover{background:#1e3a6e;border-color:#3b82f6}
+.btn-ghost{background:#1e293b;color:#64748b;border:1px solid #334155}
+.btn-ghost:hover{color:#cbd5e1;border-color:#475569}
+/* RIGHT PANEL */
+.panel-right{flex:1;display:flex;flex-direction:column;overflow:hidden;background:#0f172a}
+.canvas-toolbar{display:flex;align-items:center;gap:12px;padding:10px 16px;background:#1e293b;border-bottom:1px solid #334155}
+.canvas-toolbar span{font-size:.75rem;color:#64748b}
+#scale-info{font-size:.72rem;color:#60a5fa;background:#1e3a5f33;padding:3px 10px;border-radius:12px;border:1px solid #1e3a5f}
+.canvas-area{flex:1;overflow:auto;padding:20px;display:flex;justify-content:center;align-items:flex-start}
+#layoutCanvas{background:#1a2332;border:1px solid #2d4a6b;border-radius:8px;box-shadow:0 4px 24px rgba(0,0,0,.5);cursor:crosshair}
+/* SUMMARY PANEL */
+.summary-panel{background:#1e293b;border-top:1px solid #334155;padding:14px 20px}
+.summary-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:10px}
+.stat-card{background:#0f172a;border:1px solid #1e3a5f;border-radius:8px;padding:10px 14px}
+.stat-card .label{font-size:.68rem;color:#64748b;text-transform:uppercase;letter-spacing:.8px;margin-bottom:4px}
+.stat-card .value{font-size:1.05rem;font-weight:700;color:#e2e8f0}
+.stat-card .sub{font-size:.72rem;color:#60a5fa;margin-top:2px}
+.stat-card.highlight{border-color:#2563eb;background:#0f1f3d}
+.stat-card.highlight .value{color:#60a5fa}
+.warning-box{background:#3b1a1a;border:1px solid #7f1d1d;border-radius:8px;padding:10px 14px;margin-bottom:10px;font-size:.78rem;color:#fca5a5;display:none}
+.warning-box.show{display:block}
+/* LEGEND */
+.legend{display:flex;flex-wrap:wrap;gap:8px;padding:8px 16px;background:#0f172a;border-top:1px solid #1e293b}
+.legend-item{display:flex;align-items:center;gap:5px;font-size:.7rem;color:#94a3b8}
+.legend-color{width:14px;height:14px;border-radius:3px}
+/* Scrollbar */
+::-webkit-scrollbar{width:6px;height:6px}
+::-webkit-scrollbar-track{background:#0f172a}
+::-webkit-scrollbar-thumb{background:#334155;border-radius:3px}
+::-webkit-scrollbar-thumb:hover{background:#475569}
+/* Responsive */
+@media(max-width:900px){.app{flex-direction:column;height:auto}.panel-left{width:100%;max-height:50vh}.summary-grid{grid-template-columns:repeat(2,1fr)}}
+</style>
+</head>
+<body>
+
+<header>
+  <svg width="28" height="28" viewBox="0 0 28 28" fill="none"><rect x="2" y="12" width="24" height="14" rx="2" fill="#2563eb"/><polygon points="0,12 14,2 28,12" fill="#3b82f6"/><rect x="10" y="18" width="8" height="8" fill="#1e3a8a"/></svg>
+  <h1>WarePlan</h1>
+  <span>Industrial Site Layout Planner — India 2026</span>
+</header>
+
+<div class="app">
+  <!-- LEFT PANEL -->
+  <div class="panel-left">
+
+    <div class="section">
+      <h3>Plot Dimensions</h3>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Width (ft)</label>
+          <input type="number" id="plotWidth" value="300" min="50" max="2000">
+        </div>
+        <div class="form-group">
+          <label>Depth (ft)</label>
+          <input type="number" id="plotDepth" value="200" min="50" max="2000">
+        </div>
+      </div>
+    </div>
+
+    <div class="section">
+      <h3>Warehouses</h3>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Number of Warehouses</label>
+          <select id="numWarehouses">
+            <option value="1">1 Warehouse</option>
+            <option value="2" selected>2 Warehouses</option>
+            <option value="3">3 Warehouses</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <div class="section">
+      <h3>Amenities</h3>
+      <div class="checkbox-grid">
+        <label class="cb-item"><input type="checkbox" id="cbTruckParking" checked><span>Truck Parking</span></label>
+        <label class="cb-item"><input type="checkbox" id="cbCarParking" checked><span>Car Parking</span></label>
+        <label class="cb-item"><input type="checkbox" id="cbStaffQuarter" checked><span>Staff Quarter</span></label>
+        <label class="cb-item"><input type="checkbox" id="cbToilets" checked><span>Toilets</span></label>
+        <label class="cb-item"><input type="checkbox" id="cbSecurityCabin" checked><span>Security Cabin</span></label>
+      </div>
+      <div class="toilet-count" id="toiletCountRow">
+        <label>No. of toilet blocks:</label>
+        <input type="number" id="toiletCount" value="2" min="1" max="10">
+      </div>
+    </div>
+
+    <div class="section">
+      <h3>Road Access Side</h3>
+      <div class="radio-group" id="roadSide">
+        <div class="radio-btn active" data-val="front">Front</div>
+        <div class="radio-btn" data-val="left">Left</div>
+        <div class="radio-btn" data-val="right">Right</div>
+      </div>
+    </div>
+
+    <div class="section">
+      <h3>Build Quality</h3>
+      <div class="radio-group" id="buildQuality">
+        <div class="radio-btn active" data-val="standard">Standard</div>
+        <div class="radio-btn" data-val="premium">Premium</div>
+      </div>
+    </div>
+
+    <div class="section">
+      <h3>Rent Rate</h3>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Expected Rent (₹/sq ft/month)</label>
+          <input type="number" id="rentRate" value="25" min="5" max="200">
+        </div>
+      </div>
+    </div>
+
+    <div class="action-btns">
+      <button class="btn btn-primary" onclick="generateLayout()">Generate Layout</button>
+      <button class="btn btn-secondary" onclick="alternateLayout()">Try Alternate Layout</button>
+      <button class="btn btn-ghost" onclick="downloadPNG()">Download as PNG</button>
+    </div>
+
+  </div>
+
+  <!-- RIGHT PANEL -->
+  <div class="panel-right">
+    <div class="canvas-toolbar">
+      <span>2D Top-Down Layout</span>
+      <span id="scale-info">Scale: 1px = 1 ft</span>
+      <span id="dim-info" style="font-size:.72rem;color:#60a5fa"></span>
+    </div>
+
+    <div class="canvas-area">
+      <canvas id="layoutCanvas" width="800" height="600"></canvas>
+    </div>
+
+    <div class="legend" id="legendBar"></div>
+
+    <div class="summary-panel">
+      <div class="warning-box" id="warningBox"></div>
+      <div class="summary-grid" id="summaryGrid"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ─── State ────────────────────────────────────────────────────────────────────
+let alternateCount = 0;
+
+// ─── Radio button helpers ─────────────────────────────────────────────────────
+document.querySelectorAll('.radio-group').forEach(group => {
+  group.querySelectorAll('.radio-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      group.querySelectorAll('.radio-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+    });
+  });
+});
+
+document.getElementById('cbToilets').addEventListener('change', function() {
+  document.getElementById('toiletCountRow').style.display = this.checked ? 'flex' : 'none';
+});
+
+// ─── Read form values ─────────────────────────────────────────────────────────
+function getInputs() {
+  const roadSideEl = document.querySelector('#roadSide .radio-btn.active');
+  const qualityEl  = document.querySelector('#buildQuality .radio-btn.active');
+  return {
+    plotW:         Math.max(50, parseInt(document.getElementById('plotWidth').value)  || 300),
+    plotD:         Math.max(50, parseInt(document.getElementById('plotDepth').value)  || 200),
+    numW:          parseInt(document.getElementById('numWarehouses').value) || 2,
+    truckParking:  document.getElementById('cbTruckParking').checked,
+    carParking:    document.getElementById('cbCarParking').checked,
+    staffQuarter:  document.getElementById('cbStaffQuarter').checked,
+    toilets:       document.getElementById('cbToilets').checked,
+    toiletCount:   parseInt(document.getElementById('toiletCount').value) || 2,
+    securityCabin: document.getElementById('cbSecurityCabin').checked,
+    roadSide:      roadSideEl ? roadSideEl.dataset.val : 'front',
+    quality:       qualityEl  ? qualityEl.dataset.val  : 'standard',
+    rentRate:      parseFloat(document.getElementById('rentRate').value) || 25,
+    alternate:     alternateCount
+  };
+}
+
+// ─── Layout computation ───────────────────────────────────────────────────────
+const SETBACK   = 15;   // ft min setback from compound wall
+const DRIVEWAY  = 30;   // ft internal truck driveway
+const WALL_T    = 1.5;  // compound wall thickness (ft, visual)
+const GATE_W    = 24;   // gate opening width ft
+const TRUCK_SZ  = [14, 45]; // parking bay w×d ft
+const CAR_SZ    = [9, 18];
+const SQ_SZ     = [20, 30];  // staff quarter per unit
+const TOILET_SZ = [8, 10];   // per toilet block
+const SEC_SZ    = [8, 8];
+
+function computeLayout(inp) {
+  const { plotW, plotD, numW, roadSide, alternate, truckParking, carParking,
+          staffQuarter, toilets, toiletCount, securityCabin } = inp;
+
+  // Usable interior (inside compound wall + setback)
+  const usableW = plotW - 2 * SETBACK;
+  const usableD = plotD - 2 * SETBACK;
+
+  // Gate position: based on road access side
+  // We orient so "gate side" is always the bottom of the interior for layout math,
+  // then we'll rotate when drawing.
+  // Inner coord system: (0,0) = top-left of usable interior
+  const zones = [];
+  const warnings = [];
+  let warehouseAreaTotal = 0;
+
+  // ── Gate / Security cabin placement (on gate side, near corner) ──
+  const secW = SEC_SZ[0], secD = SEC_SZ[1];
+  if (securityCabin) {
+    zones.push({ id: 'sec', label: 'Security\nCabin', x: 2, y: usableD - secD - 2,
+                 w: secW, h: secD, color: '#f59e0b', textColor: '#000' });
+  }
+
+  // ── Driveway strip along gate side (bottom) ──
+  const driveY = usableD - DRIVEWAY;
+  zones.push({ id: 'drive', label: '30 ft Internal Driveway', x: 0, y: driveY,
+               w: usableW, h: DRIVEWAY, color: '#374151', textColor: '#9ca3af', dashed: true });
+
+  // ── Truck parking (near gate, side of driveway) ──
+  let truckParkX = 0, truckParkY = 0, truckParkW = 0, truckParkH = 0;
+  const numTruckBays = Math.max(2, Math.min(6, Math.floor(usableW / (TRUCK_SZ[0] + 2))));
+  if (truckParking) {
+    truckParkW = numTruckBays * (TRUCK_SZ[0] + 1);
+    truckParkH = TRUCK_SZ[1];
+    truckParkX = 0;
+    truckParkY = driveY - truckParkH - 2;
+    zones.push({ id: 'truck', label: 'Truck Parking', x: truckParkX, y: truckParkY,
+                 w: truckParkW, h: truckParkH, color: '#1a3a2a', textColor: '#4ade80',
+                 bays: numTruckBays, bayW: TRUCK_SZ[0] });
+  }
+
+  // ── Car parking (away from truck, opposite corner) ──
+  let carParkX = 0, carParkY = 0, carParkW = 0, carParkH = 0;
+  const numCarBays = Math.max(4, Math.min(10, Math.floor(usableW * 0.4 / (CAR_SZ[0] + 1))));
+  if (carParking) {
+    carParkW = numCarBays * (CAR_SZ[0] + 1);
+    carParkH = CAR_SZ[1];
+    carParkX = usableW - carParkW;
+    carParkY = driveY - carParkH - 2;
+    zones.push({ id: 'car', label: 'Car Parking', x: carParkX, y: carParkY,
+                 w: carParkW, h: carParkH, color: '#1e2a1a', textColor: '#86efac',
+                 bays: numCarBays, bayW: CAR_SZ[0] });
+  }
+
+  // ── Support zone (staff quarter + toilets) — top-right corner ──
+  let supportX = usableW, supportY = 0;
+  const supportItems = [];
+  if (staffQuarter) {
+    supportX = Math.max(0, usableW - SQ_SZ[0] - 2);
+    supportItems.push({ id:'sq', label:'Staff\nQuarter', w: SQ_SZ[0], h: SQ_SZ[1],
+                        color:'#312e81', textColor:'#a5b4fc' });
+  }
+  if (toilets) {
+    for (let t = 0; t < toiletCount; t++) {
+      supportItems.push({ id:`toilet${t}`, label:'WC', w: TOILET_SZ[0], h: TOILET_SZ[1],
+                          color:'#1e3a3a', textColor:'#67e8f9' });
+    }
+  }
+  // Stack support items vertically in top-right
+  let stackY = 0;
+  let stackMaxW = 0;
+  supportItems.forEach(si => { stackMaxW = Math.max(stackMaxW, si.w); });
+  supportItems.forEach(si => {
+    si.x = usableW - stackMaxW - 2;
+    si.y = stackY;
+    stackY += si.h + 3;
+    supportX = Math.min(supportX, si.x);
+    zones.push(si);
+  });
+
+  // ── Available area for warehouses ──
+  // Warehouses: between y=0 and y=(truckParkY or driveY-truckParkH), x=0 to supportX
+  const whAreaRight = (staffQuarter || toilets) ? supportX - 2 : usableW;
+  const whAreaBottom = truckParking
+    ? (truckParkY - 4)
+    : carParking
+      ? (carParkY - 4)
+      : (driveY - 4);
+
+  const whMaxW = whAreaRight;
+  const whMaxH = whAreaBottom;
+
+  // Split warehouses: arrange in a row (or 2 rows for 3)
+  let whs = [];
+  const cols = numW <= 2 ? numW : (alternate % 2 === 0 ? 2 : 3);
+  const rows = Math.ceil(numW / cols);
+  const cellW = Math.floor(whMaxW / cols) - 4;
+  const cellH = Math.floor(whMaxH / rows) - 4;
+  let shrinkFactor = 1;
+
+  // Minimum viable warehouse size
+  const minWhW = 40, minWhH = 40;
+  if (cellW < minWhW || cellH < minWhH) {
+    warnings.push('Warning: Plot is small relative to amenities. Warehouses have been shrunk to minimum size.');
+    shrinkFactor = Math.min(cellW / minWhW, cellH / minWhH, 1);
+  }
+
+  let whIndex = 0;
+  for (let r = 0; r < rows && whIndex < numW; r++) {
+    for (let c = 0; c < cols && whIndex < numW; c++) {
+      const ww = Math.max(minWhW, Math.floor(cellW * shrinkFactor));
+      const wh = Math.max(minWhH, Math.floor(cellH * shrinkFactor));
+      const wx = c * (whMaxW / cols) + 2;
+      const wy = r * (whMaxH / rows) + 2;
+      whs.push({ id: `wh${whIndex+1}`, label: `Warehouse ${whIndex+1}`,
+                 x: wx, y: wy, w: ww, h: wh,
+                 color: '#0f2952', textColor: '#93c5fd', isWarehouse: true });
+      warehouseAreaTotal += ww * wh;
+      whIndex++;
+    }
+  }
+
+  if (whs.length < numW) warnings.push('Could not place all warehouses — plot may be too small.');
+
+  return { zones, warehouses: whs, usableW, usableD, warehouseAreaTotal,
+           driveY, warnings, shrinkFactor,
+           numTruckBays, numCarBays };
+}
+
+// ─── Drawing ──────────────────────────────────────────────────────────────────
+function drawLayout(inp, layout) {
+  const canvas = document.getElementById('layoutCanvas');
+  const { plotW, plotD, roadSide } = inp;
+  const { zones, warehouses, usableW, usableD, driveY } = layout;
+
+  // Canvas sizing with margin
+  const MARGIN = 40; // px for labels outside
+  const maxCanvasW = Math.min(1200, canvas.parentElement.clientWidth - 40);
+  const maxCanvasH = Math.min(900, window.innerHeight * 0.6);
+
+  // Decide orientation: if roadSide=left/right, we may rotate the plot
+  // For simplicity, we always draw with gate at bottom; rotation is a label change
+  const scale = Math.min((maxCanvasW - MARGIN * 2) / plotW, (maxCanvasH - MARGIN * 2) / plotD);
+  const cw = Math.ceil(plotW * scale + MARGIN * 2);
+  const ch = Math.ceil(plotD * scale + MARGIN * 2);
+  canvas.width  = cw;
+  canvas.height = ch;
+
+  document.getElementById('scale-info').textContent = `Scale: 1px ≈ ${(1/scale).toFixed(2)} ft`;
+  document.getElementById('dim-info').textContent   = `Plot: ${plotW} ft × ${plotD} ft`;
+
+  const ctx = canvas.getContext('2d');
+  ctx.clearRect(0, 0, cw, ch);
+
+  // Transform: all coords in "ft from plot top-left"
+  const tx = x => MARGIN + x * scale;
+  const ty = y => MARGIN + y * scale;
+  const ts = s => s * scale;
+
+  // ── Plot ground ──
+  ctx.fillStyle = '#111827';
+  ctx.fillRect(tx(0), ty(0), ts(plotW), ts(plotD));
+
+  // ── Compound wall ──
+  ctx.strokeStyle = '#4b5563';
+  ctx.lineWidth = Math.max(2, WALL_T * scale);
+  ctx.strokeRect(tx(0) + ctx.lineWidth/2, ty(0) + ctx.lineWidth/2,
+                 ts(plotW) - ctx.lineWidth, ts(plotD) - ctx.lineWidth);
+  ctx.lineWidth = 1;
+
+  // ── Gate on road-access side ──
+  const gateOffX = (plotW - GATE_W) / 2;
+  ctx.fillStyle = '#1e293b';
+  // Erase wall segment for gate
+  const gateStartX = tx(gateOffX);
+  const gateEndX   = tx(gateOffX + GATE_W);
+  // Bottom gate (default = front)
+  if (roadSide === 'front') {
+    ctx.clearRect(gateStartX, ty(plotD) - 5, gateEndX - gateStartX, 10);
+    ctx.strokeStyle = '#22c55e';
+    ctx.lineWidth = 3;
+    ctx.beginPath(); ctx.moveTo(gateStartX, ty(plotD)); ctx.lineTo(gateStartX, ty(plotD) + 10); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(gateEndX,   ty(plotD)); ctx.lineTo(gateEndX,   ty(plotD) + 10); ctx.stroke();
+    drawLabel(ctx, 'GATE', (gateStartX + gateEndX)/2, ty(plotD) + 16, '#22c55e', '.65rem');
+  } else if (roadSide === 'left') {
+    const gateOffY = (plotD - GATE_W) / 2;
+    ctx.clearRect(tx(0) - 5, ty(gateOffY), 10, ty(gateOffY + GATE_W) - ty(gateOffY));
+    ctx.strokeStyle = '#22c55e'; ctx.lineWidth = 3;
+    ctx.beginPath(); ctx.moveTo(tx(0) - 10, ty(gateOffY)); ctx.lineTo(tx(0), ty(gateOffY)); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(tx(0) - 10, ty(gateOffY + GATE_W)); ctx.lineTo(tx(0), ty(gateOffY + GATE_W)); ctx.stroke();
+    drawLabel(ctx, 'GATE', tx(0) - 20, ty(gateOffY + GATE_W/2), '#22c55e', '.65rem');
+  } else {
+    const gateOffY = (plotD - GATE_W) / 2;
+    ctx.clearRect(tx(plotW) - 5, ty(gateOffY), 10, ty(gateOffY + GATE_W) - ty(gateOffY));
+    ctx.strokeStyle = '#22c55e'; ctx.lineWidth = 3;
+    ctx.beginPath(); ctx.moveTo(tx(plotW), ty(gateOffY)); ctx.lineTo(tx(plotW) + 10, ty(gateOffY)); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(tx(plotW), ty(gateOffY + GATE_W)); ctx.lineTo(tx(plotW) + 10, ty(gateOffY + GATE_W)); ctx.stroke();
+    drawLabel(ctx, 'GATE', tx(plotW) + 22, ty(gateOffY + GATE_W/2), '#22c55e', '.65rem');
+  }
+  ctx.lineWidth = 1;
+
+  // ── Helper: convert usable-interior coords to plot coords ──
+  // Usable interior: (SETBACK, SETBACK) to (plotW-SETBACK, plotD-SETBACK)
+  // interior y=0 → plot y=SETBACK, interior y=usableD → plot y=plotD-SETBACK
+  // Gate is at bottom of interior (plotD side) when roadSide=front
+  const ix = x => x + SETBACK;
+  const iy = y => y + SETBACK;
+
+  // ── Draw zones ──
+  zones.forEach(z => {
+    if (z.id === 'drive') {
+      // Dashed fill for driveway
+      ctx.fillStyle = z.color;
+      ctx.fillRect(tx(ix(z.x)), ty(iy(z.y)), ts(z.w), ts(z.h));
+      ctx.setLineDash([6, 4]);
+      ctx.strokeStyle = '#4b5563';
+      ctx.strokeRect(tx(ix(z.x)), ty(iy(z.y)), ts(z.w), ts(z.h));
+      ctx.setLineDash([]);
+      // Draw arrow in driveway
+      const ay = ty(iy(z.y) + z.h / 2);
+      const ax1 = tx(ix(z.x) + 10);
+      const ax2 = tx(ix(z.x) + z.w - 10);
+      ctx.strokeStyle = '#6b7280'; ctx.lineWidth = 1.5;
+      ctx.beginPath(); ctx.moveTo(ax1, ay); ctx.lineTo(ax2, ay); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(ax2 - 8, ay - 5); ctx.lineTo(ax2, ay); ctx.lineTo(ax2 - 8, ay + 5); ctx.stroke();
+      ctx.lineWidth = 1;
+      drawLabel(ctx, z.label, tx(ix(z.x) + z.w/2), ty(iy(z.y) + z.h/2), z.textColor, '.65rem');
+    } else if (z.id === 'truck') {
+      ctx.fillStyle = z.color;
+      ctx.fillRect(tx(ix(z.x)), ty(iy(z.y)), ts(z.w), ts(z.h));
+      ctx.strokeStyle = '#22c55e33'; ctx.lineWidth = .5;
+      // Draw bay lines
+      for (let b = 1; b < z.bays; b++) {
+        const bx = tx(ix(z.x) + b * (z.bayW + 1));
+        ctx.beginPath(); ctx.moveTo(bx, ty(iy(z.y))); ctx.lineTo(bx, ty(iy(z.y) + z.h)); ctx.stroke();
+      }
+      ctx.strokeStyle = '#22c55e'; ctx.lineWidth = 1;
+      ctx.strokeRect(tx(ix(z.x)), ty(iy(z.y)), ts(z.w), ts(z.h));
+      // Truck icon (simple rectangle)
+      drawLabel(ctx, `Truck Parking (${z.bays} bays)`, tx(ix(z.x) + z.w/2), ty(iy(z.y) + z.h/2), z.textColor, '.65rem');
+    } else if (z.id === 'car') {
+      ctx.fillStyle = z.color;
+      ctx.fillRect(tx(ix(z.x)), ty(iy(z.y)), ts(z.w), ts(z.h));
+      ctx.strokeStyle = '#86efac33'; ctx.lineWidth = .5;
+      for (let b = 1; b < z.bays; b++) {
+        const bx = tx(ix(z.x) + b * (z.bayW + 1));
+        ctx.beginPath(); ctx.moveTo(bx, ty(iy(z.y))); ctx.lineTo(bx, ty(iy(z.y) + z.h)); ctx.stroke();
+      }
+      ctx.strokeStyle = '#86efac'; ctx.lineWidth = 1;
+      ctx.strokeRect(tx(ix(z.x)), ty(iy(z.y)), ts(z.w), ts(z.h));
+      drawLabel(ctx, `Car Parking (${z.bays} bays)`, tx(ix(z.x) + z.w/2), ty(iy(z.y) + z.h/2), z.textColor, '.65rem');
+    } else {
+      ctx.fillStyle = z.color;
+      ctx.fillRect(tx(ix(z.x)), ty(iy(z.y)), ts(z.w), ts(z.h));
+      ctx.strokeStyle = lighten(z.color);
+      ctx.strokeRect(tx(ix(z.x)), ty(iy(z.y)), ts(z.w), ts(z.h));
+      drawMultilineLabel(ctx, z.label, tx(ix(z.x) + z.w/2), ty(iy(z.y) + z.h/2), z.textColor, '.68rem');
+    }
+    // Dimension labels for larger zones
+    if (z.w > 20 && z.h > 12 && !['drive','truck','car'].includes(z.id)) {
+      drawDimLabel(ctx, `${Math.round(z.w)}×${Math.round(z.h)}ft`,
+                   tx(ix(z.x) + z.w/2), ty(iy(z.y) + z.h) + 8, '#64748b');
+    }
+  });
+
+  // ── Draw warehouses ──
+  warehouses.forEach((wh, i) => {
+    const px = tx(ix(wh.x)), py = ty(iy(wh.y));
+    const pw = ts(wh.w), ph = ts(wh.h);
+
+    // Shadow
+    ctx.shadowColor = '#2563eb44'; ctx.shadowBlur = 12;
+    ctx.fillStyle = wh.color;
+    ctx.fillRect(px, py, pw, ph);
+    ctx.shadowBlur = 0;
+
+    // Hatch lines (roof pattern)
+    ctx.save();
+    ctx.beginPath(); ctx.rect(px, py, pw, ph);
+    ctx.clip();
+    ctx.strokeStyle = '#1a3a6a'; ctx.lineWidth = .8;
+    for (let hi = 0; hi < (pw + ph); hi += 20) {
+      ctx.beginPath(); ctx.moveTo(px + hi, py); ctx.lineTo(px, py + hi); ctx.stroke();
+    }
+    ctx.restore();
+
+    ctx.strokeStyle = '#3b82f6'; ctx.lineWidth = 2;
+    ctx.strokeRect(px, py, pw, ph);
+
+    // Loading dock on bottom edge
+    const dockW = Math.min(ts(30), pw * 0.4);
+    const dockH = 6;
+    ctx.fillStyle = '#1d4ed8';
+    ctx.fillRect(px + pw/2 - dockW/2, py + ph - dockH, dockW, dockH);
+
+    // Label
+    ctx.fillStyle = '#93c5fd';
+    ctx.font = `bold ${Math.max(10, Math.min(14, pw/8))}px 'Segoe UI',sans-serif`;
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(wh.label, px + pw/2, py + ph/2 - 8);
+
+    ctx.fillStyle = '#64748b';
+    ctx.font = `${Math.max(8, Math.min(11, pw/10))}px 'Segoe UI',sans-serif`;
+    ctx.fillText(`${Math.round(wh.w)} × ${Math.round(wh.h)} ft`, px + pw/2, py + ph/2 + 8);
+    ctx.fillText(`${fmtArea(wh.w * wh.h)} sq ft`, px + pw/2, py + ph/2 + 20);
+  });
+
+  // ── Setback lines (dashed) ──
+  ctx.setLineDash([4, 4]);
+  ctx.strokeStyle = '#374151'; ctx.lineWidth = .7;
+  ctx.strokeRect(tx(SETBACK), ty(SETBACK), ts(usableW), ts(usableD));
+  ctx.setLineDash([]);
+
+  // ── Plot dimension labels ──
+  ctx.fillStyle = '#475569'; ctx.font = '.7rem Segoe UI,sans-serif';
+  ctx.textAlign = 'center'; ctx.textBaseline = 'top';
+  ctx.fillText(`← ${plotW} ft →`, tx(plotW/2), ty(plotD) + 8);
+  ctx.textAlign = 'right'; ctx.textBaseline = 'middle';
+  ctx.save(); ctx.translate(tx(0) - 8, ty(plotD/2));
+  ctx.rotate(-Math.PI/2);
+  ctx.fillText(`← ${plotD} ft →`, 0, 0);
+  ctx.restore();
+
+  // ── Road access label ──
+  ctx.fillStyle = '#22c55e'; ctx.font = 'bold .65rem Segoe UI,sans-serif';
+  ctx.textAlign = 'center'; ctx.textBaseline = 'top';
+  const roadLabels = { front: [`${MARGIN + ts(plotW)/2}`, `${ty(plotD)+24}`],
+                       left:  [`${tx(0)-30}`, `${ty(plotD/2)+8}`],
+                       right: [`${tx(plotW)+30}`, `${ty(plotD/2)+8}`] };
+  if (roadSide === 'front') ctx.fillText('Road ▲', tx(plotW/2), ty(plotD) + 25);
+  else if (roadSide === 'left') { ctx.save(); ctx.translate(tx(0)-32, ty(plotD/2)); ctx.rotate(-Math.PI/2); ctx.fillText('Road ▲', 0, 0); ctx.restore(); }
+  else { ctx.save(); ctx.translate(tx(plotW)+32, ty(plotD/2)); ctx.rotate(Math.PI/2); ctx.fillText('Road ▲', 0, 0); ctx.restore(); }
+}
+
+function drawLabel(ctx, text, x, y, color, fontSize) {
+  ctx.fillStyle = color;
+  ctx.font = `${fontSize || '.72rem'} 'Segoe UI',sans-serif`;
+  ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+  ctx.fillText(text, x, y);
+}
+
+function drawMultilineLabel(ctx, text, x, y, color, fontSize) {
+  const lines = text.split('\n');
+  ctx.fillStyle = color;
+  ctx.font = `${fontSize || '.68rem'} 'Segoe UI',sans-serif`;
+  ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+  const lineH = 13;
+  lines.forEach((ln, i) => ctx.fillText(ln, x, y + (i - (lines.length-1)/2) * lineH));
+}
+
+function drawDimLabel(ctx, text, x, y, color) {
+  ctx.fillStyle = color; ctx.font = '.6rem Segoe UI,sans-serif';
+  ctx.textAlign = 'center'; ctx.textBaseline = 'top';
+  ctx.fillText(text, x, y);
+}
+
+function lighten(hex) {
+  const c = parseInt(hex.slice(1), 16);
+  const r = Math.min(255, ((c >> 16) & 255) + 40);
+  const g = Math.min(255, ((c >>  8) & 255) + 40);
+  const b = Math.min(255, ( c        & 255) + 40);
+  return `rgb(${r},${g},${b})`;
+}
+
+// ─── Cost & summary computation ───────────────────────────────────────────────
+function computeCosts(inp, layout) {
+  const { quality, rentRate, plotW, plotD } = inp;
+  const { warehouses, warehouseAreaTotal } = layout;
+
+  const warehouseRate = quality === 'premium' ? 1900 : 1400;
+  const roadRate   = 250;
+  const wallRate   = 1800;
+  const sqRate     = 1800;
+
+  // Areas
+  const plotArea        = plotW * plotD;
+  const internalRoadArea = plotW * 30; // rough driveway area
+  const wallLength      = 2 * (plotW + plotD);
+  const sqArea          = (inp.staffQuarter ? SQ_SZ[0] * SQ_SZ[1] : 0);
+  const toiletArea      = inp.toilets ? inp.toiletCount * TOILET_SZ[0] * TOILET_SZ[1] : 0;
+
+  const baseCost = warehouseAreaTotal * warehouseRate
+                 + internalRoadArea * roadRate
+                 + wallLength * wallRate
+                 + (sqArea + toiletArea) * sqRate;
+
+  const withServices   = baseCost * 1.10;  // +10% electrical/fire/drainage
+  const withContingency = withServices * 1.05; // +5%
+
+  const monthlyRent = warehouseAreaTotal * rentRate;
+  const annualRent  = monthlyRent * 12;
+  const roiYears    = withContingency / annualRent;
+
+  const leasePct = ((warehouseAreaTotal / plotArea) * 100).toFixed(1);
+
+  return { baseCost, withContingency, monthlyRent, annualRent, roiYears,
+           leasePct, plotArea, warehouseAreaTotal, internalRoadArea,
+           wallLength, sqArea, toiletArea };
+}
+
+// ─── Number formatting ────────────────────────────────────────────────────────
+function fmtArea(n) { return Math.round(n).toLocaleString('en-IN'); }
+
+function fmtMoney(n) {
+  if (n >= 1e7) return `₹${(n/1e7).toFixed(2)} Cr`;
+  if (n >= 1e5) return `₹${(n/1e5).toFixed(2)} L`;
+  return `₹${Math.round(n).toLocaleString('en-IN')}`;
+}
+
+// ─── Render summary ───────────────────────────────────────────────────────────
+function renderSummary(inp, layout, costs) {
+  const { roiYears, warehouseAreaTotal, plotArea, leasePct,
+          withContingency, monthlyRent, annualRent, wallLength,
+          internalRoadArea, sqArea, toiletArea } = costs;
+
+  const grid = document.getElementById('summaryGrid');
+  const warn = document.getElementById('warningBox');
+
+  if (layout.warnings.length) {
+    warn.textContent = layout.warnings.join(' | ');
+    warn.classList.add('show');
+  } else {
+    warn.classList.remove('show');
+  }
+
+  grid.innerHTML = `
+    <div class="stat-card highlight">
+      <div class="label">Leasable Area</div>
+      <div class="value">${fmtArea(warehouseAreaTotal)} sq ft</div>
+      <div class="sub">${leasePct}% of plot</div>
+    </div>
+    <div class="stat-card">
+      <div class="label">Plot Area</div>
+      <div class="value">${fmtArea(plotArea)} sq ft</div>
+      <div class="sub">${inp.plotW} ft × ${inp.plotD} ft</div>
+    </div>
+    <div class="stat-card highlight">
+      <div class="label">Construction Cost</div>
+      <div class="value">${fmtMoney(withContingency)}</div>
+      <div class="sub">Incl. services & contingency</div>
+    </div>
+    <div class="stat-card">
+      <div class="label">Monthly Rental Income</div>
+      <div class="value">${fmtMoney(monthlyRent)}</div>
+      <div class="sub">@ ₹${inp.rentRate}/sq ft/mo</div>
+    </div>
+    <div class="stat-card">
+      <div class="label">Annual Rental Income</div>
+      <div class="value">${fmtMoney(annualRent)}</div>
+      <div class="sub">Fully leased assumption</div>
+    </div>
+    <div class="stat-card highlight">
+      <div class="label">Simple ROI Period</div>
+      <div class="value">${isFinite(roiYears) ? roiYears.toFixed(1) + ' yrs' : 'N/A'}</div>
+      <div class="sub">Construction cost ÷ annual rent</div>
+    </div>
+    <div class="stat-card">
+      <div class="label">Compound Wall</div>
+      <div class="value">${fmtArea(wallLength)} rft</div>
+      <div class="sub">${fmtMoney(wallLength * 1800)}</div>
+    </div>
+    <div class="stat-card">
+      <div class="label">Warehouse Rate</div>
+      <div class="value">₹${inp.quality === 'premium' ? '1,900' : '1,400'}/sq ft</div>
+      <div class="sub">${inp.quality === 'premium' ? 'Premium PEB' : 'Standard PEB'}</div>
+    </div>
+  `;
+
+  // Legend
+  const legendBar = document.getElementById('legendBar');
+  const legendItems = [
+    { color: '#0f2952', label: 'Warehouse (PEB)' },
+    { color: '#374151', label: 'Driveway (30 ft)' },
+    { color: '#1a3a2a', label: 'Truck Parking' },
+    { color: '#1e2a1a', label: 'Car Parking' },
+    { color: '#312e81', label: 'Staff Quarter' },
+    { color: '#1e3a3a', label: 'Toilets' },
+    { color: '#f59e0b', label: 'Security Cabin' },
+  ];
+  legendBar.innerHTML = legendItems.map(li =>
+    `<div class="legend-item"><div class="legend-color" style="background:${li.color};border:1px solid ${lighten(li.color)}"></div><span>${li.label}</span></div>`
+  ).join('');
+}
+
+// ─── Main generate ────────────────────────────────────────────────────────────
+function generateLayout() {
+  const inp    = getInputs();
+  const layout = computeLayout(inp);
+  const costs  = computeCosts(inp, layout);
+  drawLayout(inp, layout);
+  renderSummary(inp, layout, costs);
+}
+
+function alternateLayout() {
+  alternateCount++;
+  generateLayout();
+}
+
+function downloadPNG() {
+  const canvas = document.getElementById('layoutCanvas');
+  const link   = document.createElement('a');
+  link.download = 'wareplan-layout.png';
+  link.href     = canvas.toDataURL('image/png');
+  link.click();
+}
+
+// Auto-generate on load
+window.addEventListener('load', generateLayout);
+window.addEventListener('resize', () => {
+  // Re-draw on resize
+  const inp    = getInputs();
+  const layout = computeLayout(inp);
+  drawLayout(inp, layout);
+});
+</script>
+</body>
+</html>
