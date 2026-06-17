@@ -360,6 +360,7 @@ tr:hover td{background:#fafafa}
   <div class="sb-sec">Operations</div>
   <div class="sb-link active" onclick="nav('dashboard')"><span class="sb-ic">◈</span>Dashboard</div>
   <div class="sb-link" onclick="nav('trips')"><span class="sb-ic">🚛</span>Trips</div>
+  <div class="sb-link" onclick="nav('fleet')"><span class="sb-ic">📋</span>Fleet Orders</div>
   <div class="sb-link" onclick="nav('invoice')"><span class="sb-ic">🧾</span>Transport Invoice</div>
   <div class="sb-link" onclick="nav('cfainvoice')"><span class="sb-ic">📋</span>CFA Invoice</div>
   <div class="sb-link" onclick="nav('payments')"><span class="sb-ic">💳</span>Payments</div>
@@ -639,6 +640,44 @@ tr:hover td{background:#fafafa}
   </div></div>
 </div>
 
+<!-- FLEET ORDERS -->
+<div id="fleet" class="pg">
+  <div class="ph"><div><div class="ph-title">Fleet Orders</div><div class="ph-sub">Per-truck dispatch timeline &amp; status tracking</div></div></div>
+  <div class="card"><div class="ch"><span class="ct">Add Order</span></div><div class="cb">
+    <div class="fgr">
+      <div class="fg"><label>Vehicle *</label><select id="fo_veh" class="w160"><option value="">— Select —</option></select></div>
+      <div class="fg"><label>Date *</label><input type="date" id="fo_date" class="w140"></div>
+      <div class="fg"><label>From</label><input type="text" id="fo_from" class="w140" placeholder="Origin"></div>
+      <div class="fg"><label>To</label><input type="text" id="fo_to" class="w140" placeholder="Destination"></div>
+      <div class="fg"><label>Client</label><input type="text" id="fo_cli" class="w160" placeholder="Client name"></div>
+    </div>
+    <div class="fgr">
+      <div class="fg"><label>LR No</label><input type="text" id="fo_lr" class="w140" placeholder="LR number"></div>
+      <div class="fg"><label>Amount (₹)</label><input type="number" id="fo_amt" class="w120" placeholder="0"></div>
+      <div class="fg"><label>Status</label><select id="fo_status" class="w160">
+        <option value="dispatched">Dispatched</option>
+        <option value="in-transit">In Transit</option>
+        <option value="delivered">Delivered</option>
+        <option value="billed">Billed</option>
+        <option value="standby">Standby</option>
+      </select></div>
+      <div class="fg"><label>Remarks</label><input type="text" id="fo_rem" class="w200" placeholder="Optional remarks"></div>
+    </div>
+    <div class="br">
+      <button class="btn btn-p" onclick="addTruckOrder()">Add Order</button>
+      <button class="btn" onclick="markStandby()">Mark Standby</button>
+    </div>
+  </div></div>
+  <div class="card"><div class="ch"><span class="ct">Filter by Date Range</span></div><div class="cb">
+    <div class="fgr">
+      <div class="fg"><label>From Date</label><input type="date" id="fo_f" class="w140"></div>
+      <div class="fg"><label>To Date</label><input type="date" id="fo_t" class="w140"></div>
+      <div class="fg"><label>&nbsp;</label><button class="btn btn-p" onclick="renderFleet()">Apply</button></div>
+    </div>
+  </div></div>
+  <div id="fleetTrucks"></div>
+</div>
+
 </div><!-- /main -->
 
 <!-- ── BOTTOM NAV (mobile) ── -->
@@ -733,7 +772,7 @@ function confirmReset(){if(!confirm('This permanently deletes ALL your data. Are
 function uK(s){return 'fdp_'+CU+'_'+s}
 function defCo(){return{name:'',addr1:'',addr2:'',gstin:'',state:'',email:'',mobile:'',bank:'',branch:'',acc:'',ifsc:'',vendorCode:'',sgst:9,cgst:9,igst:0,places:[],vehicles:[],cfaLocations:[{id:'l0',label:'Location 1',plantName:'',warehouseName:'',warehouseAddr:'',buyerGst:''},{id:'l1',label:'Location 2',plantName:'',warehouseName:'',warehouseAddr:'',buyerGst:''},{id:'l2',label:'Location 3',plantName:'',warehouseName:'',warehouseAddr:'',buyerGst:''}],cfaInvoices:[]};}
 function defFin(){var m=new Date().toLocaleString('en-US',{month:'short'});var o={};o[m]={income:{'Business Income':0},office:{'Fuel & Maintenance':0,'Office Expenses':0},personal:{Household:0,Utilities:0},emis:[]};return o;}
-var COMPANY=defCo(),trips=[],payments=[],invoices=[],clients=[],savedMails=[],lrMeta=[];
+var COMPANY=defCo(),trips=[],payments=[],invoices=[],clients=[],savedMails=[],lrMeta=[],truckOrders=[];
 var finData=defFin(),finM='',finEdit=false,finDeb=null,finDC=null,finLC=null;
 var incM='',incDC=null,incLC=null;
 var _cfaLoc=0,_cfaType='standard';
@@ -748,6 +787,7 @@ function loadAll(){
   try{finData=JSON.parse(localStorage.getItem(uK('fi'))||'null')||defFin()}catch(e){finData=defFin()}
   try{savedMails=JSON.parse(localStorage.getItem(uK('ml'))||'[]')}catch(e){savedMails=[]}
   try{lrMeta=JSON.parse(localStorage.getItem(uK('lr'))||'[]')}catch(e){lrMeta=[]}
+  try{truckOrders=JSON.parse(localStorage.getItem(uK('to'))||'[]')}catch(e){truckOrders=[]}
   // Strip cfaInvoices from nested company snapshots (migration for storage bloat fix)
   var _cleaned=false;
   invoices.forEach(function(inv){if(inv.company&&inv.company.cfaInvoices&&inv.company.cfaInvoices.length){inv.company.cfaInvoices=[];_cleaned=true;}});
@@ -769,11 +809,12 @@ function saveAll(){
     localStorage.setItem(uK('fi'),JSON.stringify(finData));
     localStorage.setItem(uK('ml'),JSON.stringify(savedMails));
     localStorage.setItem(uK('lr'),JSON.stringify(lrMeta));
+    localStorage.setItem(uK('to'),JSON.stringify(truckOrders));
   }catch(e){console.warn('Storage full:',e);alert('⚠️ Storage limit reached — your data was NOT saved.\nPlease go to Settings → Export Backup immediately to avoid data loss.');}
 }
 function autoSave(){setTimeout(saveAll,350)}
-function exportData(){var a=document.createElement('a');a.href=URL.createObjectURL(new Blob([JSON.stringify({v:1,user:CU,at:new Date().toISOString(),trips,payments,invoices,clients,company:COMPANY,finData,savedMails},null,2)],{type:'application/json'}));a.download='FreightDeskPro_'+CU+'_'+new Date().toISOString().slice(0,10)+'.json';a.click();}
-function importData(e){var file=e.target.files[0];if(!file)return;var r=new FileReader();r.onload=function(ev){try{var d=JSON.parse(ev.target.result);if(!confirm('Import will REPLACE all current data. Continue?'))return;trips=d.trips||[];payments=d.payments||[];invoices=d.invoices||[];clients=d.clients||[];if(d.company)COMPANY=d.company;if(d.finData)finData=d.finData;if(d.savedMails)savedMails=d.savedMails;saveAll();render();renderFinance();loadSetForm();document.getElementById('sbCo').textContent=COMPANY.name||'—';alert('Import successful.');}catch(err){alert('Invalid backup file.');}};r.readAsText(file);e.target.value='';}
+function exportData(){var a=document.createElement('a');a.href=URL.createObjectURL(new Blob([JSON.stringify({v:1,user:CU,at:new Date().toISOString(),trips,payments,invoices,clients,company:COMPANY,finData,savedMails,truckOrders},null,2)],{type:'application/json'}));a.download='FreightDeskPro_'+CU+'_'+new Date().toISOString().slice(0,10)+'.json';a.click();}
+function importData(e){var file=e.target.files[0];if(!file)return;var r=new FileReader();r.onload=function(ev){try{var d=JSON.parse(ev.target.result);if(!confirm('Import will REPLACE all current data. Continue?'))return;trips=d.trips||[];payments=d.payments||[];invoices=d.invoices||[];clients=d.clients||[];if(d.company)COMPANY=d.company;if(d.finData)finData=d.finData;if(d.savedMails)savedMails=d.savedMails;if(d.truckOrders)truckOrders=d.truckOrders;saveAll();render();renderFinance();loadSetForm();document.getElementById('sbCo').textContent=COMPANY.name||'—';alert('Import successful.');}catch(err){alert('Invalid backup file.');}};r.readAsText(file);e.target.value='';}
 
 // ══════════ HELPERS ══════════
 var fmt=function(v){return '₹'+Math.abs(Math.round(v)).toLocaleString('en-IN')};
@@ -872,6 +913,7 @@ function nav(pg){
   if(pg==='invoice'){popDrops();refreshInvPg();}
   if(pg==='cfainvoice')initCfaPg();
   if(pg==='trips')popDrops();
+  if(pg==='fleet'){popDrops();renderFleet();}
   if(pg==='finance')renderFinance();
   if(pg==='income')renderIncome();
   if(pg==='tally')renderTallyPrev();
@@ -884,7 +926,7 @@ function closeSB(){document.getElementById('sidebar').classList.remove('open');d
 
 // DROPDOWNS
 function popDrops(){
-  ['i_veh','t_veh'].forEach(function(id){var sel=document.getElementById(id);if(!sel)return;var cur=sel.value;sel.innerHTML='<option value="">— Select —</option>';(COMPANY.vehicles||[]).forEach(function(v){var o=document.createElement('option');o.value=v;o.textContent=v;if(v===cur)o.selected=true;sel.appendChild(o);});});
+  ['i_veh','t_veh','fo_veh'].forEach(function(id){var sel=document.getElementById(id);if(!sel)return;var cur=sel.value;sel.innerHTML='<option value="">— Select —</option>';(COMPANY.vehicles||[]).forEach(function(v){var o=document.createElement('option');o.value=v;o.textContent=v;if(v===cur)o.selected=true;sel.appendChild(o);});});
   ['i_from','i_to'].forEach(function(id){var sel=document.getElementById(id);if(!sel)return;var cur=sel.value;sel.innerHTML='<option value="">— Select —</option>';(COMPANY.places||[]).forEach(function(p){var o=document.createElement('option');o.value=p;o.textContent=p;if(p===cur)o.selected=true;sel.appendChild(o);});});
 }
 
@@ -1139,6 +1181,54 @@ function saveSettings(){[['s_name','name'],['s_gstin','gstin'],['s_state','state
 function addCli(){var name=document.getElementById('cl_n').value.trim();if(!name){alert('Client name required.');return;}var ex=clients.find(function(c){return c.name.toLowerCase()===name.toLowerCase()});if(ex){ex.gstin=document.getElementById('cl_g').value.trim();ex.addr=document.getElementById('cl_a').value.trim();ex.state=document.getElementById('cl_s').value.trim();}else clients.push({name:name,gstin:document.getElementById('cl_g').value.trim(),addr:document.getElementById('cl_a').value.trim(),state:document.getElementById('cl_s').value.trim()});['cl_n','cl_g','cl_a','cl_s'].forEach(function(id){document.getElementById(id).value='';});renderCliList();refreshCDrop();autoSave();}
 function delCli(idx){if(confirm('Remove "'+clients[idx].name+'"?')){clients.splice(idx,1);renderCliList();refreshCDrop();autoSave();}}
 function renderCliList(){var el=document.getElementById('cliList');if(!el)return;if(!clients.length){el.innerHTML='<div style="font-size:12px;color:var(--tx3);padding:4px 0">No clients added yet.</div>';return;}el.innerHTML='<table style="font-size:12px;width:100%;border-collapse:collapse"><thead><tr><th style="text-align:left;padding:8px 10px;background:var(--sf2);border-bottom:1px solid var(--bd)">Name</th><th style="text-align:left;padding:8px 10px;background:var(--sf2);border-bottom:1px solid var(--bd)">GSTIN</th><th style="padding:8px 10px;background:var(--sf2);border-bottom:1px solid var(--bd)"></th></tr></thead><tbody>'+clients.map(function(c,i){return '<tr><td style="padding:8px 10px;border-bottom:1px solid var(--bd)">'+c.name+'</td><td style="padding:8px 10px;border-bottom:1px solid var(--bd);font-family:\'JetBrains Mono\',monospace;color:var(--tx2)">'+c.gstin+'</td><td style="padding:8px 10px;border-bottom:1px solid var(--bd)"><button class="btn btn-sm btn-r" onclick="delCli('+i+')">Remove</button></td></tr>'}).join('')+'</tbody></table>';}
+
+// FLEET ORDERS
+var _foStatusCycle=['dispatched','in-transit','delivered','billed','standby'];
+var _foStatusCss={dispatched:'bg-b','in-transit':'bg-a',delivered:'bg-g',billed:'bg-pu',standby:'bg-r'};
+var _foStatusLabel={dispatched:'Dispatched','in-transit':'In Transit',delivered:'Delivered',billed:'Billed',standby:'Standby'};
+function addTruckOrder(){
+  var v=document.getElementById('fo_veh').value,d=document.getElementById('fo_date').value;
+  if(!v){alert('Vehicle is required.');return;}
+  if(!d){alert('Date is required.');return;}
+  truckOrders.push({id:Date.now(),vehicle:v,date:d,from:document.getElementById('fo_from').value.trim(),to:document.getElementById('fo_to').value.trim(),client:document.getElementById('fo_cli').value.trim(),lr:document.getElementById('fo_lr').value.trim(),amount:parseFloat(document.getElementById('fo_amt').value)||0,status:document.getElementById('fo_status').value,remarks:document.getElementById('fo_rem').value.trim()});
+  ['fo_from','fo_to','fo_cli','fo_lr','fo_amt','fo_rem'].forEach(function(id){document.getElementById(id).value='';});
+  document.getElementById('fo_status').value='dispatched';
+  autoSave();renderFleet();
+}
+function markStandby(){
+  var v=document.getElementById('fo_veh').value,d=document.getElementById('fo_date').value;
+  if(!v){alert('Select a vehicle first.');return;}
+  if(!d){alert('Select a date first.');return;}
+  if(truckOrders.find(function(o){return o.vehicle===v&&o.date===d&&o.status==='standby';})){alert('Standby already marked for this truck on that date.');return;}
+  truckOrders.push({id:Date.now(),vehicle:v,date:d,from:'',to:'',client:'',lr:'',amount:0,status:'standby',remarks:'Standby'});
+  autoSave();renderFleet();
+}
+function setOrderStatus(id,status){var o=truckOrders.find(function(x){return x.id===id;});if(!o)return;o.status=status;autoSave();renderFleet();}
+function deleteTruckOrder(id){if(!confirm('Delete this order?'))return;truckOrders=truckOrders.filter(function(o){return o.id!==id;});autoSave();renderFleet();}
+function renderFleet(){
+  var fEl=document.getElementById('fo_f'),tEl=document.getElementById('fo_t');
+  if(!fEl||!tEl)return;
+  if(!fEl.value){var t7=new Date();t7.setDate(t7.getDate()-6);fEl.value=t7.toISOString().slice(0,10);}
+  if(!tEl.value)tEl.value=today();
+  var f=fEl.value,t=tEl.value;
+  var cont=document.getElementById('fleetTrucks');if(!cont)return;
+  var vehs=COMPANY.vehicles||[];
+  if(!vehs.length){cont.innerHTML='<div class="wb">No vehicles configured. Add vehicles in <b>Settings</b> first.</div>';return;}
+  cont.innerHTML=vehs.map(function(veh){
+    var orders=truckOrders.filter(function(o){return o.vehicle===veh&&o.date>=f&&o.date<=t;});
+    orders.sort(function(a,b){return a.date<b.date?-1:a.date>b.date?1:0;});
+    var badgeCls,badgeTxt;
+    if(!orders.length){badgeCls='bg-pu';badgeTxt='Idle';}
+    else if(orders.every(function(o){return o.status==='standby';})){badgeCls='bg-a';badgeTxt='Standby';}
+    else{badgeCls='bg-g';badgeTxt='Active';}
+    var rows=orders.length?orders.map(function(o){
+      var nxtSt=_foStatusCycle[(_foStatusCycle.indexOf(o.status)+1)%_foStatusCycle.length];
+      var route=(o.from&&o.to)?(o.from+'→'+o.to):(o.from||o.to||'—');
+      return '<tr><td>'+fD(o.date)+'</td><td>'+eQ(route)+'</td><td>'+eQ(o.client||'—')+'</td><td class="mono">'+eQ(o.lr||'—')+'</td><td class="mono">'+(o.amount?fmt(o.amount):'—')+'</td><td><span class="bdg '+_foStatusCss[o.status]+'" style="cursor:pointer" title="Click to advance status" onclick="setOrderStatus('+o.id+',\''+nxtSt+'\')">'+_foStatusLabel[o.status]+'</span></td><td>'+eQ(o.remarks||'')+'</td><td><button class="btn btn-sm btn-r" onclick="deleteTruckOrder('+o.id+')">Del</button></td></tr>';
+    }).join(''):'<tr><td colspan="8" style="text-align:center;color:var(--tx3);padding:12px">No orders in this date range — truck is Idle</td></tr>';
+    return '<div class="card"><div class="ch"><span class="ct">🚛 '+eQ(veh)+'</span><span class="bdg '+badgeCls+'" style="margin-left:10px">'+badgeTxt+'</span></div><div class="tw"><table><thead><tr><th>Date</th><th>Route</th><th>Client</th><th>LR No</th><th>Amount</th><th>Status</th><th>Remarks</th><th></th></tr></thead><tbody>'+rows+'</tbody></table></div></div>';
+  }).join('');
+}
 
 // ══════════ BOOT ══════════
 (function(){
