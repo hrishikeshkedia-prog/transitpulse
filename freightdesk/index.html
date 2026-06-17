@@ -405,11 +405,12 @@ tr:hover td{background:#fafafa}
 <div id="trips" class="pg">
   <div class="ph"><div><div class="ph-title">Trips</div><div class="ph-sub">Log vehicle trips & LR entries</div></div></div>
   <div class="card"><div class="ch"><span class="ct">Add Trip</span></div><div class="cb">
+    <div class="fgr" style="margin-bottom:10px"><div class="fg"><label>Select Saved Client</label><select id="t_csel" class="w220" onchange="fillTripCli()"><option value="">— Select or fill manually —</option></select></div></div>
     <div class="fgr">
       <div class="fg"><label>Vehicle</label><select id="t_veh" class="w140"><option value="">— Select —</option></select></div>
       <div class="fg"><label>Trip / LR No</label><input type="text" id="t_lr" class="w140" placeholder="LR Number"></div>
       <div class="fg"><label>Date</label><input type="date" id="t_date" class="w140"></div>
-      <div class="fg"><label>Client</label><input type="text" id="t_cli" class="w160"></div>
+      <div class="fg"><label>Client Name</label><input type="text" id="t_cli" class="w160"></div>
       <div class="fg"><label>Destination</label><input type="text" id="t_dest" class="w160"></div>
       <div class="fg"><label>Amount (₹)</label><input type="number" id="t_amt" class="w120" placeholder="0"></div>
       <div class="fg"><label>&nbsp;</label><button class="btn btn-p" onclick="addTrip()">Add Trip</button></div>
@@ -644,6 +645,7 @@ tr:hover td{background:#fafafa}
 <div id="fleet" class="pg">
   <div class="ph"><div><div class="ph-title">Fleet Orders</div><div class="ph-sub">Per-truck dispatch timeline &amp; status tracking</div></div></div>
   <div class="card"><div class="ch"><span class="ct">Add Order</span></div><div class="cb">
+    <div class="fgr" style="margin-bottom:10px"><div class="fg"><label>Select Saved Client</label><select id="fo_csel" class="w220" onchange="fillFleetCli()"><option value="">— Select or fill manually —</option></select></div></div>
     <div class="fgr">
       <div class="fg"><label>Vehicle *</label><select id="fo_veh" class="w160"><option value="">— Select —</option></select></div>
       <div class="fg"><label>Date *</label><input type="date" id="fo_date" class="w140"></div>
@@ -912,8 +914,8 @@ function nav(pg){
   if(pg==='settings')loadSetForm();
   if(pg==='invoice'){popDrops();refreshInvPg();}
   if(pg==='cfainvoice')initCfaPg();
-  if(pg==='trips')popDrops();
-  if(pg==='fleet'){popDrops();renderFleet();}
+  if(pg==='trips'){popDrops();refreshCDrop();}
+  if(pg==='fleet'){popDrops();refreshCDrop();renderFleet();}
   if(pg==='finance')renderFinance();
   if(pg==='income')renderIncome();
   if(pg==='tally')renderTallyPrev();
@@ -972,7 +974,9 @@ function calcG(){var base=parseFloat(document.getElementById('i_base').value)||0
 function refreshInvPg(){var d=document.getElementById('gstDisp');if(d)d.innerHTML='<b>'+COMPANY.name+'</b> &nbsp;·&nbsp; GSTIN: '+COMPANY.gstin+' &nbsp;·&nbsp; SGST '+COMPANY.sgst+'% / CGST '+COMPANY.cgst+'% / IGST '+COMPANY.igst+'%';var sg=document.getElementById('i_sgst'),cg=document.getElementById('i_cgst2'),ig=document.getElementById('i_igst');if(sg&&!sg.value)sg.value=COMPANY.sgst;if(cg&&!cg.value)cg.value=COMPANY.cgst;if(ig&&!ig.value)ig.value=COMPANY.igst;var invF=document.getElementById('i_no');if(invF&&!invF.value){var n=nxtInvNo();if(n)invF.value=n;}var td=today();['i_idate','i_podate','i_lrdate'].forEach(function(id){var el=document.getElementById(id);if(el&&!el.value)el.value=td;});refreshCDrop();}
 function nxtInvNo(){var all=[];invoices.forEach(function(i){if(i.invoice)all.push(i.invoice);});(COMPANY.cfaInvoices||[]).forEach(function(i){if(i.billno)all.push(i.billno);});if(!all.length)return '';var best=null,bestN=-1;all.forEach(function(s){var m=s.match(/^(.*?)(\d+)$/);if(m){var n=parseInt(m[2]);if(n>bestN){bestN=n;best=m;}}});return best?best[1]+(bestN+1):'';}
 function fillCli(){var idx=parseInt(document.getElementById('i_csel').value);if(isNaN(idx)||!clients[idx])return;var c=clients[idx];document.getElementById('i_cli').value=c.name;document.getElementById('i_cgst').value=c.gstin;document.getElementById('i_caddr').value=c.addr;document.getElementById('i_cstate').value=c.state;}
-function refreshCDrop(){var sel=document.getElementById('i_csel');if(!sel)return;sel.innerHTML='<option value="">— Select or fill manually —</option>';clients.forEach(function(c,i){var o=document.createElement('option');o.value=i;o.textContent=c.name;sel.appendChild(o);});}
+function refreshCDrop(){['i_csel','t_csel','fo_csel'].forEach(function(id){var sel=document.getElementById(id);if(!sel)return;sel.innerHTML='<option value="">— Select or fill manually —</option>';clients.forEach(function(c,i){var o=document.createElement('option');o.value=i;o.textContent=c.name;sel.appendChild(o);});});}
+function fillTripCli(){var idx=parseInt(document.getElementById('t_csel').value);if(isNaN(idx)||!clients[idx])return;document.getElementById('t_cli').value=clients[idx].name;}
+function fillFleetCli(){var idx=parseInt(document.getElementById('fo_csel').value);if(isNaN(idx)||!clients[idx])return;document.getElementById('fo_cli').value=clients[idx].name;}
 function getInvData(){var base=parseFloat(document.getElementById('i_base').value)||0,hand=parseFloat(document.getElementById('i_hand').value)||0,det=parseFloat(document.getElementById('i_det').value)||0,sg=parseFloat(document.getElementById('i_sgst').value)||0,cg=parseFloat(document.getElementById('i_cgst2').value)||0,ig=parseFloat(document.getElementById('i_igst').value)||0,tds=parseFloat(document.getElementById('i_tds').value)||0,tax=base+hand+det,sgA=tax*sg/100,cgA=tax*cg/100,igA=tax*ig/100,gross=tax+sgA+cgA+igA,tdsA=gross*tds/100;var co=JSON.parse(JSON.stringify(COMPANY));co.cfaInvoices=[];return{invoice:document.getElementById('i_no').value.trim(),client:document.getElementById('i_cli').value.trim(),buyergst:document.getElementById('i_cgst').value.trim(),buyeraddr:document.getElementById('i_caddr').value.trim(),buyerstate:document.getElementById('i_cstate').value.trim(),invdate:document.getElementById('i_idate').value,podate:document.getElementById('i_podate').value,lrdate:document.getElementById('i_lrdate').value,po:document.getElementById('i_po').value.trim(),lr:document.getElementById('i_lr').value.trim(),vehicle:document.getElementById('i_veh').value,ratefrom:document.getElementById('i_from').value,dest:document.getElementById('i_to').value,depot:document.getElementById('i_depot').value.trim(),remark:document.getElementById('i_rem').value.trim(),rdate:document.getElementById('i_rdt').value,udate:document.getElementById('i_udt').value,amount:base,handling:hand,detention:det,taxable:tax,sgst:sg,sgstAmt:sgA,cgst:cg,cgstAmt:cgA,igst:ig,igstAmt:igA,tds:tds,tdsAmt:tdsA,gross:gross,total:gross,net:gross-tdsA,company:co};}
 function createInv(){var d=getInvData();if(!d.invoice){alert('Invoice No required.');return;}if(!d.client){alert('Select or enter a client.');return;}invoices.push(d);if(d.lr||d.vehicle){var ex=trips.find(function(t){return t.lr===d.lr&&t.vehicle===d.vehicle;});if(!ex)trips.push({vehicle:d.vehicle,lr:d.lr||d.invoice,date:d.lrdate||d.invdate,client:d.client,dest:d.dest,amount:d.amount,source:'Invoice: '+d.invoice});}clearInvForm();autoSave();render();alert('Invoice '+d.invoice+' created!');}
 function editInv(idx){var inv=invoices[idx];if(!inv)return;_eIdx=idx;nav('invoice');setTimeout(function(){popDrops();var ci=clients.findIndex(function(c){return c.name===inv.client});var sel=document.getElementById('i_csel');if(ci>=0){sel.value=ci;fillCli();}else sel.value='';var map={'i_no':'invoice','i_idate':'invdate','i_po':'po','i_podate':'podate','i_lr':'lr','i_lrdate':'lrdate','i_veh':'vehicle','i_from':'ratefrom','i_to':'dest','i_depot':'depot','i_rem':'remark','i_rdt':'rdate','i_udt':'udate','i_base':'amount','i_hand':'handling','i_det':'detention','i_sgst':'sgst','i_cgst2':'cgst','i_igst':'igst','i_tds':'tds'};Object.keys(map).forEach(function(k){var el=document.getElementById(k);if(el)el.value=inv[map[k]]||'';});calcG();document.getElementById('invSub').textContent='Update Invoice';document.getElementById('invSub').onclick=updateInv;document.getElementById('invCanc').style.display='';document.getElementById('invFT').textContent='Edit Invoice';},100);}
