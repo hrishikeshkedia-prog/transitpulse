@@ -209,7 +209,7 @@
       <span class="nav-icon">💰</span> Fees
     </div>
   </nav>
-  <div class="sidebar-footer">TuitionPlanner v1.0</div>
+  <div class="sidebar-footer">TuitionPlanner v1.1</div>
 </aside>
 
 <!-- MAIN -->
@@ -316,16 +316,27 @@
       <div class="form-row">
         <div class="form-group">
           <label>Student Name *</label>
-          <input id="s-name" placeholder="e.g. Rahul Sharma" required>
+          <input id="s-name" placeholder="e.g. Arjun, Priya" required>
         </div>
         <div class="form-group">
-          <label>Grade / Class</label>
-          <input id="s-grade" placeholder="e.g. 10th, JEE">
+          <label>Grade / Class *</label>
+          <select id="s-grade">
+            <option value="">Select grade...</option>
+            <option value="Primary (KG/Nursery)">Primary (KG / Nursery)</option>
+            <option value="Grade 1">Grade 1</option>
+            <option value="Grade 2">Grade 2</option>
+            <option value="Grade 3">Grade 3</option>
+            <option value="Grade 4">Grade 4</option>
+            <option value="Grade 5">Grade 5</option>
+          </select>
         </div>
       </div>
       <div class="form-group">
-        <label>Subjects (comma separated)</label>
-        <input id="s-subjects" placeholder="e.g. Maths, Physics">
+        <label>Subjects</label>
+        <div style="display:flex;gap:16px;margin-top:4px;">
+          <label class="checkbox-item" style="font-size:14px;font-weight:500;"><input type="checkbox" id="s-sub-english" style="width:auto;"> English</label>
+          <label class="checkbox-item" style="font-size:14px;font-weight:500;"><input type="checkbox" id="s-sub-maths" style="width:auto;"> Maths</label>
+        </div>
       </div>
       <div class="form-row">
         <div class="form-group">
@@ -388,7 +399,11 @@
         </div>
         <div class="form-group">
           <label>Subject *</label>
-          <input id="sess-subject" placeholder="e.g. Maths">
+          <select id="sess-subject">
+            <option value="">Select subject...</option>
+            <option value="English">English</option>
+            <option value="Maths">Maths</option>
+          </select>
         </div>
       </div>
       <div class="form-group">
@@ -431,8 +446,12 @@
         </div>
       </div>
       <div class="form-group">
-        <label>Notes</label>
-        <textarea id="sess-notes" placeholder="Any notes for this session..."></textarea>
+        <label>Lesson Plan</label>
+        <textarea id="sess-lesson-plan" placeholder="What will you teach today? e.g. Chapter 4 – Fractions: Introduction, practice sums. Phonics – blends 'bl', 'cl'." style="min-height:90px;"></textarea>
+      </div>
+      <div class="form-group">
+        <label>Notes / Reminders</label>
+        <textarea id="sess-notes" placeholder="e.g. Bring worksheet, revision of last topic..."></textarea>
       </div>
     </div>
     <div class="modal-footer">
@@ -444,12 +463,19 @@
 
 <!-- View Session -->
 <div class="modal-overlay" id="modal-view-session">
-  <div class="modal">
+  <div class="modal" style="max-width:520px;">
     <div class="modal-header">
       <h3>Session Details</h3>
       <button class="btn-icon" onclick="closeModal('modal-view-session')">✕</button>
     </div>
     <div class="modal-body" id="view-session-body"></div>
+    <div style="padding:0 24px 20px;">
+      <div style="border-top:1px solid var(--border);padding-top:16px;">
+        <label style="font-size:13px;font-weight:600;display:block;margin-bottom:6px;">💬 Teacher's Comment</label>
+        <textarea id="view-sess-comment" placeholder="How did the session go? Note student's progress, areas to improve, homework given..." style="width:100%;padding:9px 12px;border:1.5px solid var(--border);border-radius:8px;font-size:13px;resize:vertical;min-height:80px;font-family:inherit;"></textarea>
+        <button class="btn btn-outline btn-sm" style="margin-top:8px;" onclick="saveSessionComment()">Save Comment</button>
+      </div>
+    </div>
     <div class="modal-footer">
       <button class="btn btn-danger" id="view-sess-delete">🗑 Delete</button>
       <button class="btn btn-outline" id="view-sess-edit">✏️ Edit</button>
@@ -666,7 +692,8 @@ function openAddStudent() {
   document.getElementById('s-id').value = '';
   document.getElementById('s-name').value = '';
   document.getElementById('s-grade').value = '';
-  document.getElementById('s-subjects').value = '';
+  document.getElementById('s-sub-english').checked = false;
+  document.getElementById('s-sub-maths').checked = false;
   document.getElementById('s-parent').value = '';
   document.getElementById('s-phone').value = '';
   document.getElementById('s-fee').value = '';
@@ -685,7 +712,9 @@ function editStudent(id) {
   document.getElementById('s-id').value = s.id;
   document.getElementById('s-name').value = s.name;
   document.getElementById('s-grade').value = s.grade || '';
-  document.getElementById('s-subjects').value = s.subjects || '';
+  const subs = (s.subjects || '').split(',').map(x => x.trim());
+  document.getElementById('s-sub-english').checked = subs.includes('English');
+  document.getElementById('s-sub-maths').checked = subs.includes('Maths');
   document.getElementById('s-parent').value = s.parent || '';
   document.getElementById('s-phone').value = s.phone || '';
   document.getElementById('s-fee').value = s.fee || '';
@@ -702,11 +731,14 @@ function saveStudent() {
   const name = document.getElementById('s-name').value.trim();
   if (!name) { alert('Student name is required'); return; }
   const id = document.getElementById('s-id').value;
+  const subsArr = [];
+  if (document.getElementById('s-sub-english').checked) subsArr.push('English');
+  if (document.getElementById('s-sub-maths').checked) subsArr.push('Maths');
   const data = {
     id: id || uid(),
     name,
-    grade: document.getElementById('s-grade').value.trim(),
-    subjects: document.getElementById('s-subjects').value.trim(),
+    grade: document.getElementById('s-grade').value,
+    subjects: subsArr.join(', '),
     parent: document.getElementById('s-parent').value.trim(),
     phone: document.getElementById('s-phone').value.trim(),
     fee: parseFloat(document.getElementById('s-fee').value) || 0,
@@ -830,8 +862,8 @@ function renderSessions() {
       <div class="dot" style="background:${st?.color||'#6366f1'}"></div>
       <div class="session-time">${fmtDate(s.date)}<br><span style="font-weight:400;color:var(--muted)">${fmt12(s.startTime)} – ${fmt12(s.endTime)}</span></div>
       <div class="session-info">
-        <div class="session-name">${st?.name||'Unknown Student'}</div>
-        <div class="session-detail">${s.subject}${s.notes ? ' · ' + s.notes : ''}</div>
+        <div class="session-name">${st?.name||'Unknown Student'} <span style="font-weight:400;font-size:13px;color:var(--muted)">· ${st?.grade||''}</span></div>
+        <div class="session-detail">${s.subject}${s.lessonPlan ? ' · ' + s.lessonPlan.slice(0,60) + (s.lessonPlan.length>60?'…':'') : ''}${s.comment ? ' 💬' : ''}</div>
       </div>
       <span class="badge" style="background:${STATUS_COLORS[s.status]};color:${STATUS_TEXT[s.status]}">${STATUS_LABEL[s.status]}</span>
       <div class="session-actions">
@@ -852,6 +884,7 @@ function openAddSession(dateStr) {
   document.getElementById('sess-start').value = '16:00';
   document.getElementById('sess-end').value = '17:00';
   document.getElementById('sess-status').value = 'scheduled';
+  document.getElementById('sess-lesson-plan').value = '';
   document.getElementById('sess-notes').value = '';
   document.querySelectorAll('.rec-day').forEach(c => c.checked = false);
   refreshStudentDropdowns();
@@ -870,6 +903,7 @@ function editSession(id) {
   document.getElementById('sess-start').value = s.startTime;
   document.getElementById('sess-end').value = s.endTime;
   document.getElementById('sess-status').value = s.status;
+  document.getElementById('sess-lesson-plan').value = s.lessonPlan || '';
   document.getElementById('sess-notes').value = s.notes || '';
   document.querySelectorAll('.rec-day').forEach(c => c.checked = false);
   openModal('modal-session');
@@ -895,7 +929,9 @@ function saveSession() {
     startTime: start,
     endTime: end,
     status: document.getElementById('sess-status').value,
+    lessonPlan: document.getElementById('sess-lesson-plan').value.trim(),
     notes: document.getElementById('sess-notes').value.trim(),
+    comment: id ? (getSession(id)?.comment || '') : '',
   };
 
   if (id) {
@@ -937,16 +973,19 @@ function deleteSession(id) {
   toast('Session deleted');
 }
 
+let viewingSessionId = null;
+
 function viewSession(id) {
   const s = getSession(id);
   if (!s) return;
+  viewingSessionId = id;
   const st = getStudent(s.studentId);
   document.getElementById('view-session-body').innerHTML = `
     <div style="display:flex;align-items:center;gap:12px;margin-bottom:18px;">
       <div style="width:44px;height:44px;border-radius:50%;background:${st?.color||'#6366f1'};display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:700;color:#fff">${st?.name?.charAt(0)||'?'}</div>
       <div>
         <div style="font-size:17px;font-weight:700">${st?.name||'Unknown'}</div>
-        <div style="font-size:13px;color:var(--muted)">${st?.grade||''} ${st?.subjects||''}</div>
+        <div style="font-size:13px;color:var(--muted)">${st?.grade||''} ${st?.subjects ? '· ' + st.subjects : ''}</div>
       </div>
     </div>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
@@ -955,8 +994,14 @@ function viewSession(id) {
       <div><div style="font-size:11px;color:var(--muted);text-transform:uppercase;font-weight:600">Subject</div><div style="font-size:15px;font-weight:600;margin-top:3px">${s.subject}</div></div>
       <div><div style="font-size:11px;color:var(--muted);text-transform:uppercase;font-weight:600">Status</div><div style="margin-top:3px"><span class="badge" style="background:${STATUS_COLORS[s.status]};color:${STATUS_TEXT[s.status]};font-size:13px">${STATUS_LABEL[s.status]}</span></div></div>
     </div>
-    ${s.notes ? `<div style="margin-top:14px;padding:12px;background:var(--bg);border-radius:8px;font-size:14px;color:var(--muted)">${s.notes}</div>` : ''}
+    ${s.lessonPlan ? `
+      <div style="margin-top:14px;">
+        <div style="font-size:11px;color:var(--muted);text-transform:uppercase;font-weight:600;margin-bottom:5px;">📚 Lesson Plan</div>
+        <div style="padding:12px;background:#f0f9ff;border:1px solid #bae6fd;border-radius:8px;font-size:13px;line-height:1.6;white-space:pre-wrap;">${s.lessonPlan}</div>
+      </div>` : ''}
+    ${s.notes ? `<div style="margin-top:10px;padding:10px 12px;background:var(--bg);border-radius:8px;font-size:13px;color:var(--muted)">📝 ${s.notes}</div>` : ''}
   `;
+  document.getElementById('view-sess-comment').value = s.comment || '';
   document.getElementById('view-sess-delete').onclick = () => deleteSession(id);
   document.getElementById('view-sess-edit').onclick = () => { closeModal('modal-view-session'); editSession(id); };
   document.getElementById('view-sess-complete').style.display = s.status === 'completed' ? 'none' : '';
@@ -969,6 +1014,15 @@ function viewSession(id) {
     toast('Marked as completed ✓');
   };
   openModal('modal-view-session');
+}
+
+function saveSessionComment() {
+  if (!viewingSessionId) return;
+  const i = sessions.findIndex(x => x.id === viewingSessionId);
+  if (i < 0) return;
+  sessions[i].comment = document.getElementById('view-sess-comment').value.trim();
+  save(DB_SESSIONS, sessions);
+  toast('Comment saved');
 }
 
 // ─────────────────────────────────────────────
