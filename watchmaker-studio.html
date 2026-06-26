@@ -1,0 +1,1950 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Watchmaker Studio</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg0:#06060a;--bg1:#0d0d12;--bg2:#141420;--bg3:#1a1a28;--bg4:#222230;
+  --border1:#1e1e2e;--border2:#282838;--border3:#353548;
+  --text1:#e8e8f0;--text2:#8888a0;--text3:#44445a;
+  --gold:#c8922a;--gold2:#e0b040;--goldl:#f5d070;
+  --blue:#4a7af0;--teal:#3ab8a0;--red:#e04060;--green:#40b860;
+  --amber:#e08820;--purple:#8060d0;
+  --brass:#c8a840;--steel:#9098a8;--ruby:#c03050;
+}
+html,body{height:100%;overflow:hidden;font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg0);color:var(--text1);font-size:12px;user-select:none}
+
+/* ── LAYOUT ── */
+#app{display:flex;flex-direction:column;height:100vh}
+.topbar{height:44px;background:var(--bg1);border-bottom:1px solid var(--border1);display:flex;align-items:center;padding:0 10px;gap:8px;flex-shrink:0}
+.workspace{display:flex;flex:1;overflow:hidden}
+
+/* ── TOPBAR ── */
+.brand{font-size:14px;font-weight:700;letter-spacing:.06em;background:linear-gradient(135deg,var(--goldl),var(--gold));-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-right:4px}
+.tb-sep{width:1px;height:24px;background:var(--border2);margin:0 4px}
+.tb-btn{padding:4px 10px;border:1px solid var(--border2);background:transparent;color:var(--text2);border-radius:4px;cursor:pointer;font-size:11px;transition:all .12s;white-space:nowrap}
+.tb-btn:hover{border-color:var(--border3);color:var(--text1)}
+.tb-btn.active{background:rgba(200,146,42,.15);border-color:var(--gold);color:var(--goldl)}
+.tb-btn.danger{border-color:rgba(224,64,96,.4);color:var(--red)}
+.tb-btn.danger:hover{background:rgba(224,64,96,.15)}
+.tb-group{display:flex;gap:2px}
+.sim-status{font-size:11px;padding:3px 10px;border-radius:4px;border:1px solid var(--border2);color:var(--text3);background:var(--bg2);min-width:120px;text-align:center}
+.sim-status.running{border-color:var(--green);color:var(--green);animation:pulse-status 1s infinite}
+.sim-status.error{border-color:var(--red);color:var(--red)}
+@keyframes pulse-status{50%{opacity:.5}}
+.spacer{flex:1}
+.zoom-row{display:flex;align-items:center;gap:5px;font-size:11px;color:var(--text2)}
+.zoom-row input[type=range]{width:80px;height:2px;accent-color:var(--gold)}
+
+/* ── LEFT PALETTE ── */
+.palette{width:180px;background:var(--bg1);border-right:1px solid var(--border1);display:flex;flex-direction:column;overflow-y:auto;flex-shrink:0;scrollbar-width:thin;scrollbar-color:var(--border2) transparent}
+.pal-section{padding:10px 0 4px}
+.pal-title{padding:4px 12px 6px;font-size:9px;letter-spacing:.12em;color:var(--text3);text-transform:uppercase;font-weight:700}
+.pal-item{display:flex;align-items:center;gap:8px;padding:6px 12px;cursor:grab;color:var(--text2);transition:all .12s;border-left:2px solid transparent}
+.pal-item:hover{background:var(--bg2);color:var(--text1);border-left-color:var(--gold)}
+.pal-item:active{cursor:grabbing;background:var(--bg3)}
+.pal-icon{width:28px;height:28px;flex-shrink:0;display:flex;align-items:center;justify-content:center}
+.pal-icon canvas{border-radius:2px}
+.pal-label{flex:1}
+.pal-sub{font-size:10px;color:var(--text3)}
+
+/* ── CANVAS AREA ── */
+.canvas-wrap{flex:1;position:relative;overflow:hidden;background:var(--bg0)}
+#mainCanvas{display:block;cursor:crosshair;position:absolute;top:0;left:0}
+.canvas-hint{position:absolute;bottom:12px;left:50%;transform:translateX(-50%);font-size:11px;color:var(--text3);pointer-events:none;text-align:center}
+
+/* ── RIGHT INSPECTOR ── */
+.inspector{width:270px;background:var(--bg1);border-left:1px solid var(--border1);display:flex;flex-direction:column;overflow:hidden;flex-shrink:0}
+.insp-tabs{display:flex;border-bottom:1px solid var(--border1)}
+.insp-tab{flex:1;padding:8px;text-align:center;cursor:pointer;font-size:11px;color:var(--text2);border-bottom:2px solid transparent;transition:all .12s}
+.insp-tab.active{color:var(--goldl);border-bottom-color:var(--gold)}
+.insp-body{flex:1;overflow-y:auto;scrollbar-width:thin;scrollbar-color:var(--border2) transparent}
+.insp-empty{padding:24px 16px;color:var(--text3);font-size:12px;line-height:1.7;text-align:center}
+.insp-empty b{color:var(--text2);display:block;margin-bottom:8px;font-size:13px}
+
+/* ── PROPERTY FIELDS ── */
+.prop-section{padding:10px 14px;border-bottom:1px solid var(--border1)}
+.prop-section-title{font-size:9px;letter-spacing:.12em;text-transform:uppercase;color:var(--text3);margin-bottom:8px;font-weight:700}
+.prop-row{display:flex;align-items:center;gap:8px;margin-bottom:6px}
+.prop-name{font-size:11px;color:var(--text2);min-width:90px;flex-shrink:0}
+.prop-val{flex:1;font-size:11px;color:var(--text1);font-weight:500}
+.prop-input{background:var(--bg2);border:1px solid var(--border2);color:var(--text1);padding:3px 6px;border-radius:3px;font-size:11px;width:100%;outline:none}
+.prop-input:focus{border-color:var(--gold)}
+.prop-input[type=range]{padding:0;height:3px;accent-color:var(--gold);border:none;background:transparent}
+.prop-input[type=color]{padding:0;height:24px;border-radius:3px;cursor:pointer;border:1px solid var(--border2)}
+.prop-computed{font-size:10px;color:var(--teal);font-family:monospace}
+.select-input{background:var(--bg2);border:1px solid var(--border2);color:var(--text1);padding:3px 6px;border-radius:3px;font-size:11px;width:100%;outline:none;cursor:pointer}
+
+/* ── GEAR TRAIN PANEL ── */
+.gt-section{padding:12px 14px;border-bottom:1px solid var(--border1)}
+.gt-title{font-size:9px;letter-spacing:.12em;color:var(--text3);text-transform:uppercase;margin-bottom:8px;font-weight:700}
+.gt-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;font-size:11px}
+.gt-label{color:var(--text2)}
+.gt-value{color:var(--text1);font-family:monospace;font-weight:600}
+.gt-value.good{color:var(--green)}
+.gt-value.warn{color:var(--amber)}
+.gt-value.bad{color:var(--red)}
+.gt-chain{padding:0 14px 12px;font-size:10px;color:var(--text3);line-height:1.8;border-bottom:1px solid var(--border1)}
+.gt-chain-arrow{color:var(--border3);margin:0 3px}
+
+/* ── EDUCATION ── */
+.edu-card{padding:14px;background:var(--bg2);margin:10px 14px;border-radius:6px;border:1px solid var(--border2)}
+.edu-name{font-size:13px;font-weight:600;color:var(--goldl);margin-bottom:4px}
+.edu-tagline{font-size:11px;color:var(--teal);margin-bottom:8px;font-style:italic}
+.edu-body{font-size:11px;color:var(--text2);line-height:1.7}
+.edu-body p{margin-bottom:8px}
+.edu-body p:last-child{margin-bottom:0}
+.edu-fact{margin-top:10px;padding:8px;background:rgba(200,146,42,.08);border-left:2px solid var(--gold);border-radius:0 4px 4px 0;font-size:10px;color:var(--text2);line-height:1.6}
+.edu-fact b{color:var(--goldl)}
+
+/* ── DELETE BUTTON ── */
+.delete-btn{display:block;width:calc(100% - 28px);margin:10px 14px;padding:7px;border:1px solid rgba(224,64,96,.3);background:transparent;color:var(--red);border-radius:4px;cursor:pointer;font-size:11px;transition:all .15s}
+.delete-btn:hover{background:rgba(224,64,96,.15)}
+
+/* ── BOTTOM STATUS ── */
+.statusbar{height:24px;background:var(--bg1);border-top:1px solid var(--border1);display:flex;align-items:center;padding:0 14px;gap:20px;font-size:10px;color:var(--text3);flex-shrink:0}
+.sb-item{display:flex;align-items:center;gap:5px}
+.sb-dot{width:5px;height:5px;border-radius:50%}
+.sb-dot.green{background:var(--green)}
+.sb-dot.amber{background:var(--amber)}
+.sb-dot.grey{background:var(--text3)}
+
+/* ── DRAG GHOST ── */
+#dragGhost{position:fixed;pointer-events:none;opacity:.7;z-index:9999;display:none}
+
+/* ── TOOLTIP ── */
+.tooltip{position:fixed;background:var(--bg3);border:1px solid var(--border2);color:var(--text1);padding:5px 9px;border-radius:4px;font-size:11px;pointer-events:none;z-index:9998;display:none;max-width:180px;line-height:1.5}
+
+/* ── MODAL ── */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:9990;display:none;align-items:center;justify-content:center}
+.modal-overlay.open{display:flex}
+.modal{background:var(--bg2);border:1px solid var(--border2);border-radius:8px;padding:24px;width:460px;max-width:90vw;max-height:80vh;overflow-y:auto}
+.modal h2{font-size:15px;color:var(--goldl);margin-bottom:16px}
+.modal p{font-size:12px;color:var(--text2);line-height:1.7;margin-bottom:10px}
+.modal-close{padding:7px 18px;border:1px solid var(--border2);background:transparent;color:var(--text2);border-radius:4px;cursor:pointer;font-size:12px;margin-top:8px}
+.modal-close:hover{color:var(--text1)}
+.example-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:16px}
+.example-card{padding:12px;border:1px solid var(--border2);background:var(--bg3);border-radius:5px;cursor:pointer;transition:all .15s}
+.example-card:hover{border-color:var(--gold);background:var(--bg4)}
+.example-card h3{font-size:12px;color:var(--text1);margin-bottom:4px}
+.example-card p{font-size:10px;color:var(--text3);margin:0;line-height:1.5}
+
+/* scrollbar */
+.insp-body::-webkit-scrollbar,.palette::-webkit-scrollbar{width:3px}
+.insp-body::-webkit-scrollbar-thumb,.palette::-webkit-scrollbar-thumb{background:var(--border2);border-radius:2px}
+</style>
+</head>
+<body>
+<div id="app">
+  <header class="topbar">
+    <div class="brand">Watchmaker Studio</div>
+    <div class="tb-sep"></div>
+    <div class="tb-group">
+      <button class="tb-btn" id="btnExamples">Examples ▾</button>
+      <button class="tb-btn" id="btnClear" style="color:var(--text3)">Clear</button>
+    </div>
+    <div class="tb-sep"></div>
+    <div class="tb-group">
+      <button class="tb-btn active" id="btnSimRun">▶ Run</button>
+      <button class="tb-btn" id="btnSimStop">■ Stop</button>
+    </div>
+    <div class="sim-status" id="simStatus">Not running</div>
+    <div class="spacer"></div>
+    <div class="zoom-row">
+      <span>Zoom</span>
+      <button class="tb-btn" id="zOut" style="padding:3px 7px">−</button>
+      <input type="range" id="zSlider" min="30" max="400" value="100">
+      <button class="tb-btn" id="zIn" style="padding:3px 7px">+</button>
+      <span id="zLabel" style="min-width:36px">100%</span>
+    </div>
+    <div class="tb-sep"></div>
+    <button class="tb-btn" id="btnExport">Export PNG</button>
+  </header>
+  <div class="workspace">
+
+    <!-- LEFT: Parts palette -->
+    <aside class="palette" id="palette"></aside>
+
+    <!-- CENTER: Canvas -->
+    <div class="canvas-wrap" id="canvasWrap">
+      <canvas id="mainCanvas"></canvas>
+      <div class="canvas-hint" id="canvasHint">Drag parts from the left panel · Scroll to zoom · Right-click to delete</div>
+    </div>
+
+    <!-- RIGHT: Inspector -->
+    <aside class="inspector">
+      <div class="insp-tabs">
+        <div class="insp-tab active" data-tab="props">Properties</div>
+        <div class="insp-tab" data-tab="train">Gear Train</div>
+        <div class="insp-tab" data-tab="info">Part Info</div>
+      </div>
+      <div class="insp-body" id="inspBody">
+        <div class="insp-empty"><b>Nothing selected</b>Drag a part onto the canvas, then click it to inspect and edit its properties.</div>
+      </div>
+    </aside>
+  </div>
+  <div class="statusbar">
+    <div class="sb-item"><div class="sb-dot grey" id="statusDot"></div><span id="statusMsg">Ready</span></div>
+    <div class="sb-item">Parts: <b id="sbParts">0</b></div>
+    <div class="sb-item">Meshes: <b id="sbMeshes">0</b></div>
+    <div class="sb-item" id="sbBeat"></div>
+  </div>
+</div>
+<div id="dragGhost"></div>
+<div class="tooltip" id="tooltip"></div>
+<div class="modal-overlay" id="modalOverlay">
+  <div class="modal" id="modal">
+    <h2 id="modalTitle">Examples</h2>
+    <div id="modalBody"></div>
+    <button class="modal-close" id="modalClose">Close</button>
+  </div>
+</div>
+
+<script>
+'use strict';
+
+// ═══════════════════════════════════════════════════════
+// GEAR MATH — proper involute tooth profiles
+// ═══════════════════════════════════════════════════════
+function generateInvoluteProfile(teeth, pitchRadius, pressureAngleDeg = 20) {
+  const z = teeth;
+  const m = (2 * pitchRadius) / z; // module
+  const phi = pressureAngleDeg * Math.PI / 180;
+  const rb = pitchRadius * Math.cos(phi);
+  const ra = pitchRadius + m;
+  const rf = Math.max(pitchRadius - 1.25 * m, rb * 0.82);
+  const ta = Math.sqrt(Math.max(0, (ra / rb) ** 2 - 1));
+  const invPhi = Math.tan(phi) - phi;
+  const halfTooth = Math.PI / (2 * z) + invPhi;
+  const toothAngle = (2 * Math.PI) / z;
+  const pts = [];
+
+  const invPt = (t, alpha, mirror) => {
+    const ix = rb * (Math.cos(t) + t * Math.sin(t));
+    const iy = (mirror ? -1 : 1) * rb * (Math.sin(t) - t * Math.cos(t));
+    return [ix * Math.cos(alpha) - iy * Math.sin(alpha),
+            ix * Math.sin(alpha) + iy * Math.cos(alpha)];
+  };
+
+  for (let i = 0; i < z; i++) {
+    const theta = i * toothAngle;
+    const ar = theta - halfTooth;
+    const al = theta + halfTooth;
+    const prevAl = ar - (toothAngle - 2 * halfTooth);
+
+    // Root arc
+    const nRoot = 4;
+    for (let j = 0; j <= nRoot; j++) {
+      const a = prevAl + (j / nRoot) * (ar - prevAl);
+      pts.push([rf * Math.cos(a), rf * Math.sin(a)]);
+    }
+
+    // Right flank involute
+    const N = 10;
+    for (let j = 0; j <= N; j++) {
+      pts.push(invPt((j / N) * ta, ar, false));
+    }
+
+    // Tip arc
+    const [trx, try_] = invPt(ta, ar, false);
+    const [tlx, tly] = invPt(ta, al, true);
+    const angR = Math.atan2(try_, trx);
+    const angL = Math.atan2(tly, tlx);
+    let span = angL - angR;
+    if (span < 0) span += 2 * Math.PI;
+    if (span > Math.PI) span -= 2 * Math.PI;
+    const nTip = 4;
+    for (let j = 0; j <= nTip; j++) {
+      const a = angR + (j / nTip) * span;
+      pts.push([ra * Math.cos(a), ra * Math.sin(a)]);
+    }
+
+    // Left flank involute (descending)
+    for (let j = N; j >= 0; j--) {
+      pts.push(invPt((j / N) * ta, al, true));
+    }
+  }
+  return pts;
+}
+
+function generateEscapeWheelProfile(teeth, r) {
+  // Swiss lever (club-tooth) escape wheel profile
+  const z = teeth;
+  const toothAngle = (2 * Math.PI) / z;
+  const ro = r * 1.18;  // tip
+  const ri = r * 0.80;  // root
+  const pts = [];
+  for (let i = 0; i < z; i++) {
+    const base = i * toothAngle;
+    // Root
+    pts.push([ri * Math.cos(base - toothAngle * 0.08), ri * Math.sin(base - toothAngle * 0.08)]);
+    // Locking face (nearly radial - steep rise)
+    pts.push([ro * Math.cos(base + toothAngle * 0.02), ro * Math.sin(base + toothAngle * 0.02)]);
+    // Club tip (flat)
+    pts.push([ro * Math.cos(base + toothAngle * 0.14), ro * Math.sin(base + toothAngle * 0.14)]);
+    // Impulse face (angled ~45°, the working surface)
+    pts.push([r * 1.01 * Math.cos(base + toothAngle * 0.28), r * 1.01 * Math.sin(base + toothAngle * 0.28)]);
+    // Drop back to root
+    pts.push([ri * Math.cos(base + toothAngle * 0.55), ri * Math.sin(base + toothAngle * 0.55)]);
+  }
+  return pts;
+}
+
+function generatePinionProfile(leaves, r) {
+  // Pinion with rounded involute-like leaves
+  const z = leaves;
+  const rTip = r;
+  const rRoot = r * 0.55;
+  const pts = [];
+  const toothAngle = (2 * Math.PI) / z;
+  for (let i = 0; i < z; i++) {
+    const base = i * toothAngle;
+    const hw = toothAngle * 0.32;
+    // Rounded leaf using 5 points
+    pts.push([rRoot * Math.cos(base - toothAngle * 0.5 + 0.05), rRoot * Math.sin(base - toothAngle * 0.5 + 0.05)]);
+    pts.push([rRoot * Math.cos(base - hw), rRoot * Math.sin(base - hw)]);
+    pts.push([rTip * Math.cos(base - hw * 0.3), rTip * Math.sin(base - hw * 0.3)]);
+    pts.push([rTip * Math.cos(base), rTip * Math.sin(base)]);
+    pts.push([rTip * Math.cos(base + hw * 0.3), rTip * Math.sin(base + hw * 0.3)]);
+    pts.push([rRoot * Math.cos(base + hw), rRoot * Math.sin(base + hw)]);
+  }
+  return pts;
+}
+
+// ═══════════════════════════════════════════════════════
+// PART CATALOG
+// ═══════════════════════════════════════════════════════
+const CATALOG = {
+  barrel: {
+    label: 'Mainspring Barrel',
+    sub: 'Power source',
+    color: '#b8782a',
+    defaults: { teeth: 80, pitchRadius: 82, clickRadius: 82, spokes: 0, label: 'Barrel',
+                springTurns: 5, powerPercent: 100, material: 'brass' },
+  },
+  wheel: {
+    label: 'Wheel',
+    sub: 'Gear wheel',
+    color: '#9098a8',
+    defaults: { teeth: 72, pitchRadius: 48, clickRadius: 48, spokes: 5, label: 'Wheel',
+                arbor: 'center', material: 'brass' },
+  },
+  pinion: {
+    label: 'Pinion',
+    sub: 'Small drive gear',
+    color: '#707888',
+    defaults: { leaves: 8, pitchRadius: 12, clickRadius: 12, label: 'Pinion',
+                arbor: 'center', material: 'steel' },
+  },
+  escapeWheel: {
+    label: 'Escape Wheel',
+    sub: 'Last wheel in train',
+    color: '#a0a870',
+    defaults: { teeth: 15, pitchRadius: 28, clickRadius: 28, spokes: 5, label: 'EscWheel',
+                material: 'steel' },
+  },
+  palletFork: {
+    label: 'Pallet Fork',
+    sub: 'Escapement lever',
+    color: '#8888b0',
+    defaults: { armLength: 48, entryAngle: -25, exitAngle: 25, label: 'Fork',
+                stoneWidth: 6, material: 'steel' },
+  },
+  balance: {
+    label: 'Balance Wheel',
+    sub: 'Oscillator',
+    color: '#a07858',
+    defaults: { radius: 50, spokes: 3, label: 'Balance',
+                frequency: 3.0, amplitude: 1.35, material: 'brass' },
+  },
+  jewel: {
+    label: 'Jewel Bearing',
+    sub: 'Pivot support',
+    color: '#c03050',
+    defaults: { radius: 5, label: 'Jewel', stone: 'ruby' },
+  },
+  bridge: {
+    label: 'Bridge',
+    sub: 'Movement plate',
+    color: '#3a4050',
+    defaults: { width: 120, height: 40, cornerRadius: 8, label: 'Bridge', material: 'brass' },
+  },
+  mainPlate: {
+    label: 'Main Plate',
+    sub: 'Foundation plate',
+    color: '#2a3048',
+    defaults: { radius: 130, label: 'Main Plate', material: 'brass' },
+  },
+  ratchetWheel: {
+    label: 'Ratchet Wheel',
+    sub: 'Click-stop winding',
+    color: '#9080a0',
+    defaults: { teeth: 24, pitchRadius: 30, clickRadius: 30, label: 'Ratchet', material: 'steel' },
+  },
+  click: {
+    label: 'Click Spring',
+    sub: 'Ratchet pawl',
+    color: '#607080',
+    defaults: { length: 30, label: 'Click', material: 'steel' },
+  },
+  hairspring: {
+    label: 'Hairspring',
+    sub: 'Regulates oscillation',
+    color: '#8888a0',
+    defaults: { turns: 12, innerR: 8, outerR: 38, label: 'Hairspring', material: 'steel' },
+  },
+};
+
+// ═══════════════════════════════════════════════════════
+// EDUCATIONAL CONTENT
+// ═══════════════════════════════════════════════════════
+const EDU = {
+  barrel: {
+    tagline: 'The powerhouse of the movement',
+    body: `<p>The mainspring barrel is a cylindrical drum containing a coiled steel spring (the mainspring). When you wind the watch, you tighten this spring. As it slowly uncoils, it releases energy to power the entire gear train.</p>
+<p>The barrel wheel (teeth around its circumference) is the first gear in the train. It rotates once every 6–8 hours in a typical watch — extremely slowly compared to the escape wheel.</p>`,
+    fact: `<b>Did you know?</b> The mainspring in a typical watch is about 20–30cm long and only 0.1mm thick. It stores enough energy for 38–72 hours of running — the "power reserve."`,
+  },
+  wheel: {
+    tagline: 'The multipliers of the gear train',
+    body: `<p>Gear wheels form the train that transmits and multiplies rotation from the slow-moving barrel to the fast-spinning escape wheel. Each wheel typically meshes with the pinion of the next wheel, stepping up the rotation speed at each stage.</p>
+<p>The <b>center wheel</b> (2nd wheel) makes exactly one revolution per hour and drives the minute hand. The <b>third wheel</b> and <b>fourth wheel</b> step up the speed further.</p>`,
+    fact: `<b>Gear ratio tip:</b> When wheel A (80 teeth) drives pinion B (8 leaves), the ratio is 80÷8 = 10:1. Pinion B spins 10× faster than wheel A.`,
+  },
+  pinion: {
+    tagline: 'Small gears with few teeth — speed multipliers',
+    body: `<p>Pinions are small gears with few "leaves" (typically 6–12). They are usually mounted on the same arbor (axle) as the wheel that follows them, forming a compound gear. The wheel is driven by the previous pinion; the pinion on the same arbor then drives the next wheel.</p>
+<p>Because pinions have few leaves, they create large speed multiplications (gear ratios of 8:1 to 12:1 are typical).</p>`,
+    fact: `<b>Watchmaking precision:</b> Pinion leaves must be perfectly shaped — epicycloidal for the addendum (tip), involute for the dedendum. Even a tiny error causes friction and energy loss.`,
+  },
+  escapeWheel: {
+    tagline: 'The regulator — releases one tooth at a time',
+    body: `<p>The escape wheel is the last wheel in the going train. Its distinctive club-shaped teeth are locked and released by the pallet fork one tooth at a time. Each "tick" of the watch is one tooth escaping.</p>
+<p>In a typical 3 Hz (21,600 vph) watch, the escape wheel advances 6 teeth per second — 3 ticks and 3 tocks, one per beat of the balance wheel.</p>`,
+    fact: `<b>Why 15 teeth?</b> Most Swiss lever escape wheels have 15 teeth. This gives a good balance between impulse geometry and drop loss. With a 3Hz balance, the escape wheel makes one revolution every 2.5 seconds.`,
+  },
+  palletFork: {
+    tagline: 'The heart of the Swiss lever escapement',
+    body: `<p>The pallet fork is a pivoted lever with two pallet stones (entry and exit) that alternately catch and release the escape wheel teeth. It is pushed by the balance wheel's impulse pin, briefly unlocking the escape wheel and receiving a tiny impulse of energy in return.</p>
+<p>This "give and take" is the escapement action: the fork gives the escape wheel one tooth of freedom, the escape wheel gives the fork (and balance wheel) a push to keep oscillating.</p>`,
+    fact: `<b>The magic geometry:</b> The angle between the pallet stones is critical. Errors of even 0.01mm in stone position cause the watch to gain or lose minutes per day.`,
+  },
+  balance: {
+    tagline: 'The heartbeat — the most critical part',
+    body: `<p>The balance wheel is the oscillator of the watch — its equivalent of a pendulum. It rotates back and forth at a precise, consistent frequency controlled by the hairspring attached to it.</p>
+<p>The frequency (beats per hour, vph) determines the timekeeping resolution. Higher frequency = more stable (less affected by position and shock), but more energy consumption.</p>
+<p>Common frequencies: 18,000 vph (2.5 Hz), 21,600 vph (3 Hz), 28,800 vph (4 Hz), 36,000 vph (5 Hz).</p>`,
+    fact: `<b>The hairspring:</b> This tiny coil spring (only 0.02mm thick in fine watches) is the most sensitive component. Its elasticity, length, and material determine the rate. Temperature changes of just 1°C can shift it by seconds per day.`,
+  },
+  jewel: {
+    tagline: 'Near-frictionless pivot bearings',
+    body: `<p>Jewel bearings are synthetic rubies (aluminum oxide, corundum) used as pivot holes for wheel and pinion arbors. Their extreme hardness (9 on the Mohs scale) and smooth surface minimize friction, extending both accuracy and the service interval.</p>
+<p>A watch with "17 jewels" means 17 ruby bearing points: all going train pivots, escape wheel, pallet fork pivot, and impulse pin, plus the balance wheel pivots.</p>`,
+    fact: `<b>Before synthetic rubies:</b> Early 18th-century watches used natural gemstones for bearings. Nicolas Fatio de Duillier patented jewel bearings in 1704, but natural rubies were so valuable that only the finest watches had them.`,
+  },
+  bridge: {
+    tagline: 'The structural skeleton of the movement',
+    body: `<p>Bridges (also called "cocks" or "bars") are precision plates screwed to the main plate that hold the arbor pivots of the wheels and pinions. They must be machined with sub-micron precision — each jewel hole must align exactly with its corresponding hole in the main plate.</p>
+<p>The balance cock, which holds the balance wheel pivot, is often decoratively engraved in higher-grade movements.</p>`,
+    fact: `<b>Finishing grades:</b> Bridges in a regulated manufacture movement are beveled, polished, and decorated (côtes de Genève stripes, perlage, anglage). This is purely aesthetic — pure craftsmanship signaling.`,
+  },
+  mainPlate: {
+    tagline: 'The foundation everything is built on',
+    body: `<p>The main plate (or pillar plate) is the base of the movement on which all bridges, wheels, and components are mounted. It defines the positional relationships of every arbor in the movement.</p>
+<p>Its thickness (typically 0.8–1.2mm of brass) provides rigidity. Holes for pivot jewels must be drilled with tolerances of ±0.002mm to ensure correct gear meshing.</p>`,
+    fact: `<b>Materials:</b> Almost universally machined from brass (CuZn37) for its machinability, corrosion resistance, and low magnetic permeability. Higher-end movements use Glucydur (beryllium-copper alloy) for the balance wheel.`,
+  },
+  ratchetWheel: {
+    tagline: 'Locks the mainspring while wound',
+    body: `<p>The ratchet wheel is mounted on the barrel arbor or crown wheel. It locks in conjunction with the click spring, preventing the mainspring from unwinding when you release the crown after winding.</p>
+<p>Every time you wind the watch, the ratchet wheel clicks forward. The click spring holds each step, so energy is stored without loss.</p>`,
+    fact: `<b>Count the clicks:</b> The number of audible clicks when winding tells you the number of ratchet teeth. Most watches have 24–36 teeth, so each click is 10–15° of barrel rotation.`,
+  },
+  click: {
+    tagline: 'Pawl that prevents unwinding',
+    body: `<p>The click (also called the click spring or pawl) is a small spring-loaded lever that engages with the ratchet wheel teeth to allow rotation in only one direction. When the crown is released after winding, the click locks the ratchet, maintaining tension on the mainspring.</p>`,
+    fact: `<b>Click ping:</b> When you hear that satisfying metallic "click" while winding a manual watch, that's the click spring snapping into each ratchet tooth. Satisfying precision.`,
+  },
+  hairspring: {
+    tagline: 'The soul of the oscillator',
+    body: `<p>The hairspring (spiral spring, or spiral) is a flat coil of spring steel or Nivarox alloy attached at its inner end to the balance staff (collet) and at its outer end to the stud on the balance cock. Its spring force is what makes the balance wheel oscillate at a precise frequency.</p>
+<p>The Breguet overcoil (where the outermost coil rises above the plane of the spring) is used in higher-grade movements to improve isochronism — keeping the beat rate constant regardless of the amplitude of oscillation.</p>`,
+    fact: `<b>Nivarox:</b> Modern hairsprings are made from Nivarox, an alloy that compensates for temperature variation (hotter → softer spring → slower → compensation built in). It revolutionized accuracy when introduced in the 1930s.`,
+  },
+};
+
+// ═══════════════════════════════════════════════════════
+// PART CLASS
+// ═══════════════════════════════════════════════════════
+let nextId = 1;
+class Part {
+  constructor(type, x, y) {
+    this.id = nextId++;
+    this.type = type;
+    this.x = x;
+    this.y = y;
+    this.angle = 0;
+    this.angVel = 0; // rad/s during simulation
+    this.props = { ...CATALOG[type].defaults };
+    this.color = CATALOG[type].color;
+    this._profileCache = null;
+    this._profileKey = '';
+  }
+
+  get pitchRadius() {
+    if (this.type === 'pinion') return this.props.pitchRadius;
+    if (this.type === 'barrel' || this.type === 'wheel' || this.type === 'escapeWheel' || this.type === 'ratchetWheel') return this.props.pitchRadius;
+    if (this.type === 'balance') return this.props.radius;
+    return this.props.pitchRadius || this.props.radius || 30;
+  }
+
+  get canMesh() {
+    return ['barrel','wheel','pinion','escapeWheel','ratchetWheel'].includes(this.type);
+  }
+
+  getProfile() {
+    const key = JSON.stringify({ type: this.type, t: this.props.teeth || this.props.leaves, r: this.pitchRadius });
+    if (key === this._profileKey) return this._profileCache;
+    this._profileKey = key;
+    if (this.type === 'pinion') {
+      this._profileCache = generatePinionProfile(this.props.leaves, this.props.pitchRadius);
+    } else if (this.type === 'escapeWheel') {
+      this._profileCache = generateEscapeWheelProfile(this.props.teeth, this.props.pitchRadius);
+    } else if (this.props.teeth) {
+      this._profileCache = generateInvoluteProfile(this.props.teeth, this.props.pitchRadius);
+    } else {
+      this._profileCache = null;
+    }
+    return this._profileCache;
+  }
+
+  containsPoint(wx, wy) {
+    const dx = wx - this.x, dy = wy - this.y;
+    const r = this.props.clickRadius || this.pitchRadius || 30;
+    return Math.hypot(dx, dy) <= r * 1.2;
+  }
+
+  draw(ctx, selected, simRunning) {
+    ctx.save();
+    ctx.translate(this.x, this.y);
+    ctx.rotate(this.angle);
+
+    const color = this.color;
+    const dimColor = (alpha) => {
+      const hex = color.replace('#','');
+      const r = parseInt(hex.slice(0,2),16), g = parseInt(hex.slice(2,4),16), b = parseInt(hex.slice(4,6),16);
+      return `rgba(${r},${g},${b},${alpha})`;
+    };
+
+    if (this.type === 'bridge') { this._drawBridge(ctx, color, selected); }
+    else if (this.type === 'mainPlate') { this._drawMainPlate(ctx, color, selected); }
+    else if (this.type === 'palletFork') { this._drawPalletFork(ctx, color, selected); }
+    else if (this.type === 'balance') { this._drawBalance(ctx, color, selected); }
+    else if (this.type === 'jewel') { this._drawJewel(ctx, color, selected); }
+    else if (this.type === 'click') { this._drawClick(ctx, color, selected); }
+    else if (this.type === 'hairspring') { this._drawHairspring(ctx, color, selected); }
+    else {
+      // Gear-type parts
+      const profile = this.getProfile();
+      if (profile) {
+        // Shadow
+        if (!simRunning) {
+          ctx.save();
+          ctx.shadowColor = 'rgba(0,0,0,0.5)';
+          ctx.shadowBlur = 8;
+          ctx.shadowOffsetX = 2; ctx.shadowOffsetY = 3;
+          ctx.beginPath();
+          ctx.moveTo(profile[0][0], profile[0][1]);
+          for (let i = 1; i < profile.length; i++) ctx.lineTo(profile[i][0], profile[i][1]);
+          ctx.closePath();
+          ctx.fillStyle = color;
+          ctx.fill();
+          ctx.restore();
+        }
+
+        // Gear face
+        ctx.beginPath();
+        ctx.moveTo(profile[0][0], profile[0][1]);
+        for (let i = 1; i < profile.length; i++) ctx.lineTo(profile[i][0], profile[i][1]);
+        ctx.closePath();
+
+        // Material gradient
+        const r = this.pitchRadius;
+        const grd = ctx.createLinearGradient(-r, -r, r, r);
+        const hex = color.replace('#','');
+        const cr = parseInt(hex.slice(0,2),16), cg = parseInt(hex.slice(2,4),16), cb = parseInt(hex.slice(4,6),16);
+        grd.addColorStop(0, `rgb(${Math.min(255,cr+40)},${Math.min(255,cg+40)},${Math.min(255,cb+40)})`);
+        grd.addColorStop(0.5, color);
+        grd.addColorStop(1, `rgb(${Math.max(0,cr-40)},${Math.max(0,cg-40)},${Math.max(0,cb-40)})`);
+        ctx.fillStyle = grd;
+        ctx.fill();
+        ctx.strokeStyle = 'rgba(0,0,0,0.35)';
+        ctx.lineWidth = 0.8;
+        ctx.stroke();
+
+        // Spokes (for wheel types)
+        if (this.props.spokes && this.props.spokes > 0) {
+          this._drawSpokes(ctx, r, this.props.spokes, color);
+        } else if (this.type === 'barrel') {
+          this._drawBarrelDetail(ctx, r, color);
+        }
+      }
+
+      // Hub
+      const hubR = this.pitchRadius * 0.1;
+      ctx.beginPath(); ctx.arc(0, 0, hubR + 2, 0, Math.PI * 2);
+      ctx.fillStyle = 'rgba(0,0,0,0.4)'; ctx.fill();
+      ctx.beginPath(); ctx.arc(0, 0, hubR, 0, Math.PI * 2);
+      ctx.fillStyle = '#888'; ctx.fill();
+      ctx.beginPath(); ctx.arc(0, 0, hubR * 0.4, 0, Math.PI * 2);
+      ctx.fillStyle = '#333'; ctx.fill();
+    }
+
+    // Selection ring
+    if (selected) {
+      const sr = (this.props.clickRadius || this.pitchRadius || 30) * 1.1 + 6;
+      ctx.beginPath(); ctx.arc(0, 0, sr, 0, Math.PI * 2);
+      ctx.strokeStyle = 'rgba(200,160,40,0.8)';
+      ctx.lineWidth = 2;
+      ctx.setLineDash([5, 4]);
+      ctx.stroke();
+      ctx.setLineDash([]);
+    }
+
+    ctx.restore();
+  }
+
+  _drawSpokes(ctx, r, nSpokes, color) {
+    const innerR = r * 0.12;
+    const outerR = r * 0.82;
+    const spokW = Math.max(3, r * 0.06);
+    ctx.save();
+    for (let i = 0; i < nSpokes; i++) {
+      const a = (i / nSpokes) * Math.PI * 2;
+      ctx.beginPath();
+      ctx.moveTo(Math.cos(a) * innerR, Math.sin(a) * innerR);
+      ctx.lineTo(Math.cos(a) * outerR, Math.sin(a) * outerR);
+      ctx.strokeStyle = 'rgba(0,0,0,0.25)';
+      ctx.lineWidth = spokW + 2;
+      ctx.stroke();
+      ctx.strokeStyle = color;
+      ctx.lineWidth = spokW;
+      ctx.stroke();
+    }
+    // Outer rim
+    ctx.beginPath(); ctx.arc(0, 0, outerR, 0, Math.PI * 2);
+    ctx.strokeStyle = color;
+    ctx.lineWidth = r * 0.07;
+    ctx.stroke();
+    ctx.restore();
+  }
+
+  _drawBarrelDetail(ctx, r, color) {
+    // Barrel lines (showing it's a drum)
+    ctx.save();
+    ctx.beginPath(); ctx.arc(0, 0, r * 0.75, 0, Math.PI * 2);
+    ctx.strokeStyle = 'rgba(255,255,255,0.12)'; ctx.lineWidth = 1; ctx.stroke();
+    ctx.beginPath(); ctx.arc(0, 0, r * 0.45, 0, Math.PI * 2);
+    ctx.strokeStyle = 'rgba(255,255,255,0.08)'; ctx.lineWidth = 1; ctx.stroke();
+    // Power level arc
+    const pct = (this.props.powerPercent || 100) / 100;
+    ctx.beginPath();
+    ctx.arc(0, 0, r * 0.35, -Math.PI/2, -Math.PI/2 + pct * 2 * Math.PI);
+    ctx.strokeStyle = pct > 0.3 ? '#4ab860' : '#e04040';
+    ctx.lineWidth = 3;
+    ctx.stroke();
+    ctx.restore();
+  }
+
+  _drawBalance(ctx, color, selected) {
+    const r = this.props.radius;
+    const n = this.props.spokes || 3;
+    ctx.save();
+    // Shadow
+    ctx.shadowColor = 'rgba(0,0,0,0.4)'; ctx.shadowBlur = 10; ctx.shadowOffsetY = 3;
+    ctx.beginPath(); ctx.arc(0, 0, r, 0, Math.PI * 2);
+    ctx.strokeStyle = color; ctx.lineWidth = r * 0.1; ctx.stroke();
+    ctx.shadowBlur = 0; ctx.shadowOffsetY = 0;
+    // Spokes
+    for (let i = 0; i < n; i++) {
+      const a = (i / n) * Math.PI * 2;
+      ctx.beginPath(); ctx.moveTo(0, 0);
+      ctx.lineTo(Math.cos(a) * r * 0.88, Math.sin(a) * r * 0.88);
+      ctx.strokeStyle = color; ctx.lineWidth = r * 0.05; ctx.stroke();
+    }
+    // Hub
+    ctx.beginPath(); ctx.arc(0, 0, r * 0.1, 0, Math.PI * 2);
+    ctx.fillStyle = '#aaa'; ctx.fill();
+    ctx.beginPath(); ctx.arc(0, 0, r * 0.05, 0, Math.PI * 2);
+    ctx.fillStyle = '#333'; ctx.fill();
+    // Frequency label
+    ctx.restore();
+    ctx.save();
+    ctx.fillStyle = 'rgba(180,180,140,0.7)';
+    ctx.font = `bold ${r * 0.22}px monospace`;
+    ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    ctx.fillText(`${(this.props.frequency * 7200).toFixed(0)}vph`, 0, r * 0.22);
+    ctx.restore();
+  }
+
+  _drawPalletFork(ctx, color, selected) {
+    const L = this.props.armLength || 48;
+    const entryA = (this.props.entryAngle || -25) * Math.PI / 180;
+    const exitA = (this.props.exitAngle || 25) * Math.PI / 180;
+    const sw = this.props.stoneWidth || 6;
+    ctx.save();
+    ctx.shadowColor = 'rgba(0,0,0,0.4)'; ctx.shadowBlur = 8;
+    // Body bar
+    ctx.beginPath();
+    ctx.moveTo(0, 0);
+    ctx.lineTo(Math.cos(entryA) * L, Math.sin(entryA) * L);
+    ctx.strokeStyle = color; ctx.lineWidth = 6; ctx.stroke();
+    ctx.beginPath();
+    ctx.moveTo(0, 0);
+    ctx.lineTo(Math.cos(exitA) * L, Math.sin(exitA) * L);
+    ctx.strokeStyle = color; ctx.lineWidth = 6; ctx.stroke();
+    // Tail
+    ctx.beginPath();
+    ctx.moveTo(0, 0);
+    ctx.lineTo(0, -L * 0.45);
+    ctx.strokeStyle = color; ctx.lineWidth = 5; ctx.stroke();
+    // Pallet stones (ruby colored rectangles)
+    [[entryA, -1],[exitA, 1]].forEach(([a, dir]) => {
+      const tx = Math.cos(a) * L, ty = Math.sin(a) * L;
+      ctx.save();
+      ctx.translate(tx, ty);
+      ctx.rotate(a + Math.PI * 0.5 * dir);
+      ctx.fillStyle = '#c83060';
+      ctx.shadowBlur = 3; ctx.shadowColor = '#ff80a0';
+      ctx.fillRect(-sw/2, -sw*1.5, sw, sw * 3);
+      ctx.restore();
+    });
+    // Impulse pin notch at tail
+    ctx.beginPath();
+    ctx.arc(0, -L * 0.45, 5, 0, Math.PI * 2);
+    ctx.fillStyle = '#888'; ctx.fill();
+    // Hub
+    ctx.beginPath(); ctx.arc(0, 0, 7, 0, Math.PI * 2);
+    ctx.fillStyle = '#aaa'; ctx.fill();
+    ctx.beginPath(); ctx.arc(0, 0, 3, 0, Math.PI * 2);
+    ctx.fillStyle = '#333'; ctx.fill();
+    ctx.restore();
+  }
+
+  _drawJewel(ctx, color, selected) {
+    const r = this.props.radius || 5;
+    ctx.save();
+    ctx.shadowColor = '#ff6090'; ctx.shadowBlur = 6;
+    ctx.beginPath(); ctx.arc(0, 0, r, 0, Math.PI * 2);
+    ctx.fillStyle = '#2a0810'; ctx.fill();
+    const g = ctx.createRadialGradient(-r*0.3, -r*0.3, 0, 0, 0, r);
+    g.addColorStop(0, '#ff8080'); g.addColorStop(0.4, '#c03050'); g.addColorStop(1, '#600820');
+    ctx.beginPath(); ctx.arc(0, 0, r * 0.85, 0, Math.PI * 2);
+    ctx.fillStyle = g; ctx.fill();
+    ctx.restore();
+  }
+
+  _drawBridge(ctx, color, selected) {
+    const w = this.props.width || 120, h = this.props.height || 40, cr = this.props.cornerRadius || 8;
+    ctx.save();
+    ctx.shadowColor = 'rgba(0,0,0,0.4)'; ctx.shadowBlur = 10; ctx.shadowOffsetY = 4;
+    // Body
+    const grd = ctx.createLinearGradient(0, -h/2, 0, h/2);
+    grd.addColorStop(0, '#4a5060'); grd.addColorStop(1, '#252830');
+    ctx.beginPath();
+    this._roundedRect(ctx, -w/2, -h/2, w, h, cr);
+    ctx.fillStyle = grd; ctx.fill();
+    ctx.strokeStyle = 'rgba(255,255,255,0.12)'; ctx.lineWidth = 1; ctx.stroke();
+    // Brushed texture lines
+    ctx.save();
+    ctx.beginPath(); this._roundedRect(ctx, -w/2, -h/2, w, h, cr); ctx.clip();
+    for (let i = -w/2; i < w/2; i += 5) {
+      ctx.beginPath(); ctx.moveTo(i, -h/2); ctx.lineTo(i, h/2);
+      ctx.strokeStyle = 'rgba(255,255,255,0.025)'; ctx.lineWidth = 1; ctx.stroke();
+    }
+    ctx.restore();
+    // Corner screws
+    [[-w/2+12,-h/2+8],[w/2-12,-h/2+8],[w/2-12,h/2-8],[-w/2+12,h/2-8]].forEach(([sx,sy]) => {
+      ctx.beginPath(); ctx.arc(sx, sy, 4, 0, Math.PI * 2);
+      ctx.fillStyle = '#666'; ctx.fill();
+      ctx.beginPath(); ctx.moveTo(sx-2.5, sy); ctx.lineTo(sx+2.5, sy);
+      ctx.strokeStyle = '#333'; ctx.lineWidth = 1; ctx.stroke();
+    });
+    ctx.restore();
+  }
+
+  _drawMainPlate(ctx, color, selected) {
+    const r = this.props.radius || 130;
+    ctx.save();
+    ctx.shadowColor = 'rgba(0,0,0,0.5)'; ctx.shadowBlur = 16; ctx.shadowOffsetY = 6;
+    ctx.beginPath(); ctx.arc(0, 0, r, 0, Math.PI * 2);
+    const grd = ctx.createLinearGradient(-r, -r, r, r);
+    grd.addColorStop(0, '#3a4058'); grd.addColorStop(1, '#1a1e30');
+    ctx.fillStyle = grd; ctx.fill();
+    ctx.strokeStyle = 'rgba(255,255,255,0.08)'; ctx.lineWidth = 1; ctx.stroke();
+    // Perlage decoration (dot pattern)
+    ctx.save();
+    ctx.beginPath(); ctx.arc(0, 0, r, 0, Math.PI * 2); ctx.clip();
+    for (let px = -r; px < r; px += 14) {
+      for (let py = -r; py < r; py += 14) {
+        if (px*px + py*py < r*r*0.85) {
+          ctx.beginPath(); ctx.arc(px + (Math.sin(px*py)*3), py, 4.5, 0, Math.PI * 2);
+          ctx.fillStyle = 'rgba(255,255,255,0.025)'; ctx.fill();
+        }
+      }
+    }
+    ctx.restore();
+    // Center mark
+    ctx.beginPath(); ctx.arc(0, 0, 6, 0, Math.PI * 2);
+    ctx.fillStyle = '#888'; ctx.fill();
+    ctx.restore();
+  }
+
+  _drawClick(ctx, color, selected) {
+    const L = this.props.length || 30;
+    ctx.save();
+    ctx.beginPath();
+    ctx.moveTo(0, 0);
+    ctx.lineTo(L * 0.85, -L * 0.1);
+    ctx.lineTo(L, 0);
+    ctx.lineTo(L * 0.85, L * 0.25);
+    ctx.lineTo(0, L * 0.1);
+    ctx.closePath();
+    ctx.fillStyle = color; ctx.fill();
+    ctx.strokeStyle = 'rgba(255,255,255,0.1)'; ctx.lineWidth = 1; ctx.stroke();
+    ctx.restore();
+  }
+
+  _drawHairspring(ctx, color, selected) {
+    const innerR = this.props.innerR || 8, outerR = this.props.outerR || 38, turns = this.props.turns || 12;
+    ctx.save();
+    ctx.beginPath();
+    for (let i = 0; i <= turns * 360; i++) {
+      const a = i * Math.PI / 180;
+      const r = innerR + (outerR - innerR) * (i / (turns * 360));
+      const x = r * Math.cos(a), y = r * Math.sin(a);
+      i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+    }
+    ctx.strokeStyle = color; ctx.lineWidth = 0.8; ctx.stroke();
+    ctx.restore();
+  }
+
+  _roundedRect(ctx, x, y, w, h, r) {
+    ctx.moveTo(x + r, y);
+    ctx.lineTo(x + w - r, y); ctx.arc(x+w-r, y+r, r, -Math.PI/2, 0);
+    ctx.lineTo(x + w, y+h-r); ctx.arc(x+w-r, y+h-r, r, 0, Math.PI/2);
+    ctx.lineTo(x+r, y+h); ctx.arc(x+r, y+h-r, r, Math.PI/2, Math.PI);
+    ctx.lineTo(x, y+r); ctx.arc(x+r, y+r, r, Math.PI, -Math.PI/2);
+    ctx.closePath();
+  }
+}
+
+// ═══════════════════════════════════════════════════════
+// MESH / CONNECTION DETECTION
+// ═══════════════════════════════════════════════════════
+class Connection {
+  constructor(a, b) {
+    this.a = a;
+    this.b = b;
+  }
+  get dist() { return Math.hypot(this.a.x - this.b.x, this.a.y - this.b.y); }
+  get idealDist() { return this.a.pitchRadius + this.b.pitchRadius; }
+  get tolerance() { return this.idealDist * 0.12; }
+  get valid() { return Math.abs(this.dist - this.idealDist) < this.tolerance; }
+  get ratio() { // a drives b, so b turns faster if fewer teeth
+    const tA = this.a.props.teeth || this.a.props.leaves;
+    const tB = this.b.props.teeth || this.b.props.leaves;
+    return tA / tB;
+  }
+}
+
+function detectMeshes(parts) {
+  const meshes = [];
+  const gearParts = parts.filter(p => p.canMesh);
+  for (let i = 0; i < gearParts.length; i++) {
+    for (let j = i + 1; j < gearParts.length; j++) {
+      const conn = new Connection(gearParts[i], gearParts[j]);
+      if (conn.valid) meshes.push(conn);
+    }
+  }
+  return meshes;
+}
+
+// ═══════════════════════════════════════════════════════
+// GEAR TRAIN ANALYZER
+// ═══════════════════════════════════════════════════════
+class GearTrainAnalyzer {
+  constructor(parts, meshes) {
+    this.parts = parts;
+    this.meshes = meshes;
+  }
+
+  buildGraph() {
+    const g = {};
+    this.parts.forEach(p => { g[p.id] = []; });
+    this.meshes.forEach(m => {
+      g[m.a.id].push({ part: m.b, ratio: m.a.pitchRadius / m.b.pitchRadius });
+      g[m.b.id].push({ part: m.a, ratio: m.b.pitchRadius / m.a.pitchRadius });
+    });
+    return g;
+  }
+
+  findPath(fromType, toType) {
+    const start = this.parts.find(p => p.type === fromType);
+    const end = this.parts.find(p => p.type === toType);
+    if (!start || !end) return null;
+    const graph = this.buildGraph();
+    const visited = new Set();
+    const queue = [{ part: start, path: [start], totalRatio: 1.0 }];
+    while (queue.length) {
+      const { part, path, totalRatio } = queue.shift();
+      if (part.id === end.id) return { path, totalRatio };
+      if (visited.has(part.id)) continue;
+      visited.add(part.id);
+      for (const { part: next, ratio } of (graph[part.id] || [])) {
+        if (!visited.has(next.id)) {
+          queue.push({ part: next, path: [...path, next], totalRatio: totalRatio * ratio });
+        }
+      }
+    }
+    return null;
+  }
+
+  analyze() {
+    const barrel = this.parts.find(p => p.type === 'barrel');
+    const balance = this.parts.find(p => p.type === 'balance');
+    const escapeWheel = this.parts.find(p => p.type === 'escapeWheel');
+    const result = { valid: false, chain: [], ratio: null, beatRate: null, vph: null, error: null };
+
+    if (!barrel) { result.error = 'No barrel — add a mainspring barrel'; return result; }
+    if (!balance) { result.error = 'No balance wheel — add an oscillator'; return result; }
+    if (!escapeWheel) { result.error = 'No escape wheel — add one to complete the train'; return result; }
+
+    const toEscape = this.findPath('barrel', 'escapeWheel');
+    if (!toEscape) { result.error = 'No continuous gear chain from barrel to escape wheel'; return result; }
+
+    result.valid = true;
+    result.chain = toEscape.path;
+    result.ratio = toEscape.totalRatio;
+
+    // With balance frequency set, calculate escape wheel speed
+    const freq = balance.props.frequency || 3.0; // Hz
+    const vph = freq * 7200; // beats per hour (1 beat = half oscillation)
+    result.vph = vph;
+    result.beatRate = freq * 2; // ticks per second (ticks + tocks)
+
+    // Escape wheel: freq beats/s, each beat = 1 tooth → escape wheel RPS = freq / teeth
+    const ewTeeth = escapeWheel.props.teeth || 15;
+    const ewRPS = freq / ewTeeth; // rotations per second
+    // Back-calculate barrel speed
+    const barrelRPS = ewRPS / result.ratio;
+    result.barrelRevPerHour = barrelRPS * 3600;
+
+    // Power reserve hint
+    const turns = (barrel.props.springTurns || 5) * (barrel.props.powerPercent || 100) / 100;
+    result.powerReserveHours = turns / Math.abs(result.barrelRevPerHour);
+
+    return result;
+  }
+}
+
+// ═══════════════════════════════════════════════════════
+// SIMULATION
+// ═══════════════════════════════════════════════════════
+class Simulation {
+  constructor(parts, meshes) {
+    this.parts = parts;
+    this.meshes = meshes;
+    this.running = false;
+    this.raf = null;
+    this.lastT = null;
+    this.balancePhase = 0;
+  }
+
+  assignVelocities() {
+    const balance = this.parts.find(p => p.type === 'balance');
+    const escapeWheel = this.parts.find(p => p.type === 'escapeWheel');
+    if (!balance || !escapeWheel) return false;
+
+    const freq = balance.props.frequency || 3.0;
+    const ewTeeth = escapeWheel.props.teeth || 15;
+    const ewRadPerSec = (freq / ewTeeth) * 2 * Math.PI;
+
+    // BFS from escape wheel to assign velocities
+    const visited = new Set();
+    const queue = [{ part: escapeWheel, vel: ewRadPerSec }];
+    const graph = {};
+    this.parts.forEach(p => { graph[p.id] = []; });
+    this.meshes.forEach(m => {
+      graph[m.a.id].push({ part: m.b, ratio: m.a.pitchRadius / m.b.pitchRadius });
+      graph[m.b.id].push({ part: m.a, ratio: m.b.pitchRadius / m.a.pitchRadius });
+    });
+
+    while (queue.length) {
+      const { part, vel } = queue.shift();
+      if (visited.has(part.id)) continue;
+      visited.add(part.id);
+      part.angVel = vel;
+      for (const { part: next, ratio } of graph[part.id]) {
+        if (!visited.has(next.id)) {
+          queue.push({ part: next, vel: -vel / ratio });
+        }
+      }
+    }
+
+    // Balance and pallet fork
+    balance.angVel = freq * 2 * Math.PI * (balance.props.amplitude || 1.35);
+    const fork = this.parts.find(p => p.type === 'palletFork');
+    if (fork) fork.angVel = freq * 0.6;
+
+    return true;
+  }
+
+  start() {
+    if (!this.assignVelocities()) return false;
+    this.running = true;
+    this.lastT = performance.now();
+    this._loop();
+    return true;
+  }
+
+  stop() {
+    this.running = false;
+    if (this.raf) cancelAnimationFrame(this.raf);
+    this.parts.forEach(p => { p.angVel = 0; });
+  }
+
+  _loop() {
+    if (!this.running) return;
+    const now = performance.now();
+    const dt = Math.min((now - this.lastT) / 1000, 0.05);
+    this.lastT = now;
+
+    this.balancePhase += dt;
+
+    // Balance wheel: sinusoidal oscillation
+    const balance = this.parts.find(p => p.type === 'balance');
+    if (balance) {
+      const freq = balance.props.frequency || 3.0;
+      const amp = balance.props.amplitude || 1.35;
+      balance.angle = amp * Math.sin(freq * 2 * Math.PI * this.balancePhase);
+    }
+
+    // Pallet fork: rocking synchronized with balance
+    const fork = this.parts.find(p => p.type === 'palletFork');
+    if (fork && balance) {
+      const freq = balance.props.frequency || 3.0;
+      const forkAmp = (fork.props.exitAngle || 25) * Math.PI / 180 * 0.7;
+      fork.angle = forkAmp * Math.sin(freq * 2 * Math.PI * this.balancePhase + Math.PI * 0.5);
+    }
+
+    // All other gears: constant rotation
+    this.parts.forEach(p => {
+      if (p.type !== 'balance' && p.type !== 'palletFork') {
+        p.angle += p.angVel * dt;
+      }
+    });
+
+    this.raf = requestAnimationFrame(() => this._loop());
+  }
+}
+
+// ═══════════════════════════════════════════════════════
+// EXAMPLES
+// ═══════════════════════════════════════════════════════
+const EXAMPLES = {
+  manual3wheel: {
+    label: 'Simple 3-Wheel Train',
+    desc: '18,000 vph · barrel → 2 wheels → escape · classic pocket watch layout',
+    build: () => {
+      const cx = 0, cy = 0;
+      const parts = [];
+      // Barrel
+      const b = new Part('barrel', cx, cy);
+      b.props = { ...CATALOG.barrel.defaults, teeth: 80, pitchRadius: 72, clickRadius: 72 };
+      parts.push(b);
+      // Center wheel (72T) + pinion (8L) → on same arbor
+      const cw = new Part('wheel', cx + 72 + 44, cy);
+      cw.props = { ...CATALOG.wheel.defaults, teeth: 72, pitchRadius: 44, spokes: 5, label: 'Center Wheel' };
+      parts.push(cw);
+      const cp = new Part('pinion', cx + 72 + 44, cy);
+      cp.props = { ...CATALOG.pinion.defaults, leaves: 8, pitchRadius: 8, label: 'Center Pinion' };
+      parts.push(cp);
+      // 4th wheel (80T) + pinion
+      const fw = new Part('wheel', cx + 72 + 44 + 44 + 32, cy);
+      fw.props = { ...CATALOG.wheel.defaults, teeth: 80, pitchRadius: 32, spokes: 4, label: '4th Wheel' };
+      parts.push(fw);
+      const fp = new Part('pinion', cx + 72 + 44 + 44 + 32, cy);
+      fp.props = { ...CATALOG.pinion.defaults, leaves: 8, pitchRadius: 8, label: '4th Pinion' };
+      parts.push(fp);
+      // Escape wheel
+      const ew = new Part('escapeWheel', cx + 72 + 44 + 44 + 32 + 32 + 22, cy);
+      ew.props = { ...CATALOG.escapeWheel.defaults, teeth: 15, pitchRadius: 22, spokes: 5, label: 'Escape Wheel' };
+      parts.push(ew);
+      // Pallet fork
+      const pf = new Part('palletFork', cx + 72 + 44 + 44 + 32 + 32 + 22, cy - 22 - 40);
+      pf.props = { ...CATALOG.palletFork.defaults, armLength: 42, label: 'Pallet Fork' };
+      parts.push(pf);
+      // Balance
+      const bw = new Part('balance', cx + 72 + 44 + 44 + 32 + 32 + 22 + 40, cy - 50);
+      bw.props = { ...CATALOG.balance.defaults, radius: 42, frequency: 2.5, label: 'Balance' };
+      parts.push(bw);
+      // Hairspring
+      const hs = new Part('hairspring', bw.x, bw.y);
+      hs.props = { ...CATALOG.hairspring.defaults, innerR: 7, outerR: 28, turns: 10 };
+      parts.push(hs);
+      return parts;
+    },
+  },
+  eta2824: {
+    label: 'Automatic (ETA 2824-style)',
+    desc: '28,800 vph · 3Hz balance · typical modern automatic layout',
+    build: () => {
+      const parts = [];
+      const barrel = new Part('barrel', -140, 20);
+      barrel.props = { ...CATALOG.barrel.defaults, teeth: 80, pitchRadius: 70, clickRadius: 70, label: 'Barrel' };
+      parts.push(barrel);
+      const cw = new Part('wheel', -140 + 70 + 44, 20);
+      cw.props = { ...CATALOG.wheel.defaults, teeth: 80, pitchRadius: 44, spokes: 5, label: 'Center Wheel' };
+      const cp = new Part('pinion', cw.x, cw.y);
+      cp.props = { ...CATALOG.pinion.defaults, leaves: 10, pitchRadius: 10, label: 'C-Pinion' };
+      parts.push(cw, cp);
+      const tw = new Part('wheel', cw.x + 44 + 30, cw.y - 40);
+      tw.props = { ...CATALOG.wheel.defaults, teeth: 72, pitchRadius: 30, spokes: 4, label: '3rd Wheel' };
+      const tp = new Part('pinion', tw.x, tw.y);
+      tp.props = { ...CATALOG.pinion.defaults, leaves: 9, pitchRadius: 9, label: '3rd Pinion' };
+      parts.push(tw, tp);
+      const fw = new Part('wheel', tw.x + 30 + 24, tw.y - 10);
+      fw.props = { ...CATALOG.wheel.defaults, teeth: 72, pitchRadius: 24, spokes: 4, label: '4th Wheel' };
+      const fp = new Part('pinion', fw.x, fw.y);
+      fp.props = { ...CATALOG.pinion.defaults, leaves: 8, pitchRadius: 8, label: '4th Pinion' };
+      parts.push(fw, fp);
+      const ew = new Part('escapeWheel', fw.x + 24 + 18, fw.y + 20);
+      ew.props = { ...CATALOG.escapeWheel.defaults, teeth: 15, pitchRadius: 18, spokes: 5, label: 'Escape Wheel' };
+      parts.push(ew);
+      const fork = new Part('palletFork', ew.x - 10, ew.y - 18 - 32);
+      fork.props = { ...CATALOG.palletFork.defaults, armLength: 36, label: 'Pallet Fork' };
+      parts.push(fork);
+      const bal = new Part('balance', ew.x + 30, ew.y - 60);
+      bal.props = { ...CATALOG.balance.defaults, radius: 38, frequency: 4.0, label: 'Balance' };
+      parts.push(bal);
+      const hs = new Part('hairspring', bal.x, bal.y);
+      hs.props = { ...CATALOG.hairspring.defaults, innerR: 6, outerR: 24, turns: 11 };
+      parts.push(hs);
+      // Main plate
+      const mp = new Part('mainPlate', -50, 10);
+      mp.props = { ...CATALOG.mainPlate.defaults, radius: 160, label: 'Main Plate' };
+      parts.unshift(mp); // draw first (behind)
+      return parts;
+    },
+  },
+  skeleton: {
+    label: 'Skeletonised Movement',
+    desc: 'Single train visible · designed to show gear train clearly',
+    build: () => {
+      const parts = [];
+      const b = new Part('barrel', -120, 0);
+      b.props = { ...CATALOG.barrel.defaults, teeth: 60, pitchRadius: 60, clickRadius: 60 };
+      parts.push(b);
+      // 3 wheels in a line
+      let x = b.x + 60;
+      const specs = [[48,8,48,'1st'],[36,7,36,'2nd'],[24,7,24,'3rd']];
+      let prevX = x;
+      specs.forEach(([wT,pL,wR,lbl]) => {
+        const wx = prevX + wR + (prevX === x ? 0 : specs[0][2]);
+        const w = new Part('wheel', prevX + wR, 0);
+        w.props = { ...CATALOG.wheel.defaults, teeth: wT, pitchRadius: wR, spokes: 4, label: lbl+' Wheel' };
+        const p = new Part('pinion', w.x, 0);
+        p.props = { ...CATALOG.pinion.defaults, leaves: pL, pitchRadius: pL, label: lbl+' Pin' };
+        parts.push(w, p);
+        prevX = w.x + wR;
+      });
+      const lastWheel = parts[parts.length - 2];
+      const ew = new Part('escapeWheel', lastWheel.x + lastWheel.props.pitchRadius + 18, 0);
+      ew.props = { ...CATALOG.escapeWheel.defaults, teeth: 15, pitchRadius: 18, spokes: 4 };
+      parts.push(ew);
+      const fork = new Part('palletFork', ew.x, ew.y - 18 - 38);
+      parts.push(fork);
+      const bal = new Part('balance', ew.x + 42, ew.y - 60);
+      bal.props = { ...CATALOG.balance.defaults, radius: 44, frequency: 3.0 };
+      parts.push(bal);
+      const hs = new Part('hairspring', bal.x, bal.y);
+      parts.push(hs);
+      return parts;
+    },
+  },
+  blank: {
+    label: 'Blank Canvas',
+    desc: 'Start from scratch — design your own movement',
+    build: () => [],
+  },
+};
+
+// ═══════════════════════════════════════════════════════
+// MAIN APP
+// ═══════════════════════════════════════════════════════
+const App = {
+  canvas: null,
+  ctx: null,
+  parts: [],
+  meshes: [],
+  selectedPart: null,
+  activeTab: 'props',
+  zoom: 1.0,
+  panX: 0,
+  panY: 0,
+  draggingPart: null,
+  dragOffX: 0,
+  dragOffY: 0,
+  isPanning: false,
+  panStartX: 0,
+  panStartY: 0,
+  simulation: null,
+  raf: null,
+
+  init() {
+    this.canvas = document.getElementById('mainCanvas');
+    this.ctx = this.canvas.getContext('2d');
+    this.resize();
+    this.buildPalette();
+    this.bindEvents();
+    this.loadExample('eta2824');
+    this.loop();
+    window.addEventListener('resize', () => this.resize());
+  },
+
+  resize() {
+    const wrap = document.getElementById('canvasWrap');
+    this.canvas.width = wrap.clientWidth;
+    this.canvas.height = wrap.clientHeight;
+    if (this.panX === 0 && this.panY === 0) {
+      this.panX = wrap.clientWidth / 2;
+      this.panY = wrap.clientHeight / 2;
+    }
+  },
+
+  // ── World ↔ Screen transforms ──
+  worldToScreen(wx, wy) {
+    return [wx * this.zoom + this.panX, wy * this.zoom + this.panY];
+  },
+  screenToWorld(sx, sy) {
+    return [(sx - this.panX) / this.zoom, (sy - this.panY) / this.zoom];
+  },
+
+  // ── Render loop ──
+  loop() {
+    this.render();
+    this.raf = requestAnimationFrame(() => this.loop());
+  },
+
+  render() {
+    const ctx = this.ctx, W = this.canvas.width, H = this.canvas.height;
+    ctx.clearRect(0, 0, W, H);
+
+    // Background
+    ctx.fillStyle = '#06060a';
+    ctx.fillRect(0, 0, W, H);
+
+    // Grid
+    this.drawGrid(ctx, W, H);
+
+    ctx.save();
+    ctx.translate(this.panX, this.panY);
+    ctx.scale(this.zoom, this.zoom);
+
+    // Draw parts (back to front)
+    const simRunning = this.simulation?.running || false;
+    this.parts.forEach(p => p.draw(ctx, p === this.selectedPart, simRunning));
+
+    // Draw mesh indicators
+    this.drawMeshIndicators(ctx);
+
+    ctx.restore();
+  },
+
+  drawGrid(ctx, W, H) {
+    const cellPx = 40 * this.zoom;
+    const offX = this.panX % cellPx;
+    const offY = this.panY % cellPx;
+    ctx.strokeStyle = 'rgba(255,255,255,0.03)';
+    ctx.lineWidth = 0.5;
+    for (let x = offX; x < W; x += cellPx) {
+      ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, H); ctx.stroke();
+    }
+    for (let y = offY; y < H; y += cellPx) {
+      ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(W, y); ctx.stroke();
+    }
+    // Axis
+    const [ox, oy] = [this.panX, this.panY];
+    ctx.strokeStyle = 'rgba(255,255,255,0.06)'; ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.moveTo(0, oy); ctx.lineTo(W, oy); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(ox, 0); ctx.lineTo(ox, H); ctx.stroke();
+  },
+
+  drawMeshIndicators(ctx) {
+    this.meshes.forEach(m => {
+      const mx = (m.a.x + m.b.x) / 2, my = (m.a.y + m.b.y) / 2;
+      const dist = m.dist, ideal = m.idealDist;
+      const err = Math.abs(dist - ideal) / ideal;
+      const color = err < 0.04 ? 'rgba(64,185,96,0.5)' : err < 0.1 ? 'rgba(224,138,32,0.5)' : 'rgba(224,64,64,0.4)';
+
+      // Line between centers
+      ctx.beginPath();
+      ctx.moveTo(m.a.x, m.a.y);
+      ctx.lineTo(m.b.x, m.b.y);
+      ctx.strokeStyle = color;
+      ctx.lineWidth = 1 / this.zoom;
+      ctx.setLineDash([4 / this.zoom, 3 / this.zoom]);
+      ctx.stroke();
+      ctx.setLineDash([]);
+
+      // Mesh indicator dot
+      ctx.beginPath();
+      ctx.arc(mx, my, 4 / this.zoom, 0, Math.PI * 2);
+      ctx.fillStyle = color;
+      ctx.fill();
+
+      // Pitch circles (faint)
+      [m.a, m.b].forEach(p => {
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.pitchRadius, 0, Math.PI * 2);
+        ctx.strokeStyle = 'rgba(255,255,255,0.06)';
+        ctx.lineWidth = 0.5 / this.zoom;
+        ctx.stroke();
+      });
+    });
+
+    // Show snap preview for dragging part
+    if (this.draggingPart) {
+      this.parts.filter(p => p !== this.draggingPart && p.canMesh).forEach(other => {
+        const conn = new Connection(this.draggingPart, other);
+        const dist = conn.dist, ideal = conn.idealDist;
+        if (Math.abs(dist - ideal) < ideal * 0.3) {
+          ctx.beginPath();
+          ctx.arc(other.x, other.y, other.pitchRadius, 0, Math.PI * 2);
+          ctx.strokeStyle = 'rgba(64,185,255,0.3)';
+          ctx.lineWidth = 1.5 / this.zoom;
+          ctx.stroke();
+          ctx.beginPath();
+          ctx.arc(this.draggingPart.x, this.draggingPart.y, this.draggingPart.pitchRadius, 0, Math.PI * 2);
+          ctx.strokeStyle = 'rgba(64,185,255,0.3)';
+          ctx.lineWidth = 1.5 / this.zoom;
+          ctx.stroke();
+        }
+      });
+    }
+  },
+
+  // ── Palette ──
+  buildPalette() {
+    const pal = document.getElementById('palette');
+    const sections = [
+      { title: 'Power', items: ['barrel', 'ratchetWheel', 'click'] },
+      { title: 'Gear Train', items: ['wheel', 'pinion', 'escapeWheel'] },
+      { title: 'Escapement', items: ['palletFork', 'balance', 'hairspring'] },
+      { title: 'Structure', items: ['jewel', 'bridge', 'mainPlate'] },
+    ];
+    sections.forEach(sec => {
+      const secEl = document.createElement('div');
+      secEl.className = 'pal-section';
+      secEl.innerHTML = `<div class="pal-title">${sec.title}</div>`;
+      sec.items.forEach(type => {
+        const def = CATALOG[type];
+        const item = document.createElement('div');
+        item.className = 'pal-item';
+        item.draggable = true;
+        item.dataset.type = type;
+
+        // Mini preview canvas
+        const previewCanvas = document.createElement('canvas');
+        previewCanvas.width = 28; previewCanvas.height = 28;
+        previewCanvas.style.cssText = 'width:28px;height:28px';
+        this.drawPartPreview(previewCanvas, type);
+
+        const info = document.createElement('div');
+        info.innerHTML = `<div class="pal-label">${def.label}</div><div class="pal-sub">${def.sub}</div>`;
+
+        item.appendChild(previewCanvas);
+        item.appendChild(info);
+
+        item.addEventListener('dragstart', e => {
+          e.dataTransfer.setData('partType', type);
+          e.dataTransfer.effectAllowed = 'copy';
+        });
+        item.addEventListener('mousedown', e => {
+          // Also support non-drag click-to-place
+          this._paletteMouseDown(e, type);
+        });
+
+        secEl.appendChild(item);
+      });
+      pal.appendChild(secEl);
+    });
+  },
+
+  drawPartPreview(canvas, type) {
+    const ctx = canvas.getContext('2d');
+    ctx.clearRect(0, 0, 28, 28);
+    ctx.fillStyle = '#14141e';
+    ctx.fillRect(0, 0, 28, 28);
+    const temp = new Part(type, 14, 14);
+    // Scale to fit in 28x28
+    const maxR = temp.props.pitchRadius || temp.props.radius || 30;
+    const scale = 12 / maxR;
+    ctx.save();
+    ctx.translate(14, 14);
+    ctx.scale(scale, scale);
+    temp.draw(ctx, false, false);
+    ctx.restore();
+  },
+
+  _paletteMouseDown(e, type) {
+    if (e.button !== 0) return;
+    // Create part and attach to mouse
+    this._pendingPalettePart = type;
+  },
+
+  // ── Events ──
+  bindEvents() {
+    const canvas = this.canvas;
+
+    canvas.addEventListener('dragover', e => { e.preventDefault(); e.dataTransfer.dropEffect = 'copy'; });
+    canvas.addEventListener('drop', e => {
+      e.preventDefault();
+      const type = e.dataTransfer.getData('partType');
+      if (!type) return;
+      const rect = canvas.getBoundingClientRect();
+      const [wx, wy] = this.screenToWorld(e.clientX - rect.left, e.clientY - rect.top);
+      this.addPart(type, wx, wy);
+    });
+
+    canvas.addEventListener('mousedown', e => this.onMouseDown(e));
+    canvas.addEventListener('mousemove', e => this.onMouseMove(e));
+    canvas.addEventListener('mouseup', e => this.onMouseUp(e));
+    canvas.addEventListener('wheel', e => { e.preventDefault(); this.onWheel(e); }, { passive: false });
+    canvas.addEventListener('contextmenu', e => { e.preventDefault(); this.onContextMenu(e); });
+    canvas.addEventListener('dblclick', e => this.onDblClick(e));
+
+    // Tab switching
+    document.querySelectorAll('.insp-tab').forEach(tab => {
+      tab.addEventListener('click', () => {
+        document.querySelectorAll('.insp-tab').forEach(t => t.classList.remove('active'));
+        tab.classList.add('active');
+        this.activeTab = tab.dataset.tab;
+        this.updateInspector();
+      });
+    });
+
+    // Zoom controls
+    document.getElementById('zIn').addEventListener('click', () => { this.setZoom(this.zoom * 1.2); });
+    document.getElementById('zOut').addEventListener('click', () => { this.setZoom(this.zoom / 1.2); });
+    document.getElementById('zSlider').addEventListener('input', e => { this.setZoom(e.target.value / 100); });
+
+    // Simulation
+    document.getElementById('btnSimRun').addEventListener('click', () => this.startSim());
+    document.getElementById('btnSimStop').addEventListener('click', () => this.stopSim());
+
+    // Examples
+    document.getElementById('btnExamples').addEventListener('click', () => this.showExamplesModal());
+    document.getElementById('btnClear').addEventListener('click', () => { this.stopSim(); this.parts = []; this.meshes = []; this.selectedPart = null; this.updateStatus(); this.updateInspector(); });
+    document.getElementById('btnExport').addEventListener('click', () => this.exportPNG());
+
+    document.getElementById('modalClose').addEventListener('click', () => {
+      document.getElementById('modalOverlay').classList.remove('open');
+    });
+  },
+
+  onMouseDown(e) {
+    const rect = this.canvas.getBoundingClientRect();
+    const sx = e.clientX - rect.left, sy = e.clientY - rect.top;
+    const [wx, wy] = this.screenToWorld(sx, sy);
+
+    if (e.button === 1 || (e.button === 0 && e.altKey)) {
+      this.isPanning = true;
+      this.panStartX = sx - this.panX;
+      this.panStartY = sy - this.panY;
+      return;
+    }
+
+    if (e.button === 0) {
+      const hit = this.hitTest(wx, wy);
+      if (hit) {
+        this.draggingPart = hit;
+        this.dragOffX = wx - hit.x;
+        this.dragOffY = wy - hit.y;
+        this.selectPart(hit);
+      } else {
+        this.selectPart(null);
+        this.isPanning = true;
+        this.panStartX = sx - this.panX;
+        this.panStartY = sy - this.panY;
+      }
+    }
+  },
+
+  onMouseMove(e) {
+    const rect = this.canvas.getBoundingClientRect();
+    const sx = e.clientX - rect.left, sy = e.clientY - rect.top;
+    const [wx, wy] = this.screenToWorld(sx, sy);
+
+    if (this.isPanning) {
+      this.panX = sx - this.panStartX;
+      this.panY = sy - this.panStartY;
+      return;
+    }
+
+    if (this.draggingPart) {
+      this.draggingPart.x = wx - this.dragOffX;
+      this.draggingPart.y = wy - this.dragOffY;
+      this.meshes = detectMeshes(this.parts);
+      this.updateStatus();
+      return;
+    }
+
+    // Tooltip
+    const hit = this.hitTest(wx, wy);
+    const tooltip = document.getElementById('tooltip');
+    if (hit) {
+      tooltip.style.display = 'block';
+      tooltip.style.left = (e.clientX + 14) + 'px';
+      tooltip.style.top = (e.clientY - 10) + 'px';
+      const teeth = hit.props.teeth || hit.props.leaves;
+      const radius = hit.pitchRadius;
+      tooltip.innerHTML = `<b>${hit.props.label || CATALOG[hit.type].label}</b><br>${CATALOG[hit.type].sub}` +
+        (teeth ? `<br>${teeth} teeth · r=${radius.toFixed(0)}px` : '');
+    } else {
+      tooltip.style.display = 'none';
+    }
+  },
+
+  onMouseUp(e) {
+    this.draggingPart = null;
+    this.isPanning = false;
+    this.meshes = detectMeshes(this.parts);
+    this.updateStatus();
+    if (this.simulation?.running) this.simulation.assignVelocities();
+  },
+
+  onWheel(e) {
+    const rect = this.canvas.getBoundingClientRect();
+    const sx = e.clientX - rect.left, sy = e.clientY - rect.top;
+    const factor = e.deltaY < 0 ? 1.1 : 0.9;
+    const newZoom = Math.max(0.1, Math.min(8, this.zoom * factor));
+    // Zoom toward mouse
+    this.panX = sx - (sx - this.panX) * (newZoom / this.zoom);
+    this.panY = sy - (sy - this.panY) * (newZoom / this.zoom);
+    this.setZoom(newZoom);
+  },
+
+  onContextMenu(e) {
+    const rect = this.canvas.getBoundingClientRect();
+    const [wx, wy] = this.screenToWorld(e.clientX - rect.left, e.clientY - rect.top);
+    const hit = this.hitTest(wx, wy);
+    if (hit) {
+      this.removePart(hit);
+    }
+  },
+
+  onDblClick(e) {
+    const rect = this.canvas.getBoundingClientRect();
+    const [wx, wy] = this.screenToWorld(e.clientX - rect.left, e.clientY - rect.top);
+    const hit = this.hitTest(wx, wy);
+    if (hit) {
+      this.selectPart(hit);
+      document.querySelectorAll('.insp-tab').forEach(t => t.classList.remove('active'));
+      document.querySelector('[data-tab="info"]').classList.add('active');
+      this.activeTab = 'info';
+      this.updateInspector();
+    }
+  },
+
+  hitTest(wx, wy) {
+    // Test in reverse order (top-most first)
+    for (let i = this.parts.length - 1; i >= 0; i--) {
+      if (this.parts[i].containsPoint(wx, wy)) return this.parts[i];
+    }
+    return null;
+  },
+
+  setZoom(z) {
+    this.zoom = Math.max(0.1, Math.min(8, z));
+    document.getElementById('zSlider').value = Math.round(this.zoom * 100);
+    document.getElementById('zLabel').textContent = Math.round(this.zoom * 100) + '%';
+  },
+
+  // ── Parts ──
+  addPart(type, wx, wy) {
+    const part = new Part(type, wx, wy);
+    this.parts.push(part);
+    this.meshes = detectMeshes(this.parts);
+    this.selectPart(part);
+    this.updateStatus();
+    document.getElementById('canvasHint').style.display = 'none';
+  },
+
+  removePart(part) {
+    this.parts = this.parts.filter(p => p !== part);
+    this.meshes = detectMeshes(this.parts);
+    if (this.selectedPart === part) this.selectPart(null);
+    this.updateStatus();
+  },
+
+  // ── Selection ──
+  selectPart(part) {
+    this.selectedPart = part;
+    this.updateInspector();
+  },
+
+  // ── Inspector ──
+  updateInspector() {
+    const body = document.getElementById('inspBody');
+    const tab = this.activeTab;
+
+    if (!this.selectedPart && tab !== 'train') {
+      body.innerHTML = '<div class="insp-empty"><b>Nothing selected</b>Click a part on the canvas to inspect it. Double-click for full educational info.</div>';
+      return;
+    }
+
+    if (tab === 'props') { body.innerHTML = this.buildPropsPanel(); this.bindPropEvents(); }
+    else if (tab === 'train') { body.innerHTML = this.buildTrainPanel(); }
+    else if (tab === 'info') { body.innerHTML = this.buildInfoPanel(); }
+  },
+
+  buildPropsPanel() {
+    const p = this.selectedPart;
+    const type = p.type;
+    let html = `<div class="prop-section"><div class="prop-section-title">Identity</div>
+      <div class="prop-row"><span class="prop-name">Label</span><input class="prop-input" data-prop="label" value="${p.props.label || ''}"></div>
+      <div class="prop-row"><span class="prop-name">Type</span><span class="prop-val">${CATALOG[type].label}</span></div>
+      <div class="prop-row"><span class="prop-name">Color</span><input class="prop-input" type="color" data-prop-color="1" value="${p.color}"></div>
+    </div>`;
+
+    if (['barrel','wheel','escapeWheel','ratchetWheel'].includes(type)) {
+      const pr = p.pitchRadius, teeth = p.props.teeth;
+      const module = (2 * pr / teeth).toFixed(1);
+      const od = (2 * (pr + 2 * pr / teeth)).toFixed(0);
+      html += `<div class="prop-section"><div class="prop-section-title">Gear Geometry</div>
+        <div class="prop-row"><span class="prop-name">Teeth</span>
+          <input class="prop-input" type="number" min="6" max="400" data-prop="teeth" value="${teeth}" style="width:60px">
+          <span class="prop-val" style="margin-left:4px;font-size:10px;color:var(--text3)">&nbsp;z</span></div>
+        <div class="prop-row"><span class="prop-name">Pitch Radius</span>
+          <input class="prop-input" type="number" min="5" max="500" data-prop="pitchRadius" value="${pr}" style="width:60px">
+          <span class="prop-val" style="margin-left:4px;font-size:10px;color:var(--text3)">px</span></div>
+        <div class="prop-row"><span class="prop-name">Module (px)</span><span class="prop-computed">${module}</span></div>
+        <div class="prop-row"><span class="prop-name">Outer Ø</span><span class="prop-computed">≈ ${od} px</span></div>
+        <div class="prop-row"><span class="prop-name">Spokes</span>
+          <input class="prop-input" type="number" min="0" max="12" data-prop="spokes" value="${p.props.spokes || 0}" style="width:50px"></div>
+      </div>`;
+    }
+
+    if (type === 'pinion') {
+      html += `<div class="prop-section"><div class="prop-section-title">Pinion Geometry</div>
+        <div class="prop-row"><span class="prop-name">Leaves</span>
+          <input class="prop-input" type="number" min="4" max="30" data-prop="leaves" value="${p.props.leaves}" style="width:60px"></div>
+        <div class="prop-row"><span class="prop-name">Pitch Radius</span>
+          <input class="prop-input" type="number" min="3" max="100" data-prop="pitchRadius" value="${p.props.pitchRadius}" style="width:60px">
+          <span style="margin-left:4px;font-size:10px;color:var(--text3)">px</span></div>
+      </div>`;
+    }
+
+    if (type === 'barrel') {
+      html += `<div class="prop-section"><div class="prop-section-title">Spring</div>
+        <div class="prop-row"><span class="prop-name">Spring Turns</span>
+          <input class="prop-input" type="number" min="1" max="20" data-prop="springTurns" value="${p.props.springTurns || 5}" style="width:50px"></div>
+        <div class="prop-row"><span class="prop-name">Power %</span>
+          <input class="prop-input" type="range" min="0" max="100" data-prop="powerPercent" value="${p.props.powerPercent || 100}" style="flex:1">
+          <span class="prop-computed" style="margin-left:6px">${p.props.powerPercent || 100}%</span>
+        </div>
+      </div>`;
+    }
+
+    if (type === 'balance') {
+      const vph = (p.props.frequency * 7200).toFixed(0);
+      html += `<div class="prop-section"><div class="prop-section-title">Oscillator</div>
+        <div class="prop-row"><span class="prop-name">Radius</span>
+          <input class="prop-input" type="number" min="10" max="200" data-prop="radius" value="${p.props.radius}" style="width:60px"></div>
+        <div class="prop-row"><span class="prop-name">Frequency</span>
+          <input class="prop-input" type="number" min="1" max="10" step="0.5" data-prop="frequency" value="${p.props.frequency}" style="width:60px">
+          <span style="margin-left:4px;font-size:10px;color:var(--text3)">Hz</span></div>
+        <div class="prop-row"><span class="prop-name">= vph</span><span class="prop-computed">${vph} vph</span></div>
+        <div class="prop-row"><span class="prop-name">Amplitude</span>
+          <input class="prop-input" type="number" min="0.3" max="3" step="0.05" data-prop="amplitude" value="${p.props.amplitude || 1.35}" style="width:60px">
+          <span style="margin-left:4px;font-size:10px;color:var(--text3)">rad</span></div>
+        <div class="prop-row"><span class="prop-name">Spokes</span>
+          <input class="prop-input" type="number" min="2" max="8" data-prop="spokes" value="${p.props.spokes || 3}" style="width:50px"></div>
+      </div>`;
+    }
+
+    if (type === 'palletFork') {
+      html += `<div class="prop-section"><div class="prop-section-title">Fork Geometry</div>
+        <div class="prop-row"><span class="prop-name">Arm Length</span>
+          <input class="prop-input" type="number" min="10" max="200" data-prop="armLength" value="${p.props.armLength || 48}" style="width:60px"></div>
+        <div class="prop-row"><span class="prop-name">Entry Angle</span>
+          <input class="prop-input" type="number" min="-60" max="0" data-prop="entryAngle" value="${p.props.entryAngle || -25}" style="width:60px">
+          <span style="margin-left:4px;font-size:10px;color:var(--text3)">°</span></div>
+        <div class="prop-row"><span class="prop-name">Exit Angle</span>
+          <input class="prop-input" type="number" min="0" max="60" data-prop="exitAngle" value="${p.props.exitAngle || 25}" style="width:60px">
+          <span style="margin-left:4px;font-size:10px;color:var(--text3)">°</span></div>
+        <div class="prop-row"><span class="prop-name">Stone Width</span>
+          <input class="prop-input" type="number" min="2" max="20" data-prop="stoneWidth" value="${p.props.stoneWidth || 6}" style="width:50px"></div>
+      </div>`;
+    }
+
+    if (type === 'bridge') {
+      html += `<div class="prop-section"><div class="prop-section-title">Bridge Dimensions</div>
+        <div class="prop-row"><span class="prop-name">Width</span>
+          <input class="prop-input" type="number" min="20" max="400" data-prop="width" value="${p.props.width}" style="width:60px"></div>
+        <div class="prop-row"><span class="prop-name">Height</span>
+          <input class="prop-input" type="number" min="10" max="200" data-prop="height" value="${p.props.height}" style="width:60px"></div>
+      </div>`;
+    }
+
+    if (type === 'hairspring') {
+      html += `<div class="prop-section"><div class="prop-section-title">Hairspring</div>
+        <div class="prop-row"><span class="prop-name">Turns</span>
+          <input class="prop-input" type="number" min="3" max="30" data-prop="turns" value="${p.props.turns || 12}" style="width:50px"></div>
+        <div class="prop-row"><span class="prop-name">Inner R</span>
+          <input class="prop-input" type="number" min="2" max="50" data-prop="innerR" value="${p.props.innerR || 8}" style="width:50px"></div>
+        <div class="prop-row"><span class="prop-name">Outer R</span>
+          <input class="prop-input" type="number" min="10" max="200" data-prop="outerR" value="${p.props.outerR || 38}" style="width:50px"></div>
+      </div>`;
+    }
+
+    // Position
+    html += `<div class="prop-section"><div class="prop-section-title">Position</div>
+      <div class="prop-row"><span class="prop-name">X</span><input class="prop-input" type="number" data-prop="x" data-pos="1" value="${Math.round(p.x)}" style="width:70px"></div>
+      <div class="prop-row"><span class="prop-name">Y</span><input class="prop-input" type="number" data-prop="y" data-pos="1" value="${Math.round(p.y)}" style="width:70px"></div>
+    </div>`;
+
+    html += `<button class="delete-btn" id="delBtn">Delete ${CATALOG[type].label}</button>`;
+
+    return html;
+  },
+
+  bindPropEvents() {
+    const p = this.selectedPart;
+    if (!p) return;
+
+    document.querySelectorAll('.prop-input[data-prop]').forEach(input => {
+      const prop = input.dataset.prop;
+      const isPos = input.dataset.pos === '1';
+      const update = () => {
+        const val = input.type === 'number' || input.type === 'range' ? parseFloat(input.value) : input.value;
+        if (isPos) {
+          p[prop] = val;
+        } else {
+          p.props[prop] = val;
+          p._profileCache = null; // invalidate
+        }
+        this.meshes = detectMeshes(this.parts);
+        this.updateStatus();
+        // Refresh computed fields
+        this.updateInspector();
+      };
+      input.addEventListener('change', update);
+      input.addEventListener('input', update);
+    });
+
+    document.querySelectorAll('.prop-input[data-prop-color]').forEach(input => {
+      input.addEventListener('input', () => { p.color = input.value; });
+    });
+
+    const delBtn = document.getElementById('delBtn');
+    if (delBtn) delBtn.addEventListener('click', () => { this.removePart(p); });
+  },
+
+  buildTrainPanel() {
+    const analyzer = new GearTrainAnalyzer(this.parts, this.meshes);
+    const result = analyzer.analyze();
+    let html = '';
+
+    if (!result.valid) {
+      html += `<div class="gt-section">
+        <div class="gt-title">Gear Train Status</div>
+        <div style="font-size:11px;color:var(--amber);padding:8px 0;line-height:1.6">⚠ ${result.error}</div>
+        <div style="font-size:10px;color:var(--text3);line-height:1.7">
+          A complete train needs:<br>
+          • Barrel (power source)<br>
+          • Wheels + pinions<br>
+          • Escape wheel<br>
+          • Pallet fork<br>
+          • Balance wheel
+        </div>
+      </div>`;
+    } else {
+      const vphClass = result.vph === 18000 ? 'good' : result.vph === 21600 || result.vph === 28800 || result.vph === 36000 ? 'good' : 'warn';
+      html += `<div class="gt-section">
+        <div class="gt-title">Train Analysis</div>
+        <div class="gt-row"><span class="gt-label">Beat Rate</span><span class="gt-value ${vphClass}">${result.vph?.toFixed(0)} vph</span></div>
+        <div class="gt-row"><span class="gt-label">Frequency</span><span class="gt-value">${(result.vph/7200).toFixed(1)} Hz</span></div>
+        <div class="gt-row"><span class="gt-label">Ticks/sec</span><span class="gt-value">${result.beatRate?.toFixed(1)}</span></div>
+        <div class="gt-row"><span class="gt-label">Total ratio</span><span class="gt-value">${result.ratio?.toFixed(1)}:1</span></div>
+        <div class="gt-row"><span class="gt-label">Barrel/hour</span><span class="gt-value">${result.barrelRevPerHour?.toFixed(3)} rev</span></div>
+        <div class="gt-row"><span class="gt-label">Power reserve</span><span class="gt-value ${result.powerReserveHours > 20 ? 'good' : 'warn'}">${result.powerReserveHours?.toFixed(1)}h</span></div>
+      </div>`;
+
+      // Chain
+      if (result.chain.length > 0) {
+        html += `<div class="gt-chain"><b style="color:var(--text2);font-size:10px">GEAR CHAIN</b><br>`;
+        result.chain.forEach((part, i) => {
+          const t = part.props.teeth || part.props.leaves;
+          html += `<span style="color:var(--text1)">${part.props.label || CATALOG[part.type].label}</span>`;
+          if (t) html += ` <span style="color:var(--text3)">(${t}t)</span>`;
+          if (i < result.chain.length - 1) html += `<span class="gt-chain-arrow">→</span>`;
+        });
+        html += `</div>`;
+      }
+
+      // Common vph reference
+      html += `<div class="gt-section">
+        <div class="gt-title">Common Frequencies</div>
+        ${[['18,000','2.5Hz','Antique/pocket'],['21,600','3Hz','Classic auto'],['28,800','4Hz','Modern auto'],['36,000','5Hz','High beat']].map(([v,hz,note]) =>
+          `<div class="gt-row"><span style="font-size:10px;color:${result.vph?.toFixed(0)==v.replace(',','') ? 'var(--green)' : 'var(--text3)'}">${v} vph</span><span style="font-size:10px;color:var(--text3)">${hz} · ${note}</span></div>`
+        ).join('')}
+      </div>`;
+    }
+
+    // Meshes table
+    html += `<div class="gt-section">
+      <div class="gt-title">Detected Meshes (${this.meshes.length})</div>`;
+    if (this.meshes.length === 0) {
+      html += `<div style="font-size:10px;color:var(--text3)">No meshing gears found. Move gears until their pitch circles touch.</div>`;
+    } else {
+      this.meshes.forEach(m => {
+        const err = ((Math.abs(m.dist - m.idealDist) / m.idealDist) * 100).toFixed(1);
+        const good = parseFloat(err) < 5;
+        html += `<div class="gt-row" style="margin-bottom:2px">
+          <span style="font-size:10px;color:var(--text2)">${m.a.props.label || CATALOG[m.a.type].label} ↔ ${m.b.props.label || CATALOG[m.b.type].label}</span>
+          <span style="font-size:10px;color:${good ? 'var(--green)' : 'var(--amber)'}">±${err}%</span>
+        </div>`;
+      });
+    }
+    html += `</div>`;
+
+    return html;
+  },
+
+  buildInfoPanel() {
+    const p = this.selectedPart;
+    if (!p) return '<div class="insp-empty"><b>Nothing selected</b>Click a part to see its educational info.</div>';
+    const edu = EDU[p.type];
+    if (!edu) return `<div class="insp-empty">No educational content for ${CATALOG[p.type].label} yet.</div>`;
+    return `<div class="edu-card">
+      <div class="edu-name">${CATALOG[p.type].label}</div>
+      <div class="edu-tagline">${edu.tagline}</div>
+      <div class="edu-body">${edu.body}</div>
+      <div class="edu-fact">${edu.fact}</div>
+    </div>`;
+  },
+
+  // ── Simulation ──
+  startSim() {
+    this.stopSim();
+    const sim = new Simulation(this.parts, this.meshes);
+    if (!sim.start()) {
+      document.getElementById('simStatus').textContent = 'Need complete train';
+      document.getElementById('simStatus').className = 'sim-status error';
+      return;
+    }
+    this.simulation = sim;
+    document.getElementById('simStatus').textContent = '▶ Running';
+    document.getElementById('simStatus').className = 'sim-status running';
+    document.getElementById('statusDot').className = 'sb-dot green';
+    document.getElementById('btnSimRun').classList.remove('active');
+    document.getElementById('btnSimStop').classList.add('active');
+  },
+
+  stopSim() {
+    if (this.simulation) {
+      this.simulation.stop();
+      this.simulation = null;
+      this.parts.forEach(p => { p.angle = 0; });
+    }
+    document.getElementById('simStatus').textContent = 'Stopped';
+    document.getElementById('simStatus').className = 'sim-status';
+    document.getElementById('statusDot').className = 'sb-dot grey';
+    document.getElementById('btnSimRun').classList.add('active');
+    document.getElementById('btnSimStop').classList.remove('active');
+  },
+
+  // ── Status bar ──
+  updateStatus() {
+    document.getElementById('sbParts').textContent = this.parts.length;
+    document.getElementById('sbMeshes').textContent = this.meshes.length;
+    const analyzer = new GearTrainAnalyzer(this.parts, this.meshes);
+    const result = analyzer.analyze();
+    const beatEl = document.getElementById('sbBeat');
+    if (result.valid) {
+      beatEl.innerHTML = `Beat: <b style="color:var(--green)">${result.vph?.toFixed(0)} vph</b>`;
+    } else {
+      beatEl.innerHTML = '';
+    }
+  },
+
+  // ── Examples ──
+  loadExample(key) {
+    this.stopSim();
+    const ex = EXAMPLES[key];
+    if (!ex) return;
+    this.parts = ex.build();
+    this.meshes = detectMeshes(this.parts);
+    // Center view
+    if (this.parts.length > 0) {
+      let minX = Infinity, maxX = -Infinity, minY = Infinity, maxY = -Infinity;
+      this.parts.forEach(p => {
+        const r = p.pitchRadius || 30;
+        minX = Math.min(minX, p.x - r); maxX = Math.max(maxX, p.x + r);
+        minY = Math.min(minY, p.y - r); maxY = Math.max(maxY, p.y + r);
+      });
+      const cx = (minX + maxX) / 2, cy = (minY + maxY) / 2;
+      const scaleX = this.canvas.width * 0.8 / (maxX - minX);
+      const scaleY = this.canvas.height * 0.8 / (maxY - minY);
+      const scale = Math.min(scaleX, scaleY, 1.5);
+      this.zoom = scale;
+      this.panX = this.canvas.width / 2 - cx * scale;
+      this.panY = this.canvas.height / 2 - cy * scale;
+      this.setZoom(scale);
+    }
+    this.selectedPart = null;
+    this.updateStatus();
+    this.updateInspector();
+    document.getElementById('canvasHint').style.display = 'none';
+  },
+
+  showExamplesModal() {
+    const modal = document.getElementById('modal');
+    document.getElementById('modalTitle').textContent = 'Load Example Movement';
+    let html = '<div class="example-grid">';
+    Object.entries(EXAMPLES).forEach(([key, ex]) => {
+      html += `<div class="example-card" data-example="${key}">
+        <h3>${ex.label}</h3>
+        <p>${ex.desc}</p>
+      </div>`;
+    });
+    html += '</div><p style="font-size:11px;color:var(--text3)">Loading an example will replace the current canvas.</p>';
+    document.getElementById('modalBody').innerHTML = html;
+    document.querySelectorAll('.example-card').forEach(card => {
+      card.addEventListener('click', () => {
+        this.loadExample(card.dataset.example);
+        document.getElementById('modalOverlay').classList.remove('open');
+      });
+    });
+    document.getElementById('modalOverlay').classList.add('open');
+  },
+
+  exportPNG() {
+    const link = document.createElement('a');
+    link.download = 'movement-design.png';
+    link.href = this.canvas.toDataURL('image/png');
+    link.click();
+  },
+};
+
+// Boot
+App.init();
+</script>
+</body>
+</html>
