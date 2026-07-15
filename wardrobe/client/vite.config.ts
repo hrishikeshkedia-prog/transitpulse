@@ -3,6 +3,7 @@ import react from '@vitejs/plugin-react';
 import { VitePWA } from 'vite-plugin-pwa';
 
 export default defineConfig({
+  base: '/transitpulse/',
   plugins: [
     react(),
     VitePWA({
@@ -16,26 +17,13 @@ export default defineConfig({
         display: 'standalone',
         orientation: 'portrait',
         icons: [
-          { src: '/icon-192.png', sizes: '192x192', type: 'image/png' },
-          { src: '/icon-512.png', sizes: '512x512', type: 'image/png' },
+          { src: 'icon-192.png', sizes: '192x192', type: 'image/png' },
+          { src: 'icon-512.png', sizes: '512x512', type: 'image/png' },
         ],
       },
       workbox: {
         globPatterns: ['**/*.{js,css,html,ico,png,svg}'],
-        runtimeCaching: [
-          {
-            urlPattern: /^\/uploads\//,
-            handler: 'CacheFirst',
-            options: { cacheName: 'uploads', expiration: { maxEntries: 200 } },
-          },
-        ],
       },
     }),
   ],
-  server: {
-    proxy: {
-      '/api': 'http://localhost:3800',
-      '/uploads': 'http://localhost:3800',
-    },
-  },
 });
