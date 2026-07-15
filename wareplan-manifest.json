@@ -1,0 +1,25 @@
+{
+  "name": "WarePlan — Industrial Site Layout Planner",
+  "short_name": "WarePlan",
+  "description": "Plan and cost warehouse sites for India — 2D/3D layout, PEB estimates, ROI.",
+  "start_url": "/wareplan.html",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "landscape-primary",
+  "theme_color": "#0f172a",
+  "background_color": "#0f172a",
+  "categories": ["productivity", "business", "utilities"],
+  "icons": [
+    { "src": "/wareplan-icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any maskable" },
+    { "src": "/wareplan-icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
+  ],
+  "screenshots": [],
+  "shortcuts": [
+    {
+      "name": "New Layout",
+      "short_name": "New Layout",
+      "description": "Open WarePlan and generate a fresh layout",
+      "url": "/wareplan.html"
+    }
+  ]
+}
