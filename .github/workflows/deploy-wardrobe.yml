@@ -3,7 +3,7 @@ name: Deploy Wardrobe App
 on:
   push:
     branches: [claude/outfit-recommendation-app-5oQha, main]
-    paths: [wardrobe/client/**]
+  workflow_dispatch:
 
 permissions:
   contents: read
