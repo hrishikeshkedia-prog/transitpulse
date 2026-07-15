@@ -24,13 +24,39 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: wardrobe/client/package-lock.json
+
+      - name: Build wardrobe app
+        working-directory: wardrobe/client
+        run: npm install --include=dev && npm run build
+
+      - name: Prepare Pages artifact
+        run: |
+          mkdir -p _pages
+          rsync -a \
+            --exclude='.git' \
+            --exclude='node_modules' \
+            --exclude='_pages' \
+            --exclude='wardrobe/client/src' \
+            --exclude='wardrobe/client/node_modules' \
+            --exclude='wardrobe/client/dist' \
+            --exclude='wardrobe/server' \
+            . _pages/
+          mkdir -p _pages/wardrobe
+          cp -r wardrobe/client/dist/. _pages/wardrobe/
+
       - name: Setup Pages
         uses: actions/configure-pages@v4
 
       - name: Upload web app
         uses: actions/upload-pages-artifact@v3
         with:
-          path: .
+          path: _pages
 
       - name: Deploy to GitHub Pages
         id: deploy
