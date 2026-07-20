@@ -520,7 +520,7 @@ tr:hover td{background:#fafafa}
   <div class="ph"><div><div class="ph-title">Payments</div><div class="ph-sub">Record payments received</div></div></div>
   <div class="card"><div class="ch"><span class="ct">Record Payment</span></div><div class="cb">
     <div class="fgr">
-      <div class="fg"><label>Invoice No</label><input type="text" id="p_inv" class="w140" oninput="autoFP()"></div>
+      <div class="fg"><label>Invoice No</label><input type="text" id="p_inv" class="w140" oninput="autoFP()" list="p_inv_list"><datalist id="p_inv_list"></datalist></div>
       <div class="fg"><label>Amount Received (₹)</label><input type="number" id="p_rec" class="w140" placeholder="0" oninput="calcPN()"></div>
       <div class="fg"><label>Date</label><input type="date" id="p_date" class="w140"></div>
       <div class="fg"><label>TDS Deducted (₹)</label><input type="number" id="p_tds" class="w120" placeholder="0" oninput="calcPN()"></div>
@@ -921,6 +921,7 @@ function nav(pg){
   if(pg==='tally')renderTallyPrev();
   if(pg==='mails'){checkAutoMails();renderMails();}
   if(pg==='lrs'){renderLRTable();populateLRInvList();}
+  if(pg==='payments')refreshPayDrop();
   window.scrollTo(0,0);
 }
 function toggleSB(){var s=document.getElementById('sidebar'),o=document.getElementById('ov');var op=s.classList.toggle('open');if(op)o.classList.add('open');else o.classList.remove('open');}
@@ -934,8 +935,8 @@ function popDrops(){
 
 // ══════════ RENDER ══════════
 function render(){
-  var ps=new Set(payments.map(function(p){return p.invoice}));
-  var upd=invoices.filter(function(i){return !ps.has(i.invoice)});
+  var ps=new Set(payments.map(function(p){return p.invoice.toLowerCase()}));
+  var upd=invoices.filter(function(i){return !ps.has(i.invoice.toLowerCase())});
   var b=document.getElementById('odBdg');if(b){if(upd.length){b.style.display='';b.textContent=upd.length;}else b.style.display='none';}
   var mb=document.getElementById('mailBdg');if(mb){var uc=savedMails.filter(function(m){return !m.read}).length;if(uc){mb.style.display='';mb.textContent=uc;}else mb.style.display='none';}
   renderDash(ps,upd);renderTripsT();renderInvT(ps);renderPayT();renderODT(upd);renderTallyPrev();
@@ -1074,10 +1075,11 @@ return '<!DOCTYPE html><html><head><meta charset="UTF-8"><title>CFA Invoice '+in
 +'</div><button class="pb" onclick="window.print()">Print / Save PDF</button></body></html>';}
 
 // PAYMENTS
-function autoFP(){var i=invoices.find(function(iv){return iv.invoice===document.getElementById('p_inv').value.trim()});document.getElementById('p_info').innerHTML=i?'Found: <b>'+i.client+'</b> | Total: <b>'+fmt(i.total)+'</b>':(document.getElementById('p_inv').value?'Not found':'');}
+function refreshPayDrop(){var dl=document.getElementById('p_inv_list');if(!dl)return;var nums=invoices.map(function(iv){return iv.invoice;}).concat((COMPANY.cfaInvoices||[]).map(function(iv){return iv.billno;}));dl.innerHTML=nums.map(function(n){return '<option value="'+eQ(n)+'">';}).join('');}
+function autoFP(){var q=document.getElementById('p_inv').value.trim(),ql=q.toLowerCase();var i=invoices.find(function(iv){return iv.invoice.toLowerCase()===ql;});var label='',total=0;if(i){label=i.client;total=i.total;}else{var cf=(COMPANY.cfaInvoices||[]).find(function(iv){return iv.billno.toLowerCase()===ql;});if(cf){label=cf.locationLabel||'CFA';total=cf.afterTax;i=cf;}}if(i&&q!==label){var exact=i.invoice||i.billno;if(exact&&exact.toLowerCase()===ql)document.getElementById('p_inv').value=exact;}document.getElementById('p_info').innerHTML=label?'Found: <b>'+label+'</b> | Total: <b>'+fmt(total)+'</b>':(q?'<span style="color:var(--neg)">Not found — check invoice number</span>':'');}
 function calcPN(){var r=parseFloat(document.getElementById('p_rec').value)||0,t=parseFloat(document.getElementById('p_tds').value)||0,d=parseFloat(document.getElementById('p_rd').value)||0;document.getElementById('p_net').value=fN(r-t-d);}
 ['p_rec','p_tds','p_rd'].forEach(function(id){document.getElementById(id).addEventListener('input',calcPN);});
-function addPay(){var invNo=document.getElementById('p_inv').value.trim(),d=document.getElementById('p_date').value;if(!invNo||!d){alert('Invoice No and Date required.');return;}var r=parseFloat(document.getElementById('p_rec').value)||0,t=parseFloat(document.getElementById('p_tds').value)||0,rd=parseFloat(document.getElementById('p_rd').value)||0,rec={invoice:invNo,received:r,date:d,tds:t,rd:rd,net:r-t-rd};if(_pEditIdx>=0){payments[_pEditIdx]=rec;}else{payments.push(rec);}cancelEditPay();autoSave();render();}
+function addPay(){var invNo=document.getElementById('p_inv').value.trim(),d=document.getElementById('p_date').value;if(!invNo||!d){alert('Invoice No and Date required.');return;}var ql=invNo.toLowerCase(),found=invoices.find(function(iv){return iv.invoice.toLowerCase()===ql;})||(COMPANY.cfaInvoices||[]).find(function(iv){return iv.billno.toLowerCase()===ql;});var canonical=found?(found.invoice||found.billno):invNo;var r=parseFloat(document.getElementById('p_rec').value)||0,t=parseFloat(document.getElementById('p_tds').value)||0,rd=parseFloat(document.getElementById('p_rd').value)||0,rec={invoice:canonical,received:r,date:d,tds:t,rd:rd,net:r-t-rd};if(_pEditIdx>=0){payments[_pEditIdx]=rec;}else{payments.push(rec);}cancelEditPay();autoSave();render();}
 
 // REMINDERS
 function buildMail(inv,days){var C=COMPANY;var urg=days>90?'FINAL NOTICE':days>60?'URGENT':'REMINDER';var tone=days>90?'Despite previous reminders, this invoice remains unpaid. Immediate settlement is required.':days>60?'This invoice is significantly overdue. Urgent intervention is requested.':'Please arrange payment at the earliest convenience.';var subj=urg+': Payment Due | Invoice '+inv.invoice+' | '+C.name+' | ₹'+Math.round(inv.total).toLocaleString('en-IN');var body='To,\nHead – Accounts Payable\n'+inv.client+'\n\nDear Sir/Madam,\n\nSub: '+urg+' – Outstanding Payment | Invoice '+inv.invoice+'\n\n  Invoice No.  : '+inv.invoice+'\n  Date         : '+fD(inv.invdate)+'\n  Amount       : ₹'+Math.round(inv.total).toLocaleString('en-IN')+'\n  Days Overdue : '+days+' days\n\n'+tone+'\n\nKindly pay to:\n  Bank: '+C.bank+'\n  A/c: '+C.acc+'\n  IFSC: '+C.ifsc+'\n\nRegards,\n'+C.name+(C.email?'\n'+C.email:'')+(C.mobile?'\n'+C.mobile:'');return{subject:subj,body:body};}
