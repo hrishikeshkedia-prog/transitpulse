@@ -1,4 +1,4 @@
-const CACHE = 'fdp-v34';
+const CACHE = 'fdp-v35';
 const SHELL = ['./index.html', './manifest.json', './icon-192.png', './icon-512.png'];
 
 self.addEventListener('install', e => {
