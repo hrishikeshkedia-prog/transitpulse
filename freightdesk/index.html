@@ -934,7 +934,7 @@ function popDrops(){
 }
 
 // ══════════ RENDER ══════════
-function buildPayTotals(){var m={};payments.forEach(function(p){var k=(p.invoice||'').toLowerCase();m[k]=(m[k]||0)+p.net;});return m;}
+function buildPayTotals(){var m={};payments.forEach(function(p){var k=(p.invoice||'').toLowerCase();m[k]=(m[k]||0)+(p.net||0)+(p.tds||0);});return m;}
 function render(){
   var _pt=buildPayTotals();
   var ps=new Set(Object.keys(_pt));
@@ -1111,7 +1111,8 @@ function renderIncome(){
   var ps=new Set(Object.keys(_ipt));
   var tRev=filtInv.reduce(function(a,i){return a+i.total},0);
   var cRev=filtCfa.reduce(function(a,i){return a+i.afterTax},0);
-  var pRec=filtInv.reduce(function(a,i){return a+(_ipt[(i.invoice||'').toLowerCase()]||0);},0)+filtCfa.reduce(function(a,i){return a+(_ipt[(i.billno||'').toLowerCase()]||0);},0);
+  var _cashMap={};payments.forEach(function(p){var k=(p.invoice||'').toLowerCase();_cashMap[k]=(_cashMap[k]||0)+(p.net||0);});
+  var pRec=filtInv.reduce(function(a,i){return a+(_cashMap[(i.invoice||'').toLowerCase()]||0);},0)+filtCfa.reduce(function(a,i){return a+(_cashMap[(i.billno||'').toLowerCase()]||0);},0);
   var tds=filtPay.reduce(function(a,p){return a+p.tds},0);
   var receivable=filtInv.reduce(function(a,i){return a+Math.max(0,i.total-(_ipt[(i.invoice||'').toLowerCase()]||0));},0)+filtCfa.reduce(function(a,i){return a+Math.max(0,i.afterTax-(_ipt[(i.billno||'').toLowerCase()]||0));},0);
   var total=tRev+cRev;
