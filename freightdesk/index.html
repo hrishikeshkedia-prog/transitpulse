@@ -415,7 +415,7 @@ tr:hover td{background:#fafafa}
       <div class="fg"><label>&nbsp;</label><button class="btn btn-p" onclick="addTrip()">Add Trip</button></div>
     </div>
   </div></div>
-  <div class="card"><div class="ch"><span class="ct">Trips Register</span></div><div class="tw"><table id="tripTable"><thead><tr><th>#</th><th>Vehicle</th><th>LR No</th><th>Date</th><th>Client</th><th>Destination</th><th>Amount</th><th>Source</th></tr></thead><tbody></tbody></table></div></div>
+  <div class="card"><div class="ch"><span class="ct">Trips Register</span><input oninput="filterTable('tripTable',this.value)" placeholder="Search..." style="margin-left:auto;padding:4px 8px;border:1px solid var(--bd);border-radius:6px;font-size:12px;background:var(--bg2);color:var(--tx1);width:130px"></div><div class="tw"><table id="tripTable"><thead><tr><th>#</th><th>Vehicle</th><th>LR No</th><th>Date</th><th>Client</th><th>Destination</th><th>Amount</th><th>Source</th></tr></thead><tbody></tbody></table></div></div>
 </div>
 
 <!-- TRANSPORT INVOICE -->
@@ -470,7 +470,7 @@ tr:hover td{background:#fafafa}
       <button class="btn btn-gh" onclick="clearInvForm()">Clear</button>
     </div>
   </div></div>
-  <div class="card"><div class="ch"><span class="ct">Invoice Register</span></div><div class="tw"><table id="invTable"><thead><tr><th>#</th><th>Date</th><th>Invoice No</th><th>Client</th><th>Amount</th><th>Status</th><th>Actions</th></tr></thead><tbody></tbody></table></div></div>
+  <div class="card"><div class="ch"><span class="ct">Invoice Register</span><input oninput="filterTable('invTable',this.value)" placeholder="Search..." style="margin-left:auto;padding:4px 8px;border:1px solid var(--bd);border-radius:6px;font-size:12px;background:var(--bg2);color:var(--tx1);width:130px"></div><div class="tw"><table id="invTable"><thead><tr><th>#</th><th>Date</th><th>Invoice No</th><th>Client</th><th>Amount</th><th>Status</th><th>Actions</th></tr></thead><tbody></tbody></table></div></div>
 </div>
 
 <!-- CFA INVOICE -->
@@ -511,7 +511,7 @@ tr:hover td{background:#fafafa}
     <button class="btn btn-r" id="cfaCancBtn" style="display:none" onclick="resetCfaBtn();clearCfaForm()">Cancel Edit</button>
     <button class="btn btn-gh" onclick="clearCfaForm()">Clear</button>
   </div>
-  <div class="card" style="margin-top:10px"><div class="ch"><span class="ct">Saved CFA Invoices</span></div><div class="tw"><table id="cfaTable"><thead><tr><th>#</th><th>Bill No</th><th>Date</th><th>Location</th><th>Type</th><th>Amount</th><th>Actions</th></tr></thead><tbody></tbody></table></div></div>
+  <div class="card" style="margin-top:10px"><div class="ch"><span class="ct">Saved CFA Invoices</span><input oninput="filterTable('cfaTable',this.value)" placeholder="Search..." style="margin-left:auto;padding:4px 8px;border:1px solid var(--bd);border-radius:6px;font-size:12px;background:var(--bg2);color:var(--tx1);width:130px"></div><div class="tw"><table id="cfaTable"><thead><tr><th>#</th><th>Bill No</th><th>Date</th><th>Location</th><th>Type</th><th>Amount</th><th>Actions</th></tr></thead><tbody></tbody></table></div></div>
 </div>
 
 <!-- PAYMENTS -->
@@ -529,7 +529,7 @@ tr:hover td{background:#fafafa}
     </div>
     <div id="p_info" style="font-size:12px;color:var(--tx2);margin-top:6px"></div>
   </div></div>
-  <div class="card"><div class="ch"><span class="ct">Payment Register</span></div><div class="tw"><table id="payTable"><thead><tr><th>#</th><th>Invoice No</th><th>Amount</th><th>Date</th><th>TDS</th><th>Rate Diff</th><th>Net</th><th>Actions</th></tr></thead><tbody></tbody></table></div></div>
+  <div class="card"><div class="ch"><span class="ct">Payment Register</span><input oninput="filterTable('payTable',this.value)" placeholder="Search..." style="margin-left:auto;padding:4px 8px;border:1px solid var(--bd);border-radius:6px;font-size:12px;background:var(--bg2);color:var(--tx1);width:130px"></div><div class="tw"><table id="payTable"><thead><tr><th>#</th><th>Invoice No</th><th>Amount</th><th>Date</th><th>TDS</th><th>Rate Diff</th><th>Net</th><th>Actions</th></tr></thead><tbody></tbody></table></div></div>
 </div>
 
 <!-- LR DOCUMENTS -->
@@ -550,7 +550,7 @@ tr:hover td{background:#fafafa}
 <!-- OVERDUES -->
 <div id="overdue" class="pg">
   <div class="ph"><div><div class="ph-title">Overdues</div><div class="ph-sub">Invoices not yet paid</div></div></div>
-  <div class="card"><div class="ch"><span class="ct">Unpaid Invoices</span></div><div class="tw"><table id="odTable"><thead><tr><th>#</th><th>Date</th><th>Invoice No</th><th>Client</th><th>Amount</th><th>Days Old</th><th>Action</th></tr></thead><tbody></tbody></table></div></div>
+  <div class="card"><div class="ch"><span class="ct">Unpaid Invoices</span><input oninput="filterTable('odTable',this.value)" placeholder="Search..." style="margin-left:auto;padding:4px 8px;border:1px solid var(--bd);border-radius:6px;font-size:12px;background:var(--bg2);color:var(--tx1);width:130px"></div><div class="tw"><table id="odTable"><thead><tr><th>#</th><th>Date</th><th>Invoice No</th><th>Client</th><th>Amount</th><th>Days Old</th><th>Action</th></tr></thead><tbody></tbody></table></div></div>
 </div>
 
 <!-- MAILS -->
@@ -934,9 +934,11 @@ function popDrops(){
 function render(){
   var ps=new Set(payments.map(function(p){return p.invoice}));
   var upd=invoices.filter(function(i){return !ps.has(i.invoice)});
-  var b=document.getElementById('odBdg');if(b){if(upd.length){b.style.display='';b.textContent=upd.length;}else b.style.display='none';}
+  var cfaUpd=(COMPANY.cfaInvoices||[]).filter(function(i){return !ps.has(i.billno);}).map(function(i){return {invoice:i.billno,invdate:i.billdate,client:i.locationLabel,total:i.afterTax,_cfa:true};});
+  var allUpd=upd.concat(cfaUpd);
+  var b=document.getElementById('odBdg');if(b){if(allUpd.length){b.style.display='';b.textContent=allUpd.length;}else b.style.display='none';}
   var mb=document.getElementById('mailBdg');if(mb){var uc=savedMails.filter(function(m){return !m.read}).length;if(uc){mb.style.display='';mb.textContent=uc;}else mb.style.display='none';}
-  renderDash(ps,upd);renderTripsT();renderInvT(ps);renderPayT();renderODT(upd);renderTallyPrev();
+  renderDash(ps,allUpd);renderTripsT();renderInvT(ps);renderPayT();renderODT(allUpd);renderTallyPrev();
 }
 function renderDash(ps,upd){
   var el=document.getElementById('dashDate');if(el)el.textContent=new Date().toLocaleDateString('en-IN',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
@@ -961,7 +963,8 @@ var _pEditIdx=-1;
 function editPay(idx){var p=payments[idx];if(!p)return;_pEditIdx=idx;document.getElementById('p_inv').value=p.invoice;document.getElementById('p_rec').value=p.received;document.getElementById('p_date').value=p.date;document.getElementById('p_tds').value=p.tds||0;document.getElementById('p_rd').value=p.rd||0;calcPN();autoFP();document.getElementById('payBtn').textContent='Update Payment';document.getElementById('payCancBtn').style.display='';}
 function cancelEditPay(){_pEditIdx=-1;['p_inv','p_rec','p_date','p_tds','p_rd','p_net'].forEach(function(id){document.getElementById(id).value='';});document.getElementById('p_info').innerHTML='';document.getElementById('payBtn').textContent='Record Payment';document.getElementById('payCancBtn').style.display='none';}
 function deletePay(idx){if(!confirm('Delete this payment record?'))return;payments.splice(idx,1);autoSave();render();}
-function renderODT(upd){var tb=document.querySelector('#odTable tbody');if(!tb)return;tb.innerHTML=upd.map(function(inv,i){var d=dAgo(inv.invdate);return '<tr><td>'+(i+1)+'</td><td>'+fD(inv.invdate)+'</td><td class="mono">'+inv.invoice+'</td><td>'+inv.client+'</td><td class="mono neg">'+fmt(inv.total)+'</td><td class="'+(d>60?'neg':d>30?'warn':'')+' mono">'+d+'d</td><td><button class="btn btn-sm btn-a" onclick="copyRem('+invoices.indexOf(inv)+')">Copy Reminder</button></td></tr>';}).join('')||'<tr><td colspan="7" style="text-align:center;color:var(--gn);padding:16px">All invoices paid! 🎉</td></tr>';}
+function renderODT(upd){var tb=document.querySelector('#odTable tbody');if(!tb)return;tb.innerHTML=upd.map(function(inv,i){var d=dAgo(inv.invdate);var act=inv._cfa?'<span class="bdg bg-pu">CFA</span>':'<button class="btn btn-sm btn-a" onclick="copyRem('+invoices.indexOf(inv)+')">Copy Reminder</button>';return '<tr><td>'+(i+1)+'</td><td>'+fD(inv.invdate)+'</td><td class="mono">'+inv.invoice+'</td><td>'+inv.client+'</td><td class="mono neg">'+fmt(inv.total)+'</td><td class="'+(d>60?'neg':d>30?'warn':'')+' mono">'+d+'d</td><td>'+act+'</td></tr>';}).join('')||'<tr><td colspan="7" style="text-align:center;color:var(--gn);padding:16px">All invoices paid! 🎉</td></tr>';}
+function filterTable(id,q){var rows=document.querySelectorAll('#'+id+' tbody tr');var lq=q.toLowerCase();rows.forEach(function(r){r.style.display=(!lq||r.textContent.toLowerCase().indexOf(lq)>=0)?'':'none';});}
 
 // TRIPS
 function addTrip(){var v=document.getElementById('t_veh').value.trim(),lr=document.getElementById('t_lr').value.trim(),d=document.getElementById('t_date').value;if(!v||!lr||!d){alert('Vehicle, LR No and Date required.');return;}trips.push({vehicle:v,lr:lr,date:d,client:document.getElementById('t_cli').value.trim(),dest:document.getElementById('t_dest').value.trim(),amount:parseFloat(document.getElementById('t_amt').value)||0,source:'Manual'});['t_lr','t_cli','t_dest','t_amt'].forEach(function(id){document.getElementById(id).value='';});autoSave();render();}
